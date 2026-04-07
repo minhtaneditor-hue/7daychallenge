@@ -279,12 +279,26 @@ h1, h2, h3 {
     font-size: 1.5rem;
 }
 .accent-box {
-    margin-top: 30px;
-    padding: 20px;
-    border: 2px dashed var(--accent-orange);
-    border-radius: 10px;
+    margin-top: 40px;
+    padding: 30px;
+    background: linear-gradient(135deg, var(--accent-orange), #C62828);
+    border-radius: 16px;
     text-align: center;
-    font-size: 1.3rem;
+    color: #fff;
+    box-shadow: 0 15px 30px rgba(255, 112, 67, 0.4);
+    animation: jelly 3s infinite;
+}
+.accent-box p {
+    font-size: 1.4rem;
+    font-weight: 500;
+}
+.accent-box strong {
+    display: block;
+    font-size: 2.2rem;
+    font-family: 'Playfair Display', serif;
+    letter-spacing: 1px;
+    margin-top: 10px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
     color: #fff;
 }
 
@@ -300,9 +314,9 @@ h1, h2, h3 {
 }
 .day-card {
     position: relative;
-    border-radius: 16px;
+    border-radius: 80px 80px 20px 20px;
     height: auto;
-    padding: 25px 20px 20px;
+    padding: 25px 20px 30px;
     box-shadow: 0 10px 20px rgba(0,0,0,0.6);
     display: flex;
     flex-direction: column;
@@ -314,21 +328,28 @@ h1, h2, h3 {
 }
 .day-card:nth-child(even) {
     background: linear-gradient(225deg, var(--dark-bg) 30%, var(--primary-green) 100%);
+    border-radius: 20px 20px 80px 80px;
+    margin-top: 80px; /* Ziczac effect */
+    flex-direction: column-reverse; /* Put image at bottom to match bottom curve */
 }
 .day-card.day-final {
     background: linear-gradient(135deg, var(--dark-bg) 30%, var(--accent-orange) 100%);
 }
 
 .day-card img {
-    width: 100%;
-    height: 180px;
+    width: 140px;
+    height: 140px;
     object-fit: cover;
-    border-radius: 12px;
+    border-radius: 50%;
     border: 3px solid rgba(255, 255, 255, 0.1);
     outline: 2px solid var(--light-green); 
     outline-offset: 4px;
     transition: transform 0.5s;
-    margin-bottom: 25px;
+    margin-bottom: 20px;
+}
+.day-card:nth-child(even) img {
+    margin-bottom: 0px;
+    margin-top: 20px;
 }
 .day-card.day-final img {
     outline-color: var(--accent-orange);
@@ -481,6 +502,10 @@ footer p {
     .hero-section { padding-top: 60px; }
     .instructor-box { left: 10px; bottom: 10px; }
     .ultimate-result span { font-size: 2.5rem; }
+    
+    .day-card:nth-child(even) {
+        margin-top: 0; /* Bo ziczac tren mobile de do bi loi layout */
+    }
 }
 
 /* --- FORM & QR SETTINGS --- */

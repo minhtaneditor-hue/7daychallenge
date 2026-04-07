@@ -248,9 +248,22 @@
                 </form>
 
                 <div id="qr-box" class="qr-box hidden">
-                    <h3>Quét mã QR để hoàn tất đăng ký!</h3>
-                    <img src="assets/QR CODE 7DBFC.jpg" alt="QR Code Thanh Toán">
-                    <p>Thử thách sẽ được gửi qua Email / Telegram sau khi bạn thanh toán.</p>
+                    <h3>Bước cuối: Quét mã chuyển khoản</h3>
+                    <div style="background: white; padding: 15px; border-radius: 10px; display: inline-block; margin-bottom: 20px;">
+                        <img src="assets/QR CODE 7DBFC.jpg" alt="QR Code Thanh Toán" style="max-width: 250px; display: block;">
+                    </div>
+                    <p style="color: #ccc; margin-bottom: 20px;">Thử thách sẽ được gửi qua Email / Telegram sau khi hệ thống xác nhận thanh toán.</p>
+                    <button type="button" id="confirm-btn" class="cta-button" style="padding: 10px 30px; font-size: 1rem; background: var(--light-green); color: #000;">Tôi đã chuyển khoản thành công</button>
+                </div>
+
+                <div id="success-box" class="qr-box hidden" style="border-color: var(--light-green);">
+                    <div style="font-size: 4rem; color: var(--light-green); margin-bottom: 20px;">✅</div>
+                    <h3 style="color: var(--light-green); font-size: 1.8rem;">BẠN ĐÃ THAM GIA THỬ THÁCH THÀNH CÔNG!</h3>
+                    <p style="font-size: 1.1rem; color: #fff; margin: 20px 0;">Hãy kiểm tra email để chuẩn bị nhận bí kíp từ ngày mai.</p>
+                    <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 10px; text-align: left; font-size: 0.95rem; color: #ccc;">
+                        <p>💡 <strong>Lưu ý:</strong> Nếu chưa thấy mail, hãy kiểm tra mục <strong>Spam (Thư rác)</strong> hoặc <strong>Quảng cáo</strong>.</p>
+                        <p>📞 Nếu gặp vấn đề, hãy liên hệ Page hỗ trợ hoặc Zalo ngay ở phía dưới trang web.</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -331,6 +344,18 @@
             // Hiển thị QR Code
             form.style.display = 'none';
             qrBox.classList.remove('hidden');
+
+            // Xử lý khi bấm xác nhận chuyển khoản
+            const confirmBtn = document.getElementById('confirm-btn');
+            const successBox = document.getElementById('success-box');
+            
+            confirmBtn.addEventListener('click', () => {
+                qrBox.classList.add('hidden');
+                successBox.classList.remove('hidden');
+                
+                // Cuộn nhẹ lên để thấy thông báo thành công
+                successBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            });
         });
 
         const policies = {

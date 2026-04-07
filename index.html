@@ -219,13 +219,9 @@
                         <input type="email" id="email" name="email" placeholder="Email" required>
                     </div>
                     
-                    <div id="extra-fields" class="hidden-fields">
-                        <div class="form-group">
-                            <input type="text" id="fblink" name="fblink" placeholder="Link Facebook của bạn">
-                        </div>
+                    <div class="form-group">
+                        <input type="text" id="fblink" name="fblink" placeholder="Link Facebook của bạn" required>
                     </div>
-                    
-                    <button type="button" id="expand-btn" class="expand-btn">Nhập thêm thông tin (Mạng xã hội)</button>
                     <button type="submit" id="submit-btn" class="cta-button massive">Thanh toán & Nhận mã QR</button>
                 </form>
 
@@ -249,18 +245,7 @@
 
     <script>
         const form = document.getElementById('register-form');
-        const expandBtn = document.getElementById('expand-btn');
-        const extraFields = document.getElementById('extra-fields');
         const qrBox = document.getElementById('qr-box');
-
-        expandBtn.addEventListener('click', () => {
-            extraFields.classList.toggle('show');
-            if (extraFields.classList.contains('show')) {
-                expandBtn.innerText = "Thu gọn";
-            } else {
-                expandBtn.innerText = "Nhập thêm thông tin (Mạng xã hội)";
-            }
-        });
 
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -285,7 +270,6 @@
             
             // Hiển thị QR Code
             form.style.display = 'none';
-            expandBtn.style.display = 'none';
             qrBox.classList.remove('hidden');
         });
     </script>

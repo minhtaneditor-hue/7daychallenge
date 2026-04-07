@@ -20,11 +20,15 @@ export default async function handler(req, res) {
 
         // 2. Duyệt qua từng học viên để kiểm tra ngày
         for (const lead of leads) {
+            // KIỂM TRA TRẠNG THÁI THANH TOÁN (Cột F trong Google Sheet)
+            // Nếu Tấn chưa điền gì vào cột F, con Agent sẽ bỏ qua người này
+            if (!lead.status) continue;
+
             const signupDate = new Date(lead.timestamp);
             const diffInMs = now - signupDate;
             const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
 
-            // Chỉ gửi từ Day 1 đến Day 7
+            // Chỉ gửi từ Day 1 đến Day 7 cho những người ĐÃ THANH TOÁN
             if (diffInDays >= 1 && diffInDays <= 7) {
                 const day = diffInDays;
                 const templateKey = `day${day}`;

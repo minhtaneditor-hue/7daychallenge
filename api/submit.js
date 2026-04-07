@@ -18,11 +18,23 @@ export default async function handler(req, res) {
                           `🔗 Facebook: ${data.fblink || 'Không có'}\n\n` +
                           `👉 Check Google Sheet ngay!`;
 
-            // Telegram
-            await fetch(`https://api.telegram.org/bot8753662126:AAHjqwCiSyn50oxIg7ABgebgh_B1tiWNX0E/sendMessage`, {
+            // 1. Gửi Telegram phê duyệt (DÀNH CHO TẤN)
+            const telegramUrl = `https://api.telegram.org/bot8753662126:AAHjqwCiSyn50oxIg7ABgebgh_B1tiWNX0E/sendMessage`;
+            await fetch(telegramUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ chat_id: '7384174497', text: message })
+                body: JSON.stringify({ 
+                    chat_id: '7384174497', 
+                    text: message,
+                    reply_markup: {
+                        inline_keyboard: [
+                            [
+                                { text: "✅ DUYỆT (PAID)", callback_data: `approve_${data.phone}` },
+                                { text: "❌ HUỶ ĐƠN", callback_data: `reject_${data.phone}` }
+                            ]
+                        ]
+                    }
+                })
             });
 
             // Google Sheet

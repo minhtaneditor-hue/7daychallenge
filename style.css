@@ -844,3 +844,98 @@ footer p {
     margin-top: 25px;
     opacity: 0.8;
 }
+
+/* REWARD SECTION */
+.reward-section {
+    padding: 100px 0;
+    background: radial-gradient(circle at center, #3d0000 0%, #0a0a0a 100%);
+    position: relative;
+    overflow: hidden;
+    border-top: 2px solid rgba(255, 215, 0, 0.2);
+    border-bottom: 2px solid rgba(255, 215, 0, 0.2);
+}
+
+.reward-card {
+    background: rgba(20, 20, 20, 0.8);
+    backdrop-filter: blur(15px);
+    border: 1px solid #FFD700;
+    border-radius: 30px;
+    padding: 50px;
+    max-width: 900px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 40px;
+    box-shadow: 0 0 50px rgba(255, 215, 0, 0.1);
+}
+
+.reward-info { flex: 1; text-align: left; }
+.reward-img { flex: 1; text-align: center; }
+.reward-img img {
+    max-width: 100%;
+    filter: drop-shadow(0 0 30px rgba(255, 215, 0, 0.4));
+    animation: float 4s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+}
+
+.reward-tag {
+    display: inline-block;
+    background: #FFD700;
+    color: #000;
+    padding: 5px 15px;
+    border-radius: 5px;
+    font-weight: 800;
+    font-size: 0.8rem;
+    margin-bottom: 15px;
+}
+
+.reward-title {
+    font-size: 2.2rem;
+    color: #fff;
+    margin-bottom: 20px;
+    line-height: 1.2;
+}
+
+.reward-title span { color: #FFD700; }
+
+.reward-value {
+    font-size: 3rem;
+    font-weight: 900;
+    color: #FFD700;
+    margin-bottom: 25px;
+    text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+}
+
+.reward-countdown {
+    display: flex;
+    gap: 15px;
+    margin-top: 30px;
+}
+
+.countdown-item {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 10px 15px;
+    border-radius: 10px;
+    min-width: 70px;
+    text-align: center;
+}
+
+.countdown-item span {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #FFD700;
+}
+
+.countdown-label { font-size: 0.7rem; color: #aaa; text-transform: uppercase; }
+
+@media (max-width: 768px) {
+    .reward-card { flex-direction: column; text-align: center; padding: 30px; }
+    .reward-info { text-align: center; }
+    .reward-title { font-size: 1.8rem; }
+    .reward-value { font-size: 2.2rem; }
+}

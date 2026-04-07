@@ -227,7 +227,47 @@
                 <span class="tag">Chụp ảnh street đẹp hơn</span>
             </div>
             <h3 class="ultimate-result">Và quan trọng nhất:<br><span>Bạn gái sẽ thích ảnh bạn chụp.</span></h3>
-            
+        </div>
+    </section>
+
+    <!-- REWARD SECTION -->
+    <section class="reward-section">
+        <div class="container">
+            <div class="reward-card">
+                <div class="reward-info">
+                    <span class="reward-tag">🎁 QUÀ TẶNG ĐẶC BIỆT</span>
+                    <h2 class="reward-title">Tham gia thử thách,<br>Nhận <span>KHOÁ HỌC 21 NGÀY</span> miễn phí!</h2>
+                    <p style="color: #ccc; line-height: 1.6; margin-bottom: 20px;">
+                        Dành riêng cho học viên tham gia đầy đủ 7 ngày, thực hành đúng quy trình và có kết quả tương tác tốt nhất. 
+                        Cơ hội sở hữu trọn bộ kiến thức <b>"Video thành Tài Sản"</b>.
+                    </p>
+                    <div class="reward-value">Trị giá: 10.000.000 VNĐ</div>
+                    
+                    <div class="reward-countdown" id="countdown">
+                        <div class="countdown-item">
+                            <span id="hours">00</span>
+                            <div class="countdown-label">Giờ</div>
+                        </div>
+                        <div class="countdown-item">
+                            <span id="mins">00</span>
+                            <div class="countdown-label">Phút</div>
+                        </div>
+                        <div class="countdown-item">
+                            <span id="secs">00</span>
+                            <div class="countdown-label">Giây</div>
+                        </div>
+                    </div>
+                    <p style="font-size: 0.8rem; color: #666; margin-top: 15px;">* Chương trình có giới hạn số lượng quà tặng mỗi ngày.</p>
+                </div>
+                <div class="reward-img">
+                    <img src="assets/reward-gift.png" alt="Quà Tặng Đặc Biệt">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="result-section" style="padding-top: 0; padding-bottom: 60px;">
+        <div class="container text-center">
             <div class="final-cta" id="register-form-section" style="display: flex; flex-direction: column; align-items: center;">
                 <div id="form-content" style="width: 100%;">
                     <p>Tham gia thử thách 7 ngày ngay hôm nay</p>
@@ -415,6 +455,32 @@
                 closePolicy();
             }
         }
+
+        // COUNTDOWN TIMER LOGIC (24h loop)
+        function updateCountdown() {
+            const now = new Date();
+            const tomorrow = new Date(now);
+            tomorrow.setHours(24, 0, 0, 0); 
+
+            const diff = tomorrow - now;
+            
+            const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
+            const m = Math.floor((diff / (1000 * 60)) % 60);
+            const s = Math.floor((diff / 1000) % 60);
+
+            const hoursEl = document.getElementById('hours');
+            const minsEl = document.getElementById('mins');
+            const secsEl = document.getElementById('secs');
+
+            if (hoursEl && minsEl && secsEl) {
+                hoursEl.innerText = h < 10 ? '0'+h : h;
+                minsEl.innerText = m < 10 ? '0'+m : m;
+                secsEl.innerText = s < 10 ? '0'+s : s;
+            }
+        }
+
+        setInterval(updateCountdown, 1000);
+        updateCountdown();
     </script>
     
     <!-- Messenger Chat Widget -->

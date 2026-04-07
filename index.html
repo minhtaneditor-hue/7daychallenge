@@ -32,7 +32,7 @@
                     </ul>
                 </div>
 
-                <a href="https://forms.gle/n17rUg6AmGxbTPWs6" target="_blank" class="cta-button pulse">Đăng ký tham gia thử thách 7 ngày</a>
+                <a href="#register-form-section" class="cta-button pulse">Đăng ký tham gia thử thách 7 ngày</a>
             </div>
             <div class="hero-image">
                 <!-- Sử dụng hình ảnh cô gái nằm trên bè -->
@@ -119,32 +119,53 @@
             
             <div class="roadmap-grid">
                 <div class="day-card">
-                    <div class="day-num">DAY 1</div>
-                    <p>Hiểu cách chọn góc chụp</p>
+                    <img src="assets/day1.jpg" alt="Day 1">
+                    <div class="day-overlay">
+                        <div class="day-num">DAY 1</div>
+                        <p>Hiểu cách chọn góc chụp</p>
+                    </div>
                 </div>
                 <div class="day-card">
-                    <div class="day-num">DAY 2</div>
-                    <p>Cách dùng ánh sáng tự nhiên</p>
+                    <img src="assets/day2.jpg" alt="Day 2">
+                    <div class="day-overlay">
+                        <div class="day-num">DAY 2</div>
+                        <p>Cách dùng ánh sáng tự nhiên</p>
+                    </div>
                 </div>
                 <div class="day-card">
-                    <div class="day-num">DAY 3</div>
-                    <p>Cách tạo bố cục đẹp</p>
+                    <img src="assets/day3.jpg" alt="Day 3">
+                    <div class="day-overlay">
+                        <div class="day-num">DAY 3</div>
+                        <p>Cách tạo bố cục đẹp</p>
+                    </div>
                 </div>
                 <div class="day-card">
-                    <div class="day-num">DAY 4</div>
-                    <p>Cách chụp ảnh ngoài trời</p>
+                    <img src="assets/day4.jpg" alt="Day 4">
+                    <div class="day-overlay">
+                        <div class="day-num">DAY 4</div>
+                        <p>Cách chụp ảnh ngoài trời</p>
+                    </div>
                 </div>
                 <div class="day-card">
-                    <div class="day-num">DAY 5</div>
-                    <p>Cách chụp ảnh cafe</p>
+                    <img src="assets/day5.jpg" alt="Day 5">
+                    <div class="day-overlay">
+                        <div class="day-num">DAY 5</div>
+                        <p>Cách chụp ảnh cafe</p>
+                    </div>
                 </div>
                 <div class="day-card">
-                    <div class="day-num">DAY 6</div>
-                    <p>Cách chụp ảnh street</p>
+                    <img src="assets/day6.jpg" alt="Day 6">
+                    <div class="day-overlay">
+                        <div class="day-num">DAY 6</div>
+                        <p>Cách chụp ảnh street</p>
+                    </div>
                 </div>
                 <div class="day-card day-final">
-                    <div class="day-num">DAY 7</div>
-                    <p>Chụp bộ ảnh hoàn chỉnh</p>
+                    <img src="assets/day7.jpg" alt="Day 7">
+                    <div class="day-overlay">
+                        <div class="day-num">DAY 7</div>
+                        <p>Chụp bộ ảnh hoàn chỉnh</p>
+                    </div>
                 </div>
             </div>
             
@@ -175,9 +196,9 @@
                     </ul>
                 </div>
             </div>
-            <!-- Chèn hình sketch người dạy để tạo tính nghệ thuật -->
+            <!-- Chèn hình logo line art -->
             <div class="sketch-container">
-                <img src="assets/instructor-sketch.png" alt="Instructor Sketch" class="instructor-sketch">
+                <img src="assets/lineartlogo.png" alt="Logo" class="instructor-sketch logo-blend">
             </div>
         </div>
     </section>
@@ -193,9 +214,34 @@
             </div>
             <h3 class="ultimate-result">Và quan trọng nhất:<br><span>Bạn gái sẽ thích ảnh bạn chụp.</span></h3>
             
-            <div class="final-cta">
+            <div class="final-cta" id="register-form-section">
                 <p>Tham gia thử thách 7 ngày ngay hôm nay</p>
-                <a href="https://forms.gle/n17rUg6AmGxbTPWs6" target="_blank" class="cta-button massive">Đăng ký 7 Day Boyfriend Camera</a>
+                <form id="register-form" class="register-form">
+                    <div class="form-group">
+                        <input type="text" id="fullname" name="fullname" placeholder="Họ và tên" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="tel" id="phone" name="phone" placeholder="Số điện thoại" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="email" id="email" name="email" placeholder="Email" required>
+                    </div>
+                    
+                    <div id="extra-fields" class="hidden-fields">
+                        <div class="form-group">
+                            <input type="text" id="fblink" name="fblink" placeholder="Link Facebook của bạn">
+                        </div>
+                    </div>
+                    
+                    <button type="button" id="expand-btn" class="expand-btn">Nhập thêm thông tin (Mạng xã hội)</button>
+                    <button type="submit" id="submit-btn" class="cta-button massive">Thanh toán & Nhận mã QR</button>
+                </form>
+
+                <div id="qr-box" class="qr-box hidden">
+                    <h3>Quét mã QR để hoàn tất đăng ký!</h3>
+                    <img src="assets/QR CODE 7DBFC.jpg" alt="QR Code Thanh Toán">
+                    <p>Khóa học sẽ được gửi qua Email / Telegram sau khi bạn thanh toán.</p>
+                </div>
             </div>
         </div>
     </section>
@@ -209,5 +255,35 @@
         </div>
     </footer>
 
+    <script>
+        const form = document.getElementById('register-form');
+        const expandBtn = document.getElementById('expand-btn');
+        const extraFields = document.getElementById('extra-fields');
+        const qrBox = document.getElementById('qr-box');
+
+        expandBtn.addEventListener('click', () => {
+            extraFields.classList.toggle('show');
+            if (extraFields.classList.contains('show')) {
+                expandBtn.innerText = "Thu gọn";
+            } else {
+                expandBtn.innerText = "Nhập thêm thông tin (Mạng xã hội)";
+            }
+        });
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            // Data chuẩn bị để gửi qua Webhook (vd: Zapier / Make.com)
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+            
+            // Webhook Tương lai:
+            // fetch('YOUR_WEBHOOK_URL', { method: 'POST', body: JSON.stringify(data) })
+            
+            // Hiển thị QR Code
+            form.style.display = 'none';
+            expandBtn.style.display = 'none';
+            qrBox.classList.remove('hidden');
+        });
+    </script>
 </body>
 </html>

@@ -65,8 +65,16 @@ h1, h2, h3 {
     border: none;
     cursor: pointer;
 }
+@keyframes jelly {
+  0% { transform: scale(1, 1); }
+  25% { transform: scale(0.95, 1.05); }
+  50% { transform: scale(1.1, 0.95); }
+  75% { transform: scale(0.95, 1.05); }
+  100% { transform: scale(1.05, 1.05); }
+}
 .cta-button:hover {
-    transform: translateY(-3px);
+    animation: jelly 0.5s;
+    transform: scale(1.05);
     box-shadow: 0 12px 25px rgba(255, 112, 67, 0.6);
 }
 .pulse {
@@ -286,30 +294,48 @@ h1, h2, h3 {
 }
 .roadmap-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 20px;
     margin-bottom: 40px;
 }
 .day-card {
-    background: #111;
-    border: 1px solid #222;
-    padding: 20px;
+    position: relative;
     border-radius: 12px;
-    text-align: center;
+    overflow: hidden;
+    height: 280px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+}
+.day-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s;
+}
+.day-card:hover img {
+    transform: scale(1.08);
+}
+.day-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 20px;
+    background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
 }
 .day-num {
     color: var(--light-green);
     font-weight: 800;
-    font-size: 1.2rem;
-    margin-bottom: 10px;
+    font-size: 1.4rem;
+    margin-bottom: 5px;
     font-family: 'Playfair Display', serif;
 }
-.day-final {
-    background: var(--accent-orange);
-    border: none;
+.day-overlay p {
+    color: #fff;
+    font-size: 1.1rem;
+    font-weight: 500;
 }
-.day-final .day-num, .day-final p {
-    color: #000;
+.day-final .day-overlay {
+    background: linear-gradient(to top, rgba(255, 112, 67, 0.9), transparent);
 }
 .grid-overlay-image {
     margin-top: 40px;
@@ -442,3 +468,84 @@ footer p {
     .instructor-box { left: 10px; bottom: 10px; }
     .ultimate-result span { font-size: 2.5rem; }
 }
+
+/* --- FORM & QR SETTINGS --- */
+.register-form {
+    max-width: 500px;
+    margin: 0 auto;
+    background: var(--glass-bg);
+    padding: 30px;
+    border-radius: 16px;
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(10px);
+}
+.form-group {
+    margin-bottom: 20px;
+}
+.form-group input {
+    width: 100%;
+    padding: 15px;
+    border-radius: 10px;
+    border: 1px solid var(--glass-border);
+    background: rgba(0, 0, 0, 0.5);
+    color: #fff;
+    font-size: 1rem;
+    font-family: 'Montserrat', sans-serif;
+}
+.form-group input:focus {
+    outline: none;
+    border-color: var(--light-green);
+}
+.hidden-fields {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease-out;
+}
+.hidden-fields.show {
+    max-height: 200px; /* enough space for extra fields */
+}
+.expand-btn {
+    background: transparent;
+    color: var(--text-muted);
+    border: none;
+    text-decoration: underline;
+    cursor: pointer;
+    font-size: 0.9rem;
+    margin-bottom: 20px;
+    font-family: 'Montserrat', sans-serif;
+}
+.expand-btn:hover {
+    color: var(--light-green);
+}
+.qr-box {
+    margin-top: 30px;
+    text-align: center;
+    background: #fff;
+    padding: 30px;
+    border-radius: 16px;
+    display: inline-block;
+}
+.qr-box.hidden {
+    display: none;
+}
+.qr-box h3 {
+    color: #000;
+    margin-bottom: 15px;
+    font-size: 1.2rem;
+}
+.qr-box img {
+    max-width: 250px;
+    height: auto;
+    border-radius: 10px;
+}
+.qr-box p {
+    color: #555;
+    margin-top: 15px;
+    font-weight: 500;
+}
+.logo-blend {
+    mix-blend-mode: screen; /* Removes black bg if there's any, or keeps white. Adjust if needed */
+    filter: invert(1); /* Assuming original logo is black on white/transparent line art, invert makes it white */
+    max-width: 180px;
+}
+

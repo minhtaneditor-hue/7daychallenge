@@ -876,6 +876,7 @@ footer p {
     max-width: 100%;
     filter: drop-shadow(0 0 30px rgba(255, 215, 0, 0.4));
     animation: float 4s ease-in-out infinite;
+    mix-blend-mode: screen; /* Giúp hộp quà hoà quyện tuyệt đối trên nền tối */
 }
 
 @keyframes float {

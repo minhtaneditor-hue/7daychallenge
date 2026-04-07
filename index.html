@@ -28,7 +28,7 @@
 </head>
 <body>
     <!-- Top Logo / Header -->
-    <div style="padding: 20px 0; text-align: left; position: relative; max-width: 1200px; margin: 0 auto; padding: 20px 20px 80px 20px; display: flex; justify-content: space-between; align-items: center; z-index: 1000;">
+    <div style="padding: 10px 0; text-align: left; position: relative; max-width: 1200px; margin: 0 auto; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; z-index: 100;">
         <span style="font-family: 'Montserrat', sans-serif; font-weight: 900; font-size: 1.8rem; color: #fff; letter-spacing: -1px; text-transform: uppercase;">TANLAB</span>
     </div>
 
@@ -394,6 +394,7 @@
         const formContent = document.getElementById('form-content');
         const qrBox = document.getElementById('qr-box');
         const successBox = document.getElementById('success-box');
+        const form = document.getElementById('register-form'); // Khai báo biến form còn thiếu
         let currentLeadData = {};
 
         form.addEventListener('submit', async (e) => {

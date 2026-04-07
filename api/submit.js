@@ -23,24 +23,27 @@ export default async function handler(req, res) {
 
         // Gọi API Telegram để gửi tin nhắn
         const telegramUrl = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
-        const telegramResponse = await fetch(telegramUrl, {
+        await fetch(telegramUrl, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 chat_id: CHAT_ID,
                 text: message,
             }),
         });
 
-        if (!telegramResponse.ok) {
-            throw new Error(`Telegram Error: ${telegramResponse.statusText}`);
-        }
+        // Gửi dữ liệu sang Google Sheets CRM
+        const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbxlqXGgzQVl47NiiQ4A4Rmv09dCb1rEcipqK4MbyvrT7_2nLZE3403h49kArxO2bLKRyQ/exec';
+        await fetch(GOOGLE_SHEET_URL, {
+            method: 'POST',
+            mode: 'no-cors', // Apps Script requires no-cors if not handling preflight
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
 
-        res.status(200).json({ success: true, message: 'Data sent to Telegram successfully' });
+        res.status(200).json({ success: true, message: 'Data sent to Telegram and Google Sheets successfully' });
     } catch (error) {
-        console.error('Error fetching Telegram API:', error);
+        console.error('Submission Error:', error);
         res.status(500).json({ success: false, error: 'Internal Server Error' });
     }
 }

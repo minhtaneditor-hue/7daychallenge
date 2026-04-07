@@ -741,3 +741,106 @@ footer p {
   font-size: 1.8rem;
   margin-bottom: 5px;
 }
+
+/* Premium Dark Gold UI Polish */
+.qr-box, .success-box {
+    background: rgba(10, 10, 10, 0.9) !important;
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    border: 1px solid rgba(255, 215, 0, 0.3) !important;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8), inset 0 0 30px rgba(255, 215, 0, 0.05);
+    padding: 40px !important;
+    border-radius: 24px !important;
+    margin-top: 30px;
+    position: relative;
+    overflow: hidden;
+    animation: slideUpFade 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    text-align: center;
+}
+
+.qr-box::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255, 215, 0, 0.05) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+@keyframes slideUpFade {
+    from { opacity: 0; transform: translateY(40px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.qr-box h3, .success-box h3 {
+    color: #FFD700 !important;
+    font-family: 'Outfit', sans-serif;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 25px;
+    font-weight: 800;
+}
+
+.qr-img-wrapper {
+    background: white;
+    padding: 15px;
+    border-radius: 16px;
+    display: inline-block;
+    box-shadow: 0 0 40px rgba(255, 215, 0, 0.2);
+    margin-bottom: 25px;
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.qr-img-wrapper:hover {
+    transform: scale(1.08) rotate(1deg);
+}
+
+.qr-img-wrapper img {
+    max-width: 220px;
+    display: block;
+}
+
+#confirm-btn {
+    background: linear-gradient(135deg, #FFD700 0%, #B8860B 100%) !important;
+    color: #000 !important;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    padding: 15px 40px !important;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: 0 10px 30px rgba(184, 134, 11, 0.4);
+    transition: all 0.4s ease;
+}
+
+#confirm-btn:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px rgba(184, 134, 11, 0.6);
+    background: linear-gradient(135deg, #FFF 0%, #FFD700 100%) !important;
+}
+
+.success-icon {
+    font-size: 5rem;
+    margin-bottom: 25px;
+    display: block;
+    filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.4));
+}
+
+.price-tag {
+    font-size: 1.5rem;
+    color: #FFD700;
+    font-weight: 900;
+    margin-bottom: 15px;
+    display: block;
+}
+
+.wait-message {
+    font-style: italic;
+    color: #FFD700;
+    font-size: 0.95rem;
+    margin-top: 25px;
+    opacity: 0.8;
+}

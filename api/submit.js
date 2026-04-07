@@ -5,69 +5,80 @@ export default async function handler(req, res) {
     }
 
     try {
-        const data = req.body;
-        
-        // Cấu hình Telegram (Mã hoá trực tiếp Backend)
-        const BOT_TOKEN = '8753662126:AAHjqwCiSyn50oxIg7ABgebgh_B1tiWNX0E';
-        const CHAT_ID = '7384174497'; // Lấy từ kết quả vừa check
+        const body = req.body;
+        const { action, ...data } = body;
 
-        // Chuẩn bị nội dung tin nhắn Telegram
-        const message = `
-🎉 ĐƠN HÀNG MỚI: 7 DAY BOYFRIEND CAMERA 🎉
-------------------------------------------
-👤 Tên: ${data.fullname || 'Không có'}
-📱 SĐT: ${data.phone || 'Không có'}
-📧 Email: ${data.email || 'Không có'}
-🌍 Facebook: ${data.fblink || 'Không có'}
-        `;
+        // 1. NGƯỜI DÙNG ĐĂNG KÍ (LEAD)
+        if (!action || action === 'submit-lead') {
+            const message = `🔔 CÓ KHÁCH MỚI ĐĂNG KÝ!\n` +
+                          `----------------------------\n` +
+                          `👤 Họ tên: ${data.fullname || 'Không có'}\n` +
+                          `📞 SĐT: ${data.phone || 'Không có'}\n` +
+                          `📧 Email: ${data.email || 'Không có'}\n` +
+                          `🔗 Facebook: ${data.fblink || 'Không có'}\n\n` +
+                          `👉 Check Google Sheet ngay!`;
 
-        // Gọi API Telegram để gửi tin nhắn
-        const telegramUrl = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
-        await fetch(telegramUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                chat_id: CHAT_ID,
-                text: message,
-            }),
-        });
+            // Telegram
+            await fetch(`https://api.telegram.org/bot8753662126:AAHjqwCiSyn50oxIg7ABgebgh_B1tiWNX0E/sendMessage`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ chat_id: '7384174497', text: message })
+            });
 
-        // Gửi dữ liệu sang Google Sheets CRM
-        const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbxlqXGgzQVl47NiiQ4A4Rmv09dCb1rEcipqK4MbyvrT7_2nLZE3403h49kArxO2bLKRyQ/exec';
-        await fetch(GOOGLE_SHEET_URL, {
-            method: 'POST',
-            mode: 'no-cors',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
-        });
+            // Google Sheet
+            const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbxlqXGgzQVl47NiiQ4A4Rmv09dCb1rEcipqK4MbyvrT7_2nLZE3403h49kArxO2bLKRyQ/exec';
+            await fetch(GOOGLE_SHEET_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
 
-        // GỬI EMAIL CHÀO MỪNG (DAY 0) QUA RESEND
-        const RESEND_API_KEY = 're_Gq7KcaeK_2ar8XM8RhiQxeyNMgnjpEr2o';
-        const resendUrl = 'https://api.resend.com/emails';
-        
-        await fetch(resendUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${RESEND_API_KEY}`
-            },
-            body: JSON.stringify({
-                from: 'Minh Tấn <challenge@minhtanacademy.com>',
-                to: data.email,
-                subject: '🎉 Chào mừng bạn đến với Thử thách 7 Ngày Boyfriend Camera!',
-                html: `
-                    <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-                        <h2>Xin chào ${data.fullname || 'bạn'}!</h2>
-                        <p>Chúc mừng bạn đã chính thức tham gia vào hành trình biến chiếc điện thoại thành "vũ khí" chụp ảnh đỉnh cao.</p>
-                        <p><strong>Ngày hôm nay (Day 0):</strong> Hãy chuẩn bị tâm lý và kiểm tra thiết bị của bạn. Bài học chính thức đầu tiên sẽ được gửi vào sáng mai nhé!</p>
-                        <p>Hẹn gặp lại bạn vào sáng mai!</p>
-                        <p>-- <br><strong>Minh Tấn</strong></p>
-                    </div>
-                `
-            })
-        });
+            // GỬI EMAIL CHÀO MỪNG (DAY 0) QUA RESEND
+            const RESEND_API_KEY = 're_Gq7KcaeK_2ar8XM8RhiQxeyNMgnjpEr2o';
+            await fetch('https://api.resend.com/emails', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${RESEND_API_KEY}`
+                },
+                body: JSON.stringify({
+                    from: 'Minh Tấn <challenge@minhtanacademy.com>',
+                    to: data.email,
+                    subject: '🎉 Chào mừng bạn đến với Thử thách 7 Ngày Boyfriend Camera!',
+                    html: `
+                        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+                            <h2>Xin chào ${data.fullname || 'bạn'}!</h2>
+                            <p>Chúc mừng bạn đã chính thức tham gia vào hành trình biến chiếc điện thoại thành "vũ khí" chụp ảnh đỉnh cao.</p>
+                            <p><strong>Ngày hôm nay (Day 0):</strong> Hãy chuẩn bị tâm lý và kiểm tra thiết bị của bạn. Bài học chính thức đầu tiên sẽ được gửi vào sáng mai nhé!</p>
+                            <p>Hẹn gặp lại bạn vào sáng mai!</p>
+                            <p>-- <br><strong>Minh Tấn</strong></p>
+                        </div>
+                    `
+                })
+            });
 
-        res.status(200).json({ success: true, message: 'Lead captured and Day 0 email sent.' });
+            return res.status(200).json({ success: true, message: 'Lead captured' });
+        }
+
+        // 2. KHÁCH XÁC NHẬN ĐÃ CHUYỂN TIỀN (CONFIRM)
+        if (action === 'confirm-payment') {
+            const message = `💰 XÁC NHẬN CHUYỂN TIỀN!\n` +
+                          `----------------------------\n` +
+                          `👤 Khách: ${data.fullname || 'Không rõ'}\n` +
+                          `📞 SĐT: ${data.phone}\n` +
+                          `💵 Số tiền: 199.000đ\n\n` +
+                          `🔥 Tấn ơi, check ngân hàng ngay nhé!`;
+
+            await fetch(`https://api.telegram.org/bot8753662126:AAHjqwCiSyn50oxIg7ABgebgh_B1tiWNX0E/sendMessage`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ chat_id: '7384174497', text: message })
+            });
+
+            return res.status(200).json({ success: true, message: 'Payment confirmation sent' });
+        }
+
     } catch (error) {
         console.error('Submission Error:', error);
         res.status(500).json({ success: false, error: 'Internal Server Error' });

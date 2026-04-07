@@ -248,22 +248,24 @@
                 </form>
 
                 <div id="qr-box" class="qr-box hidden">
-                    <h3>Bước cuối: Quét mã chuyển khoản</h3>
-                    <div style="background: white; padding: 15px; border-radius: 10px; display: inline-block; margin-bottom: 20px;">
-                        <img src="assets/QR CODE 7DBFC.jpg" alt="QR Code Thanh Toán" style="max-width: 250px; display: block;">
+                    <h3>Quét mã chuyển khoản</h3>
+                    <div class="price-tag">Số tiền: 199.000đ</div>
+                    <div class="qr-img-wrapper">
+                        <img src="assets/QR CODE 7DBFC.jpg" alt="QR Code Thanh Toán">
                     </div>
-                    <p style="color: #ccc; margin-bottom: 20px;">Thử thách sẽ được gửi qua Email / Telegram sau khi hệ thống xác nhận thanh toán.</p>
-                    <button type="button" id="confirm-btn" class="cta-button" style="padding: 10px 30px; font-size: 1rem; background: var(--light-green); color: #000;">Tôi đã chuyển khoản thành công</button>
+                    <p style="color: #aaa; margin-bottom: 25px; font-size: 0.9rem;">Vui lòng chuyển đúng số tiền để hệ thống xác nhận nhanh nhất.</p>
+                    <button type="button" id="confirm-btn">Xác nhận đã chuyển tiền</button>
                 </div>
 
-                <div id="success-box" class="qr-box hidden" style="border-color: var(--light-green);">
-                    <div style="font-size: 4rem; color: var(--light-green); margin-bottom: 20px;">✅</div>
-                    <h3 style="color: var(--light-green); font-size: 1.8rem;">BẠN ĐÃ THAM GIA THỬ THÁCH THÀNH CÔNG!</h3>
-                    <p style="font-size: 1.1rem; color: #fff; margin: 20px 0;">Hãy kiểm tra email để chuẩn bị nhận bí kíp từ ngày mai.</p>
-                    <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 10px; text-align: left; font-size: 0.95rem; color: #ccc;">
-                        <p>💡 <strong>Lưu ý:</strong> Nếu chưa thấy mail, hãy kiểm tra mục <strong>Spam (Thư rác)</strong> hoặc <strong>Quảng cáo</strong>.</p>
-                        <p>📞 Nếu gặp vấn đề, hãy liên hệ Page hỗ trợ hoặc Zalo ngay ở phía dưới trang web.</p>
+                <div id="success-box" class="success-box hidden">
+                    <span class="success-icon">✅</span>
+                    <h3>THAM GIA THÀNH CÔNG!</h3>
+                    <p style="font-size: 1.1rem; color: #fff; margin-bottom: 20px;">Cảm ơn bạn đã tin tưởng lựa chọn thử thách này.</p>
+                    <div style="background: rgba(255,215,0,0.1); padding: 20px; border-radius: 15px; text-align: left; border: 1px solid rgba(255,215,0,0.2);">
+                        <p style="color: #FFD700; margin-bottom: 10px;">📩 <strong>Kiểm tra Email:</strong> Bài học đầu tiên sẽ được gửi đến bạn vào sáng mai.</p>
+                        <p style="font-size: 0.85rem; color: #ccc;">*Nếu không thấy trong hộp thư chính, vui lòng kiểm tra mục <strong>Spam</strong> hoặc <strong>Quảng cáo</strong>.</p>
                     </div>
+                    <p class="wait-message">Hệ thống đang đối soát giao dịch của bạn...</p>
                 </div>
             </div>
         </div>
@@ -319,43 +321,61 @@
     <script>
         const form = document.getElementById('register-form');
         const qrBox = document.getElementById('qr-box');
+        const successBox = document.getElementById('success-box');
+        let currentLeadData = {};
 
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
             const formData = new FormData(form);
-            const data = Object.fromEntries(formData.entries());
+            currentLeadData = Object.fromEntries(formData.entries());
             
             const submitBtn = document.getElementById('submit-btn');
-            const originalText = submitBtn.innerText;
             submitBtn.innerText = "Đang xử lý...";
             submitBtn.disabled = true;
 
             try {
-                // Gửi data sang Vercel API backend
+                // Bước 1: Gửi Lead (Thông tin khách hàng)
                 await fetch('/api/submit', { 
                     method: 'POST', 
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data) 
+                    body: JSON.stringify({ action: 'submit-lead', ...currentLeadData }) 
                 });
+                
+                // Hiển thị QR Code
+                form.style.display = 'none';
+                qrBox.classList.remove('hidden');
+                qrBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
             } catch(e) {
-                console.error("Lỗi gửi webhook", e);
+                alert("Có lỗi xảy ra, vui lòng thử lại!");
+                submitBtn.disabled = false;
+                submitBtn.innerText = "Thanh toán & Nhận mã QR";
             }
-            
-            // Hiển thị QR Code
-            form.style.display = 'none';
-            qrBox.classList.remove('hidden');
+        });
 
-            // Xử lý khi bấm xác nhận chuyển khoản
+        document.getElementById('confirm-btn').addEventListener('click', async () => {
             const confirmBtn = document.getElementById('confirm-btn');
-            const successBox = document.getElementById('success-box');
-            
-            confirmBtn.addEventListener('click', () => {
+            const originalText = confirmBtn.innerText;
+            confirmBtn.innerText = "Đang xác thực...";
+            confirmBtn.disabled = true;
+
+            try {
+                // Bước 2: Gửi Confirm (Khách báo đã chuyển tiền)
+                await fetch('/api/submit', { 
+                    method: 'POST', 
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'confirm-payment', ...currentLeadData }) 
+                });
+
+                // Chuyển sang bảng thành công
                 qrBox.classList.add('hidden');
                 successBox.classList.remove('hidden');
-                
-                // Cuộn nhẹ lên để thấy thông báo thành công
                 successBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            });
+            } catch(e) {
+                // Nếu lỗi thì vẫn cho qua để khách không chờ đợi quá lâu
+                qrBox.classList.add('hidden');
+                successBox.classList.remove('hidden');
+                successBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
         });
 
         const policies = {

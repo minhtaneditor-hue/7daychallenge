@@ -228,26 +228,28 @@
             </div>
             <h3 class="ultimate-result">Và quan trọng nhất:<br><span>Bạn gái sẽ thích ảnh bạn chụp.</span></h3>
             
-            <div class="final-cta" id="register-form-section">
-                <p>Tham gia thử thách 7 ngày ngay hôm nay</p>
-                <form id="register-form" class="register-form">
-                    <div class="form-group">
-                        <input type="text" id="fullname" name="fullname" placeholder="Họ và tên" required>
-                    </div>
-                    <div class="form-group">
-                        <input type="tel" id="phone" name="phone" placeholder="Số điện thoại" required>
-                    </div>
-                    <div class="form-group">
-                        <input type="email" id="email" name="email" placeholder="Email" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <input type="text" id="fblink" name="fblink" placeholder="Link Facebook của bạn" required>
-                    </div>
-                    <button type="submit" id="submit-btn" class="cta-button massive">Thanh toán & Nhận mã QR</button>
-                </form>
+            <div class="final-cta" id="register-form-section" style="display: flex; flex-direction: column; align-items: center;">
+                <div id="form-content" style="width: 100%;">
+                    <p>Tham gia thử thách 7 ngày ngay hôm nay</p>
+                    <form id="register-form" class="register-form">
+                        <div class="form-group">
+                            <input type="text" id="fullname" name="fullname" placeholder="Họ và tên" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="tel" id="phone" name="phone" placeholder="Số điện thoại" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="email" id="email" name="email" placeholder="Email" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <input type="text" id="fblink" name="fblink" placeholder="Link Facebook của bạn" required>
+                        </div>
+                        <button type="submit" id="submit-btn" class="cta-button massive">Thanh toán & Nhận mã QR</button>
+                    </form>
+                </div>
 
-                <div id="qr-box" class="qr-box hidden">
+                <div id="qr-box" class="qr-box hidden" style="width: 100%; max-width: 500px; margin: 0 auto;">
                     <h3>Quét mã chuyển khoản</h3>
                     <div class="price-tag">Số tiền: 199.000đ</div>
                     <div class="qr-img-wrapper">
@@ -257,7 +259,7 @@
                     <button type="button" id="confirm-btn">Xác nhận đã chuyển tiền</button>
                 </div>
 
-                <div id="success-box" class="success-box hidden">
+                <div id="success-box" class="success-box hidden" style="width: 100%; max-width: 600px; margin: 0 auto;">
                     <span class="success-icon">✅</span>
                     <h3>THAM GIA THÀNH CÔNG!</h3>
                     <p style="font-size: 1.1rem; color: #fff; margin-bottom: 20px;">Cảm ơn bạn đã tin tưởng lựa chọn thử thách này.</p>
@@ -319,7 +321,7 @@
     </div>
 
     <script>
-        const form = document.getElementById('register-form');
+        const formContent = document.getElementById('form-content');
         const qrBox = document.getElementById('qr-box');
         const successBox = document.getElementById('success-box');
         let currentLeadData = {};
@@ -341,8 +343,8 @@
                     body: JSON.stringify({ action: 'submit-lead', ...currentLeadData }) 
                 });
                 
-                // Hiển thị QR Code
-                form.style.display = 'none';
+                // Hiển thị QR Code & Ẩn sạch Form
+                formContent.style.display = 'none';
                 qrBox.classList.remove('hidden');
                 qrBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
             } catch(e) {

@@ -279,27 +279,24 @@ h1, h2, h3 {
     font-size: 1.5rem;
 }
 .accent-box {
-    margin-top: 40px;
-    padding: 30px;
-    background: linear-gradient(135deg, var(--accent-orange), #C62828);
-    border-radius: 16px;
-    text-align: center;
+    margin: 40px auto 0 auto;
+    width: fit-content;
+    background: linear-gradient(135deg, #FF8A65, #E64A19);
     color: #fff;
-    box-shadow: 0 15px 30px rgba(255, 112, 67, 0.4);
+    padding: 18px 36px;
+    border-radius: 50px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    text-align: center;
+    box-shadow: 0 8px 20px rgba(255, 112, 67, 0.4);
     animation: jelly 3s infinite;
 }
 .accent-box p {
-    font-size: 1.4rem;
-    font-weight: 500;
+    margin: 0;
 }
 .accent-box strong {
-    display: block;
-    font-size: 2.2rem;
-    font-family: 'Playfair Display', serif;
-    letter-spacing: 1px;
-    margin-top: 10px;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-    color: #fff;
+    font-weight: 900;
 }
 
 /* --- 4. HOW IT WORKS --- */
@@ -387,9 +384,9 @@ h1, h2, h3 {
     text-align: left;
 }
 .day-num {
-    color: #fff;
-    -webkit-text-stroke: 1px var(--light-green);
-    text-shadow: 2px 2px 0 var(--primary-green);
+    color: var(--light-green);
+    -webkit-text-stroke: none;
+    text-shadow: none;
     font-weight: 900;
     font-size: 2.5rem;
     margin-bottom: 5px;
@@ -397,8 +394,9 @@ h1, h2, h3 {
     letter-spacing: 2px;
 }
 .day-card.day-final .day-num {
-    -webkit-text-stroke: 1px var(--accent-orange);
-    text-shadow: 2px 2px 0 #000;
+    color: var(--accent-orange);
+    -webkit-text-stroke: none;
+    text-shadow: none;
 }
 .day-overlay p {
     color: #fff;

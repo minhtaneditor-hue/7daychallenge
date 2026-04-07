@@ -241,14 +241,60 @@
         </div>
     </section>
 
-    <!-- FOOTER -->
-    <footer>
-        <div class="container text-center">
-            <p><strong>EMAIL FLOW SAU KHI ĐĂNG KÝ:</strong><br>
-            Welcome &rarr; Day 1 lesson &rarr; Day 2 lesson &rarr; ... &rarr; Day 7 challenge</p>
-            <p>&copy; 2026 7 Day Boyfriend Camera. All Rights Reserved.</p>
+    <!-- CONTACT & SOCIALS -->
+    <div class="container contact-social-section">
+        <h2>KẾT NỐI VỚI <span style="color: var(--light-green);">TẤN</span></h2>
+        <div class="social-links" style="display: flex; gap: 20px; justify-content: center; margin: 30px 0;">
+            <a href="https://www.tiktok.com/@minhtanvideoadvisor" class="social-btn" target="_blank" style="display: flex; align-items: center; gap: 10px; text-decoration: none; color: #fff; background: rgba(255,255,255,0.05); padding: 12px 25px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.1); transition: all 0.3s;">
+                <span class="s-icon" style="display: flex; align-items: center; justify-content: center; width: 26px; height: 26px; background: #fff; color: #000; border-radius: 50%; font-weight: 900; font-size: 0.8rem;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.34 2.88 2.88 0 0 1 2.31-4.53 2.88 2.88 0 0 1 1.76.62V9.52a6.3 6.3 0 0 0-4.07-1.46 6.33 6.33 0 0 0-5.6 9.67 6.33 6.33 0 0 0 9.67 1.83V11a8.33 8.33 0 0 0 4.66 1.45V9.01a4.9 4.9 0 0 1-3.32-1.32z"/></svg>
+                </span>
+                Tiktok
+            </a>
+            <a href="https://www.facebook.com/profile.php?id=61583837884143" class="social-btn" target="_blank" style="display: flex; align-items: center; gap: 10px; text-decoration: none; color: #fff; background: rgba(255,255,255,0.05); padding: 12px 25px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.1); transition: all 0.3s;">
+                <span class="s-icon" style="display: flex; align-items: center; justify-content: center; width: 26px; height: 26px; background: #fff; color: #000; border-radius: 50%; font-weight: 900; font-size: 0.8rem;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6c1.05 0 2.05.2 2.3.29v2.54h-1.3c-1.22 0-1.5.58-1.5 1.42V12h2.7l-.43 3h-2.27v6.8C18.56 20.87 22 16.84 22 12z"/></svg>
+                </span>
+                Facebook
+            </a>
+            <a href="https://www.youtube.com/@minhtanvideoadvisor" class="social-btn" target="_blank" style="display: flex; align-items: center; gap: 10px; text-decoration: none; color: #fff; background: rgba(255,255,255,0.05); padding: 12px 25px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.1); transition: all 0.3s;">
+                <span class="s-icon" style="display: flex; align-items: center; justify-content: center; width: 26px; height: 26px; background: #fff; color: #000; border-radius: 50%; font-weight: 900; font-size: 0.8rem;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M21.58 7.19a2.59 2.59 0 0 0-1.82-1.83C18.15 4.88 12 4.88 12 4.88s-6.15 0-7.76.48A2.59 2.59 0 0 0 2.42 7.2C1.94 8.8 1.94 12 1.94 12s0 3.2.48 4.81a2.59 2.59 0 0 0 1.82 1.82C5.85 19.12 12 19.12 12 19.12s6.15 0 7.76-.48a2.59 2.59 0 0 0 1.82-1.82c.48-1.6.48-4.8.48-4.8s0-3.2-.48-4.81zM9.98 15.14V8.86L15.42 12l-5.44 3.14z"/></svg>
+                </span>
+                YouTube
+            </a>
+        </div>
+        <div class="contact-info" style="text-align: center; margin-top: 30px;">
+            <p><strong>Hotline/Zalo:</strong> <a href="https://zalo.me/0922255861" style="color: inherit; text-decoration: none;" target="_blank">0922255861</a></p>
+            <p><strong>Email:</strong> <a href="mailto:minhtaneditor@gmail.com" style="color: inherit; text-decoration: none;">minhtaneditor@gmail.com</a></p>
+        </div>
+    </div>
+
+    <footer class="mini-footer">
+        <div class="container" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+            <div class="footer-links">
+                <a href="#" onclick="showPolicy('terms'); return false;">Điều khoản sử dụng</a>
+                <a href="#" onclick="showPolicy('privacy'); return false;">Bảo mật</a>
+                <a href="#" onclick="showPolicy('refund'); return false;">Hoàn tiền</a>
+            </div>
+            <div class="footer-copy">
+                &copy; 2026 7 Day Boyfriend Camera. By Tấn.
+            </div>
         </div>
     </footer>
+
+    <!-- POLICY MODALS -->
+    <div id="policy-modal" class="modal">
+        <div class="modal-content" style="max-width: 700px; text-align: left; max-height: 80vh; overflow-y: auto;">
+            <span class="close-btn" onclick="closePolicy()">&times;</span>
+            <div class="modal-header" style="text-align: left; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; margin-bottom: 20px;">
+                <h3 id="policy-title" style="font-size: 1.5rem; color: var(--light-green);">Tiêu đề</h3>
+            </div>
+            <div id="policy-body" style="font-size: 0.95rem; color: #ccc; line-height: 1.6;">
+                Nội dung...
+            </div>
+        </div>
+    </div>
 
     <script>
         const form = document.getElementById('register-form');
@@ -279,6 +325,55 @@
             form.style.display = 'none';
             qrBox.classList.remove('hidden');
         });
+
+        const policies = {
+            terms: {
+                title: "ĐIỀU KHOẢN SỬ DỤNG",
+                body: "<p>1. <strong>Chấp thuận:</strong> Bằng việc đăng ký thử thách, bạn đồng ý tuân thủ các quy định của chúng tôi.</p><br><p>2. <strong>Quyền sở hữu trí tuệ:</strong> Nội dung thử thách là tài sản độc quyền. Nghiêm cấm sao chép, phân phối hoặc bán lại để trục lợi.</p><br><p>3. <strong>Trách nhiệm:</strong> Học viên có nghĩa vụ hoàn thành bài tập. Chúng tôi không đảm bảo kết quả nếu bạn thiếu sự kỷ luật và không hành động.</p>"
+            },
+            privacy: {
+                title: "CHÍNH SÁCH BẢO MẬT & QUYỀN RIÊNG TƯ",
+                body: "<p>1. <strong>Ghi nhận thông tin:</strong> Chúng tôi chỉ thu thập họ tên, SĐT và Facebook nhằm mục đích hỗ trợ thử thách.</p><br><p>2. <strong>Bảo vệ dữ liệu:</strong> Mọi thông tin cá nhân của bạn lưu trữ an toàn trong nội bộ. Tuyệt đối KHÔNG chia sẻ hay bán thông tin của bạn cho bên thứ ba.</p>"
+            },
+            refund: {
+                title: "CHÍNH SÁCH HOÀN TIỀN",
+                body: "<p>1. <strong>Điều kiện hoàn tiền:</strong> Chỉ áp dụng khi bạn đã chứng minh hoàn thành rèn luyện đầy đủ 7 ngày liên tiếp nhưng tư duy và tay nghề chụp không hề có sự thay đổi nào.</p><br><p>2. <strong>Miễn trừ trách nhiệm:</strong> Từ chối hoàn tiền nếu học viên bỏ dở khóa học giữa chừng hoặc chỉ xem mà không thực hành.</p>"
+            }
+        };
+
+        function showPolicy(type) {
+            document.getElementById('policy-title').innerHTML = policies[type].title;
+            document.getElementById('policy-body').innerHTML = policies[type].body;
+            const pm = document.getElementById("policy-modal");
+            pm.style.display = "flex";
+            setTimeout(() => { pm.classList.add("show"); }, 10);
+        }
+
+        function closePolicy() {
+            const pm = document.getElementById("policy-modal");
+            pm.classList.remove("show");
+            setTimeout(() => { pm.style.display = "none"; }, 300);
+        }
+
+        // Đóng modal khi ấn ra ngoài
+        window.onclick = function(event) {
+            if (event.target == document.getElementById("policy-modal")) {
+                closePolicy();
+            }
+        }
+    </script>
+    
+    <!-- Messenger Chat Widget -->
+    <script>
+        var chatButton = document.createElement('a');
+        chatButton.href = 'https://m.me/61583837884143'; 
+        chatButton.target = '_blank';
+        chatButton.id = 'messenger-chat-button';
+        chatButton.innerHTML = '<span style="display: flex; align-items: center; gap: 8px;"><svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M12 2C6.36 2 1.81 6.13 1.81 11.23c0 2.86 1.48 5.4 3.8 7.08v3.42l3.47-1.92c.93.26 1.91.4 2.92.4 5.64 0 10.19-4.13 10.19-9.23S17.64 2 12 2zm1.09 12.35l-2.73-2.9-5.32 2.9 5.86-6.22 2.83 2.9 5.21-2.9-5.85 6.22z"/></svg> Chat Messenger</span>';
+        chatButton.style.cssText = 'position: fixed; bottom: 30px; right: 20px; background: #0084FF; color: white; padding: 12px 20px; border-radius: 50px; text-decoration: none; font-weight: 600; z-index: 9999; box-shadow: 0 4px 15px rgba(0,132,255,0.4); transition: all 0.3s; font-family: sans-serif;';
+        chatButton.onmouseover = function() { this.style.transform = 'translateY(-3px)'; this.style.boxShadow = '0 6px 20px rgba(0,132,255,0.6)'; };
+        chatButton.onmouseout = function() { this.style.transform = 'translateY(0)'; this.style.boxShadow = '0 4px 15px rgba(0,132,255,0.4)'; };
+        document.body.appendChild(chatButton);
     </script>
 </body>
 </html>

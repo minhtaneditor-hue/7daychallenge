@@ -262,14 +262,26 @@
             }
         });
 
-        form.addEventListener('submit', (e) => {
+        form.addEventListener('submit', async (e) => {
             e.preventDefault();
-            // Data chuẩn bị để gửi qua Webhook (vd: Zapier / Make.com)
             const formData = new FormData(form);
             const data = Object.fromEntries(formData.entries());
             
-            // Webhook Tương lai:
-            // fetch('YOUR_WEBHOOK_URL', { method: 'POST', body: JSON.stringify(data) })
+            const submitBtn = document.getElementById('submit-btn');
+            const originalText = submitBtn.innerText;
+            submitBtn.innerText = "Đang xử lý...";
+            submitBtn.disabled = true;
+
+            try {
+                // Gửi data sang Vercel API backend
+                await fetch('/api/submit', { 
+                    method: 'POST', 
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data) 
+                });
+            } catch(e) {
+                console.error("Lỗi gửi webhook", e);
+            }
             
             // Hiển thị QR Code
             form.style.display = 'none';

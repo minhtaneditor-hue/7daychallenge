@@ -1044,8 +1044,12 @@ footer p {
 }
 
 /* QR BOX & SUCCESS BOX - PREMIUM GLASSMORPHISM */
+.qr-box, .success-box, .qr-box *, .success-box *, .final-cta p, .wait-message {
+    font-family: 'Montserrat', sans-serif !important;
+}
+
 .qr-box, .success-box {
-    background: rgba(18, 18, 18, 0.85) !important;
+    background: rgba(16, 16, 16, 0.9) !important;
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     border: 1px solid rgba(255, 215, 0, 0.3) !important;
@@ -1053,7 +1057,22 @@ footer p {
     padding: 50px 30px !important;
     box-shadow: 0 20px 50px rgba(0,0,0,0.6), 0 0 30px rgba(255,215,0,0.1) !important;
     margin-top: 40px !important;
+}
+
+/* QR BOX & SUCCESS BOX - PREMIUM GLASSMORPHISM */
+.qr-box, .success-box, .qr-box *, .success-box *, .final-cta p, .wait-message {
     font-family: 'Montserrat', sans-serif !important;
+}
+
+.qr-box, .success-box {
+    background: rgba(18, 18, 18, 0.9) !important;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 215, 0, 0.4) !important;
+    border-radius: 30px !important;
+    padding: 50px 30px !important;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.6), 0 0 30px rgba(255,215,0,0.15) !important;
+    margin-top: 40px !important;
 }
 
 .qr-box h3, .success-box h3 {

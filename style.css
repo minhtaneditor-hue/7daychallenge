@@ -874,9 +874,9 @@ footer p {
 .reward-img { flex: 1; text-align: center; }
 .reward-img img {
     max-width: 100%;
-    filter: drop-shadow(0 0 30px rgba(255, 215, 0, 0.4));
+    filter: drop-shadow(0 0 50px rgba(255, 215, 0, 0.6)); /* Tăng hiệu ứng hào quang vàng */
     animation: float 4s ease-in-out infinite;
-    mix-blend-mode: multiply; /* Hòa tan nền trắng vào nền tối của web */
+    mix-blend-mode: multiply; /* Kỹ thuật xóa sạch nền trắng */
 }
 
 @keyframes float {

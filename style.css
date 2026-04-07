@@ -880,95 +880,123 @@ footer p {
     min-height: 250px;
 }
 
-/* 3D GIFT BOX CSS */
+/* 3D GIFT BOX PREMIUM 2.0 */
 .gift-box-3d {
-    width: 120px;
-    height: 120px;
+    width: 100px;
+    height: 100px;
     position: relative;
     transform-style: preserve-3d;
-    animation: rotateGift 10s infinite linear;
+    animation: rotateGift 12s infinite ease-in-out;
+}
+
+/* Hộp quà (Body) */
+.gift-body {
+    position: absolute;
+    width: 100px;
+    height: 100px;
+    transform-style: preserve-3d;
 }
 
 .gift-side {
     position: absolute;
-    width: 120px;
-    height: 120px;
-    background: linear-gradient(135deg, #a00 0%, #d00 100%);
-    border: 1px solid rgba(255, 215, 0, 0.4);
-    box-shadow: inset 0 0 30px rgba(0,0,0,0.5);
+    width: 100px;
+    height: 100px;
+    background: linear-gradient(135deg, #800 0%, #c00 100%);
+    border: 1px solid rgba(255, 215, 0, 0.2);
+    box-shadow: inset 0 0 30px rgba(0,0,0,0.6);
 }
 
-.gift-side.front  { transform: translateZ(60px); }
-.gift-side.back   { transform: rotateY(180deg) translateZ(60px); }
-.gift-side.right  { transform: rotateY(90deg) translateZ(60px); }
-.gift-side.left   { transform: rotateY(-90deg) translateZ(60px); }
-.gift-side.top    { 
-    transform: rotateX(90deg) translateZ(60px); 
-    background: #c00; 
-    box-shadow: inset 0 0 40px rgba(0,0,0,0.6);
-}
-.gift-side.bottom { transform: rotateX(-90deg) translateZ(60px); background: #800; }
+.gift-side.front  { transform: translateZ(50px); }
+.gift-side.back   { transform: rotateY(180deg) translateZ(50px); }
+.gift-side.right  { transform: rotateY(90deg) translateZ(50px); }
+.gift-side.left   { transform: rotateY(-90deg) translateZ(50px); }
+.gift-side.bottom { transform: rotateX(-90deg) translateZ(50px); background: #600; }
 
-/* Ribbons */
-.gift-box-3d::before, .gift-box-3d::after {
-    content: '';
+/* Nắp hộp (Lid) - Hơi rộng hơn thân */
+.gift-lid {
     position: absolute;
-    background: #FFD700;
-    box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+    width: 110px;
+    height: 35px;
+    top: -30px;
+    left: -5px;
+    transform-style: preserve-3d;
+    transform: translateZ(0);
+}
+
+.lid-side {
+    position: absolute;
+    background: linear-gradient(135deg, #900 0%, #d00 100%);
+    border: 1px solid rgba(255, 215, 0, 0.3);
+}
+
+.lid-side.front  { width: 110px; height: 35px; transform: translateZ(55px); }
+.lid-side.back   { width: 110px; height: 35px; transform: rotateY(180deg) translateZ(55px); }
+.lid-side.right  { width: 110px; height: 35px; transform: rotateY(90deg) translateZ(55px); }
+.lid-side.left   { width: 110px; height: 35px; transform: rotateY(-90deg) translateZ(55px); }
+.lid-side.top    { 
+    width: 110px; height: 110px; 
+    transform: rotateX(90deg) translateZ(55px); 
+    background: #d00;
+    box-shadow: inset 0 0 40px rgba(0,0,0,0.4);
+}
+
+/* Ruy-băng Gold */
+.ribbon-v, .ribbon-h {
+    position: absolute;
+    background: linear-gradient(to bottom, #FFD700, #B8860B);
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
     z-index: 10;
 }
+.ribbon-v { width: 22px; height: 100%; left: 50%; transform: translateX(-50%); }
+.ribbon-h { width: 100%; height: 22px; top: 50%; transform: translateY(-50%); }
 
-.gift-box-3d::before { /* Vertical */
-    width: 25px;
-    height: 100%;
-    left: 50%;
-    transform: translateX(-50%) translateZ(61px);
-}
-
-/* Side Ribbons */
-.side-ribbon {
-    position: absolute;
-    background: #DAA520;
-    z-index: 5;
-}
-.side-ribbon.v { width: 25px; height: 100%; left: 50%; transform: translateX(-50%); }
-.side-ribbon.h { width: 100%; height: 25px; top: 50%; transform: translateY(-50%); }
-
-.gift-side.front .ribbon-v { width: 25px; height: 100%; left: 50%; transform: translateX(-50%); background: #FFD700; position: absolute; }
-.gift-side.front .ribbon-h { width: 100%; height: 25px; top: 50%; transform: translateY(-50%); background: #FFD700; position: absolute; }
-.gift-side.right .ribbon-h { width: 100%; height: 25px; top: 50%; transform: translateY(-50%); background: #FFD700; position: absolute; }
-.gift-side.left .ribbon-h { width: 100%; height: 25px; top: 50%; transform: translateY(-50%); background: #FFD700; position: absolute; }
-.gift-side.back .ribbon-v { width: 25px; height: 100%; left: 50%; transform: translateX(-50%); background: #FFD700; position: absolute; }
-
-/* The Bow on Top */
+/* Cái Nơ (Bow) */
 .gift-bow {
     position: absolute;
-    top: -30px;
+    top: -65px;
     left: 50%;
     transform: translateX(-50%) rotateX(-90deg);
-    width: 60px;
-    height: 60px;
-    background: #FFD700;
-    border-radius: 50% 50% 0 50%;
-    transform-origin: bottom center;
-    box-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
-    z-index: 20;
+    z-index: 50;
+    transform-style: preserve-3d;
 }
 
-.gift-bow::after {
-    content: '';
-    position: absolute;
-    right: -60px;
-    width: 60px;
-    height: 60px;
+.bow-loop {
+    width: 45px;
+    height: 45px;
     background: #FFD700;
-    border-radius: 50% 50% 50% 0;
+    border-radius: 50% 50% 0 50%;
+    position: absolute;
+    top: 0;
+    left: -40px;
+    transform: rotate(-45deg);
+    box-shadow: 0 0 15px rgba(255,215,0,0.6);
+}
+
+.bow-loop.right {
+    left: -5px;
+    transform: rotate(45deg) scaleX(-1);
+    border-radius: 50% 50% 0 50%;
+}
+
+/* Hiệu ứng lấp lánh (Sparkles) */
+.sparkle {
+    position: absolute;
+    width: 5px;
+    height: 5px;
+    background: #FFD700;
+    border-radius: 50%;
+    filter: blur(1px);
+    animation: sparkleAnim 3s infinite;
+}
+
+@keyframes sparkleAnim {
+    0%, 100% { transform: scale(0) translate(0, 0); opacity: 0; }
+    50% { transform: scale(1.5) translate(var(--tx), var(--ty)); opacity: 1; }
 }
 
 @keyframes rotateGift {
-    0% { transform: rotateY(0) rotateX(-10deg) translateY(0); }
-    50% { transform: rotateY(180deg) rotateX(10deg) translateY(-20px); }
-    100% { transform: rotateY(360deg) rotateX(-10deg) translateY(0); }
+    0% { transform: rotateY(0) rotateX(-15deg); }
+    100% { transform: rotateY(360deg) rotateX(-15deg); }
 }
 
 @keyframes float {

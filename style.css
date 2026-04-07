@@ -290,7 +290,7 @@ h1, h2, h3 {
     text-transform: uppercase;
     text-align: center;
     box-shadow: 0 8px 20px rgba(255, 112, 67, 0.4);
-    animation: jelly 3s infinite;
+    animation: pulse-animation 2s infinite;
 }
 .accent-box p {
     margin: 0;

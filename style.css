@@ -341,6 +341,7 @@ h1, h2, h3 {
     border: 1px solid var(--accent-orange);
     background: linear-gradient(135deg, var(--dark-bg) 30%, var(--accent-orange) 100%);
     justify-content: center;
+    flex-direction: row !important;
 }
 
 .day-card img {
@@ -362,7 +363,7 @@ h1, h2, h3 {
 }
 .day-card.day-final img {
     outline-color: var(--accent-orange);
-    margin: 0 30px 0 0;
+    margin: 0 30px 0 0 !important;
 }
 .day-card:hover img {
     transform: scale(1.1);
@@ -381,7 +382,8 @@ h1, h2, h3 {
 }
 .day-card.day-final .day-overlay {
     flex: none;
-    text-align: left;
+    text-align: left !important;
+    max-width: 60%;
 }
 .day-num {
     color: var(--light-green);
@@ -537,7 +539,7 @@ footer p {
     .day-card:nth-child(odd), .day-card:nth-child(even) {
         align-self: center;
     }
-    .day-card img {
+    .day-card img, .day-card.day-final img {
         margin: 0 0 15px 0 !important;
     }
     .day-card:nth-child(even) {

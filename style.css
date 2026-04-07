@@ -398,10 +398,17 @@ h1, h2, h3 {
     -webkit-text-stroke: none;
     text-shadow: none;
 }
-.day-overlay p {
+.day-title {
     color: #fff;
-    font-size: 1.2rem;
-    font-weight: 600;
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+.day-desc {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    line-height: 1.5;
+    font-weight: 400;
 }
 
 /* --- 5. AUDIENCE SECTION --- */

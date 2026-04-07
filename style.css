@@ -880,7 +880,7 @@ footer p {
     min-height: 250px;
 }
 
-/* 3D GIFT BOX PREMIUM 3.0 (LOGIC & SMOOTH) */
+/* 3D GIFT BOX PREMIUM 4.0 (GLOWING ROUNDED CUBE) */
 .gift-box-3d {
     width: 100px;
     height: 100px;
@@ -901,10 +901,10 @@ footer p {
     position: absolute;
     width: 100px;
     height: 100px;
-    background: linear-gradient(135deg, #900 0%, #c00 100%);
-    border: 1px solid rgba(255, 215, 0, 0.3);
-    border-radius: 4px; /* Bo góc mượt mà */
-    box-shadow: inset 0 0 40px rgba(0,0,0,0.7);
+    background: linear-gradient(135deg, #a00 0%, #e00 100%);
+    border: 2px solid rgba(255, 215, 0, 0.8); /* Viền sáng mạnh hơn */
+    border-radius: 15px; /* Bo tròn mạnh hơn */
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.4), inset 0 0 30px rgba(0,0,0,0.5);
     overflow: hidden;
 }
 
@@ -912,81 +912,60 @@ footer p {
 .gift-side.back   { transform: rotateY(180deg) translateZ(50px); }
 .gift-side.right  { transform: rotateY(90deg) translateZ(50px); }
 .gift-side.left   { transform: rotateY(-90deg) translateZ(50px); }
-.gift-side.bottom { transform: rotateX(-90deg) translateZ(50px); background: #500; }
+.gift-side.bottom { transform: rotateX(-90deg) translateZ(50px); background: #500; border-radius: 15px;}
 
 /* Nắp hộp */
 .gift-lid {
     position: absolute;
-    width: 108px;
+    width: 110px;
     height: 30px;
-    top: -30px;
-    left: -4px;
+    top: -25px;
+    left: -5px;
     transform-style: preserve-3d;
 }
 
 .lid-side {
     position: absolute;
-    background: linear-gradient(135deg, #a00 0%, #d00 100%);
-    border: 1px solid rgba(255, 215, 0, 0.4);
-    border-radius: 2px;
+    background: linear-gradient(135deg, #c00 0%, #f00 100%);
+    border: 2px solid rgba(255, 215, 0, 0.9);
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
 }
 
-.lid-side.front  { width: 108px; height: 30px; transform: translateZ(54px); }
-.lid-side.back   { width: 108px; height: 30px; transform: rotateY(180deg) translateZ(54px); }
-.lid-side.right  { width: 108px; height: 30px; transform: rotateY(90deg) translateZ(54px); }
-.lid-side.left   { width: 108px; height: 30px; transform: rotateY(-90deg) translateZ(54px); }
+.lid-side.front  { width: 110px; height: 30px; transform: translateZ(55px); }
+.lid-side.back   { width: 110px; height: 30px; transform: rotateY(180deg) translateZ(55px); }
+.lid-side.right  { width: 110px; height: 30px; transform: rotateY(90deg) translateZ(55px); }
+.lid-side.left   { width: 110px; height: 30px; transform: rotateY(-90deg) translateZ(55px); }
 .lid-side.top    { 
-    width: 108px; height: 108px; 
-    transform: rotateX(90deg) translateZ(54px); 
-    background: #e00;
-    box-shadow: inset 0 0 50px rgba(0,0,0,0.5);
+    width: 110px; height: 110px; 
+    transform: rotateX(90deg) translateZ(55px); 
+    background: #f00;
+    box-shadow: inset 0 0 40px rgba(0,0,0,0.3);
+    border-radius: 15px;
 }
 
-/* Ruy-băng Gold Logic */
+/* Ruy-băng Gold Phát Sáng */
 .ribbon-v, .ribbon-h {
     position: absolute;
-    background: linear-gradient(to bottom, #FFD700, #B8860B, #FFD700);
-    box-shadow: 0 0 8px rgba(0,0,0,0.3);
+    background: linear-gradient(to bottom, #FFD700, #FFFACD, #FFD700);
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.8);
     z-index: 10;
 }
 .ribbon-v { width: 20px; height: 100%; left: 50%; transform: translateX(-50%); }
 .ribbon-h { width: 100%; height: 20px; top: 50%; transform: translateY(-50%); }
 
-/* Nơ tỉ lệ chuẩn (Sized Proportional) */
-.gift-bow {
-    position: absolute;
-    top: -55px;
-    left: 50%;
-    transform: translateX(-50%) rotateX(-90deg);
-    z-index: 50;
-    transform-style: preserve-3d;
-}
+/* Xóa nơ cũ (Empty class to avoid errors if kept in HTML) */
+.gift-bow { display: none; }
 
-.bow-loop {
-    width: 32px; /* Thu nhỏ nơ cho logic */
-    height: 32px;
-    background: linear-gradient(135deg, #FFD700 0%, #B8860B 100%);
-    border-radius: 50% 50% 10% 50%;
-    position: absolute;
-    top: 0;
-    left: -30px;
-    transform: rotate(-45deg);
-    box-shadow: 2px 2px 10px rgba(0,0,0,0.4);
-}
-
-.bow-loop.right {
-    left: -2px;
-    transform: rotate(45deg) scaleX(-1);
-}
-
-/* Hiệu ứng lấp lánh nhẹ nhàng */
+/* Hiệu ứng lấp lánh nồng nàn hơn */
 .sparkle {
     position: absolute;
-    width: 4px;
-    height: 4px;
+    width: 6px;
+    height: 6px;
     background: #FFD700;
     border-radius: 50%;
     filter: blur(1px);
+    box-shadow: 0 0 10px #FFD700;
     animation: sparkleAnim 4s infinite linear;
 }
 
@@ -1062,6 +1041,26 @@ footer p {
     .reward-info { text-align: center; }
     .reward-title { font-size: 1.8rem; }
     .reward-value { font-size: 2.2rem; }
+}
+
+/* QR BOX & SUCCESS BOX FONTS FIX */
+.qr-box, .success-box, .final-cta p, .qr-box h3, .price-tag, .wait-message {
+    font-family: 'Montserrat', sans-serif !important;
+}
+
+.qr-box h3 {
+    font-weight: 800;
+    color: #FFD700;
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+}
+
+.price-tag {
+    font-size: 2rem;
+    font-weight: 900;
+    color: #fff;
+    margin-bottom: 20px;
+    text-shadow: 0 0 10px rgba(255,215,0,0.3);
 }
 
 .hidden {

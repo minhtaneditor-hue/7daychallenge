@@ -34,7 +34,7 @@ export default async function handler(req, res) {
                         'Authorization': `Bearer ${RESEND_API_KEY}`
                     },
                     body: JSON.stringify({
-                        from: '7 Day Challenge <onboarding@resend.dev>',
+                        from: 'Minh Tấn <challenge@minhtanacademy.com>',
                         to: lead.email,
                         subject: `📸 THỬ THÁCH NGÀY ${day}: ${getSubject(day)}`,
                         html: getEmailHtml(day, lead.fullname)

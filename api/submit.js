@@ -52,7 +52,7 @@ export default async function handler(req, res) {
                 'Authorization': `Bearer ${RESEND_API_KEY}`
             },
             body: JSON.stringify({
-                from: '7 Day Challenge <onboarding@resend.dev>', // Sau này Tấn có thể thay bằng email của bạn
+                from: 'Minh Tấn <challenge@minhtanacademy.com>',
                 to: data.email,
                 subject: '🎉 Chào mừng bạn đến với Thử thách 7 Ngày Boyfriend Camera!',
                 html: `

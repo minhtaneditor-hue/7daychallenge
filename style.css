@@ -642,17 +642,31 @@ footer p {
 
 /* MINI FOOTER */
 .mini-footer {
-  text-align: center;
-  padding: 30px 20px;
+  text-align: left;
+  padding: 40px 20px;
   background: #020e0d;
   border-top: 1px solid rgba(255,255,255,0.05);
   font-size: 0.9rem;
+}
+.footer-wrap {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 30px;
+}
+.footer-right {
+  text-align: right;
+}
+.footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
 }
 .footer-links a {
   color: var(--text-muted);
   text-decoration: none;
   font-weight: 600;
-  margin-right: 20px;
   transition: color 0.3s;
 }
 .footer-links a:hover {
@@ -660,6 +674,9 @@ footer p {
 }
 .footer-copy {
   color: #666;
+}
+@media (max-width: 768px) {
+  .footer-right { text-align: left; }
 }
 
 /* MODAL POPUP (POLICY) */

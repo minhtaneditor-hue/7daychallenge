@@ -4,7 +4,7 @@ export default async function handler(req, res) {
     const update = req.body;
     const BOT_TOKEN = '8753662126:AAHjqwCiSyn50oxIg7ABgebgh_B1tiWNX0E';
     const CHAT_ID = '7384174497';
-    const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbxlqXGgzQVl47NiiQ4A4Rmv09dCb1rEcipqK4MbyvrT7_2nLZE3403h49kArxO2bLKRyQ/exec';
+    const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbwbOHoItaUgHoiRqEIeUcLogzE-BSg4GcDWJK7P1s2C/exec';
 
     try {
         // Kiểm tra nếu là hành động bấm nút (Callback Query)

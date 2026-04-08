@@ -39,7 +39,7 @@ export default async function handler(req, res) {
             });
 
             // Google Sheet
-            const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbxlqXGgzQVl47NiiQ4A4Rmv09dCb1rEcipqK4MbyvrT7_2nLZE3403h49kArxO2bLKRyQ/exec';
+            const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbwbOHoItaUgHoiRqEIeUcLogzE-BSg4GcDWJK7P1s2C/exec';
             await fetch(GOOGLE_SHEET_URL, {
                 method: 'POST',
                 mode: 'no-cors',

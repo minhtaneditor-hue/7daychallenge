@@ -127,19 +127,36 @@
             document.getElementById('total-revenue').innerText = revenue.toLocaleString('vi-VN') + 'đ';
 
             const tbody = document.getElementById('lead-table-body');
-            tbody.innerHTML = leads.map(lead => `
-                <tr>
-                    <td>${new Date(lead.timestamp).toLocaleString('vi-VN')}</td>
-                    <td style="font-weight: 700;">${lead.fullname || 'Ẩn danh'}</td>
-                    <td>${lead.phone || '-'}</td>
-                    <td>${lead.email || '-'}</td>
-                    <td>
-                        <span class="status-badge status-${(lead.status || 'PENDING').toLowerCase()}">
-                            ${lead.status || 'PENDING'}
-                        </span>
-                    </td>
-                </tr>
-            `).join('');
+            tbody.innerHTML = leads.map(lead => {
+                const status = (lead.status || 'PENDING').toUpperCase();
+                let statusText = '⏳ Chờ thanh toán';
+                let statusClass = 'status-pending';
+
+                if (status === 'PAID') {
+                    statusText = '✅ Đã thanh toán';
+                    statusClass = 'status-paid';
+                } else if (status === 'CANCELLED') {
+                    statusText = '❌ Đã hủy';
+                    statusClass = 'status-cancelled';
+                } else if (status === 'REMINDED') {
+                    statusText = '🔔 Đã nhắc nhở';
+                    statusClass = 'status-reminded';
+                }
+
+                return `
+                    <tr>
+                        <td>${new Date(lead.timestamp).toLocaleString('vi-VN')}</td>
+                        <td style="font-weight: 700;">${lead.fullname || 'Ẩn danh'}</td>
+                        <td>${lead.phone || '-'}</td>
+                        <td>${lead.email || '-'}</td>
+                        <td>
+                            <span class="status-badge ${statusClass}">
+                                ${statusText}
+                            </span>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
         }
     </script>
 </body>

@@ -89,17 +89,19 @@
                 const response = await fetch(`/api/admin?pw=${pw}`);
                 const result = await response.json();
 
-                if (result.success) {
+                if (response.status === 200 && result.success) {
                     localStorage.setItem('admin_pw', pw);
                     overlay.classList.add('hidden');
                     content.classList.remove('hidden');
                     renderDashboard(result.data);
-                } else {
+                } else if (response.status === 401) {
                     alert("Sai mật khẩu!");
                     localStorage.removeItem('admin_pw');
+                } else {
+                    alert("Lỗi hệ thống: Không thể kết nối tới Google Sheets. Vui lòng kiểm tra lại Google Apps Script.");
                 }
             } catch (e) {
-                alert("Lỗi kết nối server!");
+                alert("Lỗi kết nối server: " + e.message);
             }
         }
 

@@ -13,6 +13,11 @@ export default async function handler(req, res) {
         
         // Fetch data from Google Sheet (doGet)
         const response = await fetch(GOOGLE_SHEET_URL);
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Apps Script Fetch Failed:', errorText);
+            throw new Error(`Google Apps Script returned ${response.status}`);
+        }
         const data = await response.json();
         
         return res.status(200).json({ 

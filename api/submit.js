@@ -10,7 +10,9 @@ export default async function handler(req, res) {
 
         // 1. NGƯỜI DÙNG ĐĂNG KÍ (LEAD)
         if (!action || action === 'submit-lead') {
+            const vnTime = new Date().toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });
             const message = `🔔 CÓ KHÁCH MỚI ĐĂNG KÝ!\n` +
+                          `📅 Thời gian: ${vnTime}\n` +
                           `----------------------------\n` +
                           `👤 Họ tên: ${data.fullname || 'Không có'}\n` +
                           `📞 SĐT: ${data.phone || 'Không có'}\n` +
@@ -75,7 +77,9 @@ export default async function handler(req, res) {
 
         // 2. KHÁCH XÁC NHẬN ĐÃ CHUYỂN TIỀN (CONFIRM)
         if (action === 'confirm-payment') {
+            const vnTime = new Date().toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });
             const message = `💰 XÁC NHẬN CHUYỂN TIỀN!\n` +
+                          `📅 Thời gian: ${vnTime}\n` +
                           `----------------------------\n` +
                           `👤 Khách: ${data.fullname || 'Không rõ'}\n` +
                           `📞 SĐT: ${data.phone}\n` +

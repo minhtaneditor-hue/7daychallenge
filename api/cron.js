@@ -20,37 +20,67 @@ export default async function handler(req, res) {
 
         // 2. Duyệt qua từng học viên để kiểm tra ngày
         for (const lead of leads) {
-            // KIỂM TRA TRẠNG THÁI THANH TOÁN (Cột F trong Google Sheet)
-            // Nếu Tấn chưa điền gì vào cột F, con Agent sẽ bỏ qua người này
-            if (!lead.status) continue;
-
             const signupDate = new Date(lead.timestamp);
             const diffInMs = now - signupDate;
+            const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
             const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
 
-            // Chỉ gửi từ Day 1 đến Day 7 cho những người ĐÃ THANH TOÁN
-            if (diffInDays >= 1 && diffInDays <= 7) {
-                const day = diffInDays;
-                const templateKey = `day${day}`;
+            // --- TRƯỜNG HỢP 1: NHẮC NHỞ THANH TOÁN (Sau 30 phút) ---
+            // Nếu status trống và đăng kí trong khoảng 30-90 phút trước
+            if (!lead.status && diffInMinutes >= 30 && diffInMinutes <= 90) {
+                const emailData = templates.paymentReminder(lead.fullname, lead.phone);
                 
-                if (templates[templateKey]) {
-                    const emailData = templates[templateKey](lead.fullname);
+                await fetch(resendUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${RESEND_API_KEY}`
+                    },
+                    body: JSON.stringify({
+                        from: 'Minh Tấn <challenge@minhtanacademy.com>',
+                        to: lead.email,
+                        subject: emailData.subject,
+                        html: emailData.html
+                    })
+                });
+
+                // Cập nhật trạng thái đã nhắc nhở để không gửi lại
+                await fetch(GOOGLE_SHEET_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'update-status', phone: lead.phone, status: 'REMINDED' })
+                });
+
+                sentLogs.push({ email: lead.email, type: 'reminder' });
+                continue; // Xử lý xong lead này
+            }
+
+            // --- TRƯỜNG HỢP 2: GỬI BÀI HỌC 7 NGÀY (Dành cho người đã thanh toán) ---
+            // status không trống và không phải là 'REMINDED' hay 'CANCELLED'
+            if (lead.status && lead.status !== 'REMINDED' && lead.status !== 'CANCELLED') {
+                if (diffInDays >= 1 && diffInDays <= 7) {
+                    const day = diffInDays;
+                    const templateKey = `day${day}`;
                     
-                    // Gửi email bài học tương ứng
-                    await fetch(resendUrl, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${RESEND_API_KEY}`
-                        },
-                        body: JSON.stringify({
-                            from: 'Minh Tấn <challenge@minhtanacademy.com>',
-                            to: lead.email,
-                            subject: `📸 ${emailData.subject}`,
-                            html: emailData.html
-                        })
-                    });
-                    sentLogs.push({ email: lead.email, day: day });
+                    if (templates[templateKey]) {
+                        const emailData = templates[templateKey](lead.fullname);
+                        
+                        // Gửi email bài học tương ứng
+                        await fetch(resendUrl, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${RESEND_API_KEY}`
+                            },
+                            body: JSON.stringify({
+                                from: 'Minh Tấn <challenge@minhtanacademy.com>',
+                                to: lead.email,
+                                subject: emailData.subject,
+                                html: emailData.html
+                            })
+                        });
+                        sentLogs.push({ email: lead.email, day: day });
+                    }
                 }
             }
         }

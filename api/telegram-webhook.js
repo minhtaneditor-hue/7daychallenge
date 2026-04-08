@@ -13,8 +13,17 @@ export default async function handler(req, res) {
             const callbackId = id;
             const [action, phone] = data.split('_');
 
+            const vnTime = new Date().toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });
+            
             if (action === 'approve') {
-                // 1. Gọi Google Sheet để cập nhật PAID
+                // 1. Phản hồi ngay lập tức để Telegram không hiện icon xoay (loading)
+                await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/answerCallbackQuery`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ callback_query_id: callbackId, text: '⏳ Đang xử lý duyệt...' })
+                });
+
+                // 2. Gọi Google Sheet để cập nhật PAID
                 const gSheetResponse = await fetch(GOOGLE_SHEET_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -24,30 +33,41 @@ export default async function handler(req, res) {
                 const result = await gSheetResponse.json();
 
                 if (result.status === 'updated') {
-                    // Phản hồi nút bấm thành công
-                    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/answerCallbackQuery`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ callback_query_id: callbackId, text: '✅ Đã Duyệt Thành Công!' })
-                    });
-
-                    // Gửi tin nhắn thông báo mới cho Tấn
+                    // 3. Gửi tin nhắn thông báo mới cho Tấn
                     await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ 
                             chat_id: CHAT_ID, 
-                            text: `✅ ĐÃ DUYỆT THANH TOÁN CHO KHÁCH: ${phone}\nHọc viên sẽ bắt đầu nhận bài học từ 8h sáng mai.` 
-                        });
+                            text: `✅ ĐÃ DUYỆT THANH TOÁN CHO KHÁCH: ${phone}\n📅 Thời gian: ${vnTime}\nHọc viên sẽ bắt đầu nhận bài học từ 8h sáng mai.` 
+                        })
                     });
                 }
             }
 
             if (action === 'reject') {
+                // 1. Phản hồi ngay lập tức
                 await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/answerCallbackQuery`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ callback_query_id: callbackId, text: '❌ Đã Huỷ Đơn' })
+                    body: JSON.stringify({ callback_query_id: callbackId, text: '❌ Đang thực hiện huỷ đơn...' })
+                });
+
+                // 2. Gọi Google Sheet để cập nhật CANCELLED
+                await fetch(GOOGLE_SHEET_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'cancel-status', phone: phone })
+                });
+
+                // 3. Thông báo cho Tấn
+                await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        chat_id: CHAT_ID, 
+                        text: `❌ ĐÃ HUỶ ĐƠN ĐĂNG KÝ: ${phone}\n📅 Thời gian: ${vnTime}` 
+                    })
                 });
             }
         }

@@ -7,7 +7,7 @@ const templates = {
         html: baseTemplate(name, `
             <h2 style="color: #9b2c2c; font-size: 22px; border-bottom: 2px solid #feb2b2; padding-bottom: 10px;">📩 ĐỪNG ĐỂ SỰ TRÌ HOÃN LÀM "DÌM HÀNG" CHIẾC IPHONE 30 TRIỆU CỦA BẠN</h2>
             <p>Chào bạn, tôi là Tấn.</p>
-            <p>Tôi thấy bạn đã đăng ký tham gia <b>7 Day Boyfriend Camera</b> nhưng chưa hoàn tất bước cuối cùng. Với tư cách là một Advisor, tôi muốn nhắc bạn về một "điểm đau" thực tế:</p>
+            <p>Tôi thấy bạn đã đăng ký tham gia <b>7 Ngày Lên Tay "Phó Nháy" Cho Người Yêu</b> nhưng chưa hoàn tất bước cuối cùng. Với tư cách là một Advisor, tôi muốn nhắc bạn về một "điểm đau" thực tế:</p>
             
             <div style="background: #fff5f5; padding: 20px; border-radius: 10px; border-left: 5px solid #e53e3e; margin: 20px 0;">
                 <h4 style="margin: 0; color: #9b2c2c;">1. Vấn đề:</h4>
@@ -55,7 +55,7 @@ const templates = {
         html: baseTemplate(name, `
             <h2 style="color: #06403D; font-size: 24px; border-bottom: 2px solid #FFD700; padding-bottom: 10px;">📩 BIẾN CHIẾC IPHONE 30 TRIỆU THÀNH "VŨ KHÍ" HẠNH PHÚC</h2>
             <p>Chào bạn, tôi là Minh Tấn.</p>
-            <p>Chúc mừng bạn đã chính thức có mặt tại thử thách <b>7 Day Boyfriend Camera</b>. Việc bạn đọc email này cho thấy bạn không muốn tiếp tục là một người "tàng hình" trên mạng xã hội hay một "phó nháy" luôn khiến người thương phải thở dài.</p>
+            <p>Chúc mừng bạn đã chính thức có mặt tại thử thách <b>7 Ngày Lên Tay "Phó Nháy" Cho Người Yêu</b>. Việc bạn đọc email này cho thấy bạn không muốn tiếp tục là một người "tàng hình" trên mạng xã hội hay một "phó nháy" luôn khiến người thương phải thở dài.</p>
             
             <div style="background: #fdf6e3; padding: 20px; border-radius: 10px; margin: 20px 0; border-left: 5px solid #FFD700;">
                 <h4 style="margin: 0; color: #b8860b;">🎯 Lý do thử thách này ra đời</h4>
@@ -77,7 +77,7 @@ const templates = {
 
             <div style="background: #e6fffa; padding: 20px; border-radius: 10px; margin: 20px 0; text-align: center;">
                 <h4 style="margin: 0; color: #06403D;">🧭 Lời mời tham gia thử thách</h4>
-                <p style="margin-top: 10px;">Hành trình trở thành "Boyfriend Camera" thực thụ sẽ bắt đầu vào sáng mai. Bài học đầu tiên: <b>"Chỉnh góc này, mặt sẽ nhỏ lại ngay"</b>.</p>
+                <p style="margin-top: 10px;">Hành trình trở thành "Phó Nháy" thực thụ sẽ bắt đầu vào sáng mai. Bài học đầu tiên: <b>"Chỉnh góc này, mặt sẽ nhỏ lại ngay"</b>.</p>
             </div>
 
             <p>Để bắt đầu, hãy chuẩn bị sẵn tinh thần và chiếc smartphone của bạn.</p>
@@ -472,7 +472,7 @@ function baseTemplate(name, body) {
         <div style="background: #f4f4f4; padding: 40px 20px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;">
             <div style="max-width: 600px; margin: 0 auto; background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
                 <div style="background: #06403D; padding: 25px; text-align: center; border-bottom: 4px solid #FFD700;">
-                    <h1 style="color: white; margin: 0; font-size: 20px; letter-spacing: 2px;">BOYFRIEND CAMERA CHALLENGE</h1>
+                    <h1 style="color: white; margin: 0; font-size: 20px; letter-spacing: 2px;">7 NGÀY LÊN TAY "PHÓ NHÁY"</h1>
                 </div>
                 <div style="padding: 30px 40px; color: #333; line-height: 1.7; font-size: 16px;">
                     <p style="font-size: 18px;">Xin chào <b>${name || 'bạn'}</b>,</p>
@@ -485,7 +485,7 @@ function baseTemplate(name, body) {
             </div>
             <p style="text-align: center; color: #999; font-size: 12px; margin-top: 20px;">
                 © 2026 Minh Tần Academy. Đã đăng ký bản quyền.<br>
-                Bạn nhận được email này vì đã đăng ký Thử thách 7 Ngày Boyfriend Camera.
+                Bạn nhận được email này vì đã đăng ký Thử thách 7 Ngày Lên Tay "Phó Nháy" Cho Người Yêu.
             </p>
         </div>
     `;

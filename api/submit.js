@@ -58,7 +58,7 @@ export default async function handler(req, res) {
                 body: JSON.stringify({
                     from: 'Minh Tấn <challenge@minhtanacademy.com>',
                     to: data.email,
-                    subject: '🎉 Chào mừng bạn đến với Thử thách 7 Ngày Boyfriend Camera!',
+                    subject: '🎉 Chào mừng bạn đến với Thử thách 7 Ngày Lên Tay Phó Nháy Cho Người Yêu!',
                     html: `
                         <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
                             <h2>Xin chào ${data.fullname || 'bạn'}!</h2>

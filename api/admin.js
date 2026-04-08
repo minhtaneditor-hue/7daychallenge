@@ -22,13 +22,38 @@ export default async function handler(req, res) {
         
         return res.status(200).json({ 
             success: true, 
-            data: data.map(item => ({
-                ...item,
-                // Normalize keys to lowercase if needed
-                timestamp: item.timestamp || item.ts,
-                fullname: item.fullname || item.name,
-                status: item.status || 'PENDING'
-            }))
+            data: data.map(item => {
+                const normalized = { ...item };
+                
+                // Intelligent Mapping Logic
+                for (const key in item) {
+                    const lowerKey = key.toLowerCase();
+                    const val = item[key];
+
+                    if (lowerKey.includes('dấu thời gian') || lowerKey.includes('timestamp')) {
+                        normalized.timestamp = val;
+                    }
+                    if (lowerKey.includes('họ và tên') || lowerKey.includes('name')) {
+                        normalized.fullname = val;
+                    }
+                    if (lowerKey.includes('số điện thoại') || lowerKey.includes('phone') || lowerKey.includes('sđt')) {
+                        normalized.phone = val;
+                    }
+                    if (lowerKey.includes('email') || lowerKey.includes('địa chỉ email')) {
+                        normalized.email = val;
+                    }
+                    if (lowerKey.includes('status') || lowerKey.includes('trạng thái')) {
+                        normalized.status = val;
+                    }
+                }
+
+                // Defaults if mapping fails
+                normalized.timestamp = normalized.timestamp || item.timestamp || item.ts;
+                normalized.fullname = normalized.fullname || item.fullname || item.name || 'Ẩn danh';
+                normalized.status = normalized.status || item.status || 'PENDING';
+
+                return normalized;
+            })
         });
     } catch (error) {
         console.error('Admin API Error:', error);

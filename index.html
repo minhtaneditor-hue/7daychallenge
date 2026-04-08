@@ -20,11 +20,25 @@
     <meta property="twitter:description" content="Biến chiếc điện thoại của bạn thành 'camera bạn trai' trong 7 ngày. Giúp bạn chụp người yêu đẹp hơn.">
     <meta property="twitter:image" content="https://7day.minhtanacademy.com/assets/seo-og.png">
 
-    <link rel="stylesheet" href="style.css">
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+
+    <!-- Meta Pixel Code -->
+    <script>
+    !function(f,b,e,v,n,t,s)
+    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+    n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t,s)}(window, document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '980574684677924');
+    fbq('track', 'PageView');
+    </script>
+    <noscript><img height="1" width="1" style="display:none"
+    src="https://www.facebook.com/tr?id=980574684677924&ev=PageView&noscript=1"
+    /></noscript>
+    <!-- End Meta Pixel Code -->
 </head>
 <body>
     <!-- Top Logo / Header -->
@@ -404,12 +418,14 @@
                 submitBtn.disabled = true;
 
                 try {
-                    // Bước 1: Gửi Lead (Thông tin khách hàng)
                     await fetch('/api/submit', { 
                         method: 'POST', 
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ action: 'submit-lead', ...currentLeadData }) 
                     });
+                    
+                    // Tracking Lead
+                    fbq('track', 'Lead');
                     
                     // Hiển thị QR Code & Ẩn sạch Form
                     formContent.style.display = 'none';
@@ -436,6 +452,9 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ action: 'confirm-payment', ...currentLeadData }) 
                 });
+
+                // Tracking Purchase
+                fbq('track', 'Purchase', { value: 199000, currency: 'VND' });
 
                 // Chuyển sang bảng thành công
                 qrBox.classList.add('hidden');

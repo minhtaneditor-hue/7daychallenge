@@ -16,8 +16,7 @@ export default async function handler(req, res) {
                           `----------------------------\n` +
                           `👤 Họ tên: ${data.fullname || 'Không có'}\n` +
                           `📞 SĐT: ${data.phone || 'Không có'}\n` +
-                          `📧 Email: ${data.email || 'Không có'}\n` +
-                          `🔗 Facebook: ${data.fblink || 'Không có'}\n\n` +
+                          `📧 Email: ${data.email || 'Không có'}\n\n` +
                           `👉 Check Google Sheet ngay!`;
 
             // 1. Gửi Telegram phê duyệt (DÀNH CHO TẤN)

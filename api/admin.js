@@ -28,8 +28,10 @@ export default async function handler(req, res) {
                 // Intelligent Mapping Logic
                 for (const key in item) {
                     const lowerKey = key.toLowerCase();
-                    const val = item[key];
+                    const val = String(item[key] || "").trim();
+                    if (!val) continue;
 
+                    // 1. Map by Header Keyword
                     if (lowerKey.includes('dấu thời gian') || lowerKey.includes('timestamp')) {
                         normalized.timestamp = val;
                     }
@@ -45,12 +47,26 @@ export default async function handler(req, res) {
                     if (lowerKey.includes('status') || lowerKey.includes('trạng thái')) {
                         normalized.status = val;
                     }
+
+                    // 2. Heuristic Overrides (If data is in the wrong column)
+                    // If 'fullname' looks like a phone number, move it to phone
+                    if (normalized.fullname && /^\d+$/.test(normalized.fullname.replace(/[\s\.\-\+]/g, '')) && normalized.fullname.length >= 8) {
+                        if (!normalized.phone || normalized.phone.length < 5) {
+                            normalized.phone = normalized.fullname;
+                            normalized.fullname = item['địa chỉ email'] || item['name'] || 'Khách hàng';
+                        }
+                    }
+                    
+                    // If 'status' is missing but we discover 'PAID' or 'CANCELLED' in any field
+                    if (val.toUpperCase() === 'PAID' || val.toUpperCase() === 'CANCELLED' || val.toUpperCase() === 'REMINDED') {
+                        normalized.status = val.toUpperCase();
+                    }
                 }
 
-                // Defaults if mapping fails
+                // Final Cleanups
                 normalized.timestamp = normalized.timestamp || item.timestamp || item.ts;
-                normalized.fullname = normalized.fullname || item.fullname || item.name || 'Ẩn danh';
-                normalized.status = normalized.status || item.status || 'PENDING';
+                normalized.fullname = normalized.fullname || 'Ẩn danh';
+                normalized.status = (normalized.status || 'PENDING').toUpperCase();
 
                 return normalized;
             })

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | 7 Ngày Lên Tay Phó Nháy</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+</head>
+<body class="admin-body">
+
+    <!-- Login Overlay -->
+    <div id="login-overlay" class="admin-login-overlay">
+        <div class="login-card">
+            <h2 style="margin-bottom: 20px;">🔒 Admin Access</h2>
+            <input type="password" id="admin-pw" placeholder="Nhập mật khẩu..." style="width: 100%; padding: 15px; border-radius: 10px; border: 1px solid var(--glass-border); background: rgba(0,0,0,0.5); color: #fff; margin-bottom: 20px;">
+            <button onclick="checkPassword()" class="cta-button" style="width: 100%;">Truy cập ngay</button>
+        </div>
+    </div>
+
+    <!-- Main Dashboard -->
+    <div id="dashboard-content" class="hidden">
+        <header class="dashboard-header">
+            <div>
+                <h1 style="font-size: 1.8rem; color: #fff;">DASHBOARD</h1>
+                <p style="color: var(--text-muted); font-size: 0.9rem;">Chào mừng quay trở lại, Tấn!</p>
+            </div>
+            <button onclick="fetchLeads()" class="refresh-btn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+                Làm mới dữ liệu
+            </button>
+        </header>
+
+        <div class="stat-grid">
+            <div class="stat-card">
+                <div class="stat-label">Tổng số Lead</div>
+                <div id="total-leads" class="stat-value">0</div>
+                <div class="stat-trend">↑ 100% từ đầu chiến dịch</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Đã thanh toán (PAID)</div>
+                <div id="total-paid" class="stat-value">0</div>
+                <div id="conversion-rate" class="stat-trend">Tỉ lệ chuyển đổi: 0%</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Doanh thu tạm tính</div>
+                <div id="total-revenue" class="stat-value">0đ</div>
+                <div class="stat-trend">Dựa trên đơn PAID</div>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <h3 style="margin-bottom: 20px; color: #fff;">Danh sách đăng ký gần đây</h3>
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Thời gian</th>
+                        <th>Khách hàng</th>
+                        <th>Số điện thoại</th>
+                        <th>Email</th>
+                        <th>Trạng thái</th>
+                    </tr>
+                </thead>
+                <tbody id="lead-table-body">
+                    <!-- Data will be injected here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        let adminPw = localStorage.getItem('admin_pw');
+
+        if (adminPw) {
+            login(adminPw);
+        }
+
+        async function checkPassword() {
+            const pw = document.getElementById('admin-pw').value;
+            if (!pw) return alert("Vui lòng nhập mật khẩu!");
+            login(pw);
+        }
+
+        async function login(pw) {
+            const overlay = document.getElementById('login-overlay');
+            const content = document.getElementById('dashboard-content');
+            
+            try {
+                const response = await fetch(`/api/admin?pw=${pw}`);
+                const result = await response.json();
+
+                if (result.success) {
+                    localStorage.setItem('admin_pw', pw);
+                    overlay.classList.add('hidden');
+                    content.classList.remove('hidden');
+                    renderDashboard(result.data);
+                } else {
+                    alert("Sai mật khẩu!");
+                    localStorage.removeItem('admin_pw');
+                }
+            } catch (e) {
+                alert("Lỗi kết nối server!");
+            }
+        }
+
+        async function fetchLeads() {
+            const pw = localStorage.getItem('admin_pw');
+            const response = await fetch(`/api/admin?pw=${pw}`);
+            const result = await response.json();
+            if (result.success) renderDashboard(result.data);
+        }
+
+        function renderDashboard(leads) {
+            // Sort by Date (newest first)
+            leads.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+            const totalLeads = leads.length;
+            const paidLeads = leads.filter(l => l.status === 'PAID').length;
+            const revenue = paidLeads * 199000;
+            const convRate = totalLeads > 0 ? ((paidLeads / totalLeads) * 100).toFixed(1) : 0;
+
+            document.getElementById('total-leads').innerText = totalLeads;
+            document.getElementById('total-paid').innerText = paidLeads;
+            document.getElementById('conversion-rate').innerText = `Tỉ lệ chuyển đổi: ${convRate}%`;
+            document.getElementById('total-revenue').innerText = revenue.toLocaleString('vi-VN') + 'đ';
+
+            const tbody = document.getElementById('lead-table-body');
+            tbody.innerHTML = leads.map(lead => `
+                <tr>
+                    <td>${new Date(lead.timestamp).toLocaleString('vi-VN')}</td>
+                    <td style="font-weight: 700;">${lead.fullname || 'Ẩn danh'}</td>
+                    <td>${lead.phone || '-'}</td>
+                    <td>${lead.email || '-'}</td>
+                    <td>
+                        <span class="status-badge status-${(lead.status || 'PENDING').toLowerCase()}">
+                            ${lead.status || 'PENDING'}
+                        </span>
+                    </td>
+                </tr>
+            `).join('');
+        }
+    </script>
+</body>
+</html>

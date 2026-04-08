@@ -6,7 +6,7 @@ export default async function handler(req, res) {
     //     return res.status(401).end('Unauthorized');
     // }
 
-    const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbwbOHoItaUgHoiRqEIeUcLogzE-BSg4GcDWJK7P1s2C/exec';
+    const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbwX0yiwRqL9GGWuzFBiufuEoa5VyZDNYahnWhyVhwGxlFWqulWwrioOq8MV8Q95-mUFdw/exec';
     const RESEND_API_KEY = 're_Gq7KcaeK_2ar8XM8RhiQxeyNMgnjpEr2o';
     const resendUrl = 'https://api.resend.com/emails';
 

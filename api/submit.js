@@ -17,60 +17,25 @@ export default async function handler(req, res) {
                           `👤 Họ tên: ${data.fullname || 'Không có'}\n` +
                           `📞 SĐT: ${data.phone || 'Không có'}\n` +
                           `📧 Email: ${data.email || 'Không có'}\n\n` +
-                          `👉 Check Google Sheet ngay!`;
+                          `Hệ thống đã ghi nhận Lead vào Google Sheet. Đang đợi khách xác nhận thanh toán...`;
 
-            // 1. Gửi Telegram phê duyệt (DÀNH CHO TẤN)
+            // 1. Gửi Telegram thông báo (KHÔNG CÓ NÚT)
             const telegramUrl = `https://api.telegram.org/bot8753662126:AAHjqwCiSyn50oxIg7ABgebgh_B1tiWNX0E/sendMessage`;
             await fetch(telegramUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    chat_id: '7384174497', 
-                    text: message,
-                    reply_markup: {
-                        inline_keyboard: [
-                            [
-                                { text: "✅ DUYỆT (PAID)", callback_data: `approve_${data.phone}` },
-                                { text: "❌ HUỶ ĐƠN", callback_data: `reject_${data.phone}` }
-                            ]
-                        ]
-                    }
-                })
+                body: JSON.stringify({ chat_id: '7384174497', text: message })
             });
 
-            // Google Sheet
-            const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbwswjN83gB61Hk4nRuOvLBh3I0PahQJlgZ-o6BIKR6Qv4NjerujSL6ZGLSP9J3iafNzZg/exec';
+            // 2. Gửi Google Sheet
+            const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbswjN83gB61Hk4nRuOvLBh3I0PahQJlgZ-o6BIKR6Qv4NjerujSL6ZGLSP9J3iafNzZg/exec';
             await fetch(GOOGLE_SHEET_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ action: 'submit-lead', ...data })
             });
 
-            // GỬI EMAIL CHÀO MỪNG (DAY 0) QUA RESEND
-            const RESEND_API_KEY = 're_Gq7KcaeK_2ar8XM8RhiQxeyNMgnjpEr2o';
-            await fetch('https://api.resend.com/emails', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${RESEND_API_KEY}`
-                },
-                body: JSON.stringify({
-                    from: 'Minh Tấn <challenge@minhtanacademy.com>',
-                    to: data.email,
-                    subject: '🎉 Chào mừng bạn đến với Thử thách 7 Ngày Lên Tay Phó Nháy Cho Người Yêu!',
-                    html: `
-                        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-                            <h2>Xin chào ${data.fullname || 'bạn'}!</h2>
-                            <p>Chúc mừng bạn đã chính thức tham gia vào hành trình biến chiếc điện thoại thành "vũ khí" chụp ảnh đỉnh cao.</p>
-                            <p><strong>Ngày hôm nay (Day 0):</strong> Hãy chuẩn bị tâm lý và kiểm tra thiết bị của bạn. Bài học chính thức đầu tiên sẽ được gửi vào sáng mai nhé!</p>
-                            <p>Hẹn gặp lại bạn vào sáng mai!</p>
-                            <p>-- <br><strong>Minh Tấn</strong></p>
-                        </div>
-                    `
-                })
-            });
-
-            return res.status(200).json({ success: true, message: 'Lead captured' });
+            return res.status(200).json({ success: true, message: 'Lead captured locally' });
         }
 
         // 2. KHÁCH XÁC NHẬN ĐÃ CHUYỂN TIỀN (CONFIRM)
@@ -82,8 +47,9 @@ export default async function handler(req, res) {
                           `👤 Khách: ${data.fullname || 'Không rõ'}\n` +
                           `📞 SĐT: ${data.phone}\n` +
                           `💵 Số tiền: 199.000đ\n\n` +
-                          `🔥 Tấn ơi, check ngân hàng ngay nhé!`;
+                          `🔥 Tấn ơi, check ngân hàng và DUYỆT ngay nhé!`;
 
+            // Gửi Telegram kèm nút DUYỆT / HUỶ
             await fetch(`https://api.telegram.org/bot8753662126:AAHjqwCiSyn50oxIg7ABgebgh_B1tiWNX0E/sendMessage`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -93,7 +59,7 @@ export default async function handler(req, res) {
                     reply_markup: {
                         inline_keyboard: [
                             [
-                                { text: "✅ DUYỆT (PAID)", callback_data: `approve_${data.phone}` },
+                                { text: "✅ DUYỆT (PAID & Gửi Email)", callback_data: `approve_${data.phone}` },
                                 { text: "❌ HUỶ ĐƠN", callback_data: `reject_${data.phone}` }
                             ]
                         ]

@@ -72,7 +72,33 @@ export default async function handler(req, res) {
             })
         });
     } catch (error) {
-        console.error('Admin API Error:', error);
-        res.status(500).json({ success: false, error: 'Failed to fetch data' });
+        // ... (existing code for default GET)
+    }
+
+    // XỬ LÝ CÁC HÀNH ĐỘNG POST (SỬA, XÓA, CONFIG)
+    if (req.method === 'POST') {
+        try {
+            const body = JSON.parse(req.body);
+            const { action, pw: bodyPw } = body;
+            
+            if (bodyPw !== ADMIN_PASSWORD) {
+                return res.status(401).json({ success: false });
+            }
+
+            const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycby0fMBmghoIz46t4q7VJobCLRC1x1oKLVH3UHC62fXQVLArmaI_vd82Onvb_PDr5tZ1cw/exec';
+            
+            // Chuyển tiếp yêu cầu tới Google Apps Script
+            const response = await fetch(GOOGLE_SHEET_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+            const result = await response.json();
+            return res.status(200).json(result);
+            
+        } catch (error) {
+            console.error('Admin POST Error:', error);
+            return res.status(500).json({ success: false });
+        }
     }
 }

@@ -28,7 +28,7 @@ export default async function handler(req, res) {
                     if (student && student.email) {
                         // 3. GỬI EMAIL CHÀO MỪNG QUA RESEND
                         const RESEND_API_KEY = 're_Gq7KcaeK_2ar8XM8RhiQxeyNMgnjpEr2o';
-                        await fetch('https://api.resend.com/emails', {
+                        const emailRes = await fetch('https://api.resend.com/emails', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -50,6 +50,29 @@ export default async function handler(req, res) {
                                         <p>-- <br><strong>Minh Tấn</strong></p>
                                     </div>
                                 `
+                            })
+                        });
+
+                        const emailData = await emailRes.json();
+                        if (!emailRes.ok) {
+                            // Nếu lỗi Resend (Ví dụ chưa xác thực domain) thì báo Telegram
+                            await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ 
+                                    chat_id: CHAT_ID, 
+                                    text: `⚠️ LỖI GỬI EMAIL: ${emailData.message || 'Không rõ nguyên nhân'}\nHọc viên: ${student.fullname}\nEmail: ${student.email}` 
+                                })
+                            });
+                        }
+                    } else {
+                        // Nếu không tìm thấy thông tin trên Sheet
+                        await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ 
+                                chat_id: CHAT_ID, 
+                                text: `⚠️ KHÔNG TÌM THẤY EMAIL: Hệ thống không tìm thấy email cho SĐT ${phone} trên Google Sheet.` 
                             })
                         });
                     }

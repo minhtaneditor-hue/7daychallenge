@@ -263,6 +263,7 @@
         AOS.init({ duration: 800, once: true });
 
         let masterData = [];
+        let filteredStudents = [];
 
         function checkLogin() {
             const pass = document.getElementById('admin-pass').value;
@@ -295,14 +296,16 @@
             const search = document.getElementById('main-search').value.toLowerCase();
             const status = document.getElementById('filter-status').value;
             
-            const filtered = masterData.filter(s => {
-                const matchSearch = s.fullname.toLowerCase().includes(search) || s.phone.includes(search);
+            filteredStudents = masterData.filter(s => {
+                const matchSearch = s.fullname.toLowerCase().includes(search) || 
+                                    s.phone.includes(search) || 
+                                    s.email.toLowerCase().includes(search);
                 const matchStatus = status === 'all' || s.status === status;
                 return matchSearch && matchStatus;
             });
 
-            renderTable(filtered);
-            renderStats(filtered);
+            renderTable(filteredStudents);
+            renderStats(filteredStudents);
         }
 
         function renderStats(data) {
@@ -314,7 +317,7 @@
 
         function renderTable(data) {
             const list = document.getElementById('student-list');
-            list.innerHTML = data.map(s => `
+            list.innerHTML = data.map((s, index) => `
                 <tr>
                     <td><span style="font-size: 13px; color: var(--text-muted);">${s.timestamp}</span></td>
                     <td>
@@ -324,20 +327,35 @@
                     <td><span style="color: #bbb; border-bottom: 1px dashed #444;">${s.email}</span></td>
                     <td><span class="status-pill pill-${s.status.toLowerCase()}">${s.status}</span></td>
                     <td style="text-align: right;">
-                        <button class="action-btn" onclick='openEdit(${JSON.stringify(s)})'><i class="fas fa-edit"></i></button>
-                        <button class="action-btn" onclick="deleteStudent('${s.phone}')" style="color: #ff4d4d;"><i class="fas fa-trash"></i></button>
+                        <button class="action-btn" onclick="openEdit(${index})"><i class="fas fa-edit"></i></button>
+                        <button class="action-btn" onclick="deleteStudent(${index})" style="color: #ff4d4d;"><i class="fas fa-trash"></i></button>
                     </td>
                 </tr>
             `).join('');
         }
 
-        function openEdit(s) {
+        function openEdit(index) {
+            const s = filteredStudents[index];
+            if (!s) return;
             document.getElementById('edit-modal').style.display = 'flex';
             document.getElementById('old-phone').value = s.phone;
             document.getElementById('edit-name').value = s.fullname;
             document.getElementById('edit-phone').value = s.phone;
             document.getElementById('edit-email').value = s.email;
             document.getElementById('edit-status').value = s.status;
+        }
+
+        async function deleteStudent(index) {
+            const s = filteredStudents[index];
+            if (!s) return;
+            if (!confirm(`Hành động xóa vĩnh viễn học viên ${s.fullname} không thể khôi phục. Tiếp tục?`)) return;
+            const pw = localStorage.getItem('admin_pw');
+            const res = await fetch('/api/admin', { 
+                method: 'POST', 
+                body: JSON.stringify({ action: 'delete-student', phone: s.phone, pw }) 
+            });
+            const result = await res.json();
+            if (result.success) loadData();
         }
 
         document.getElementById('edit-form').onsubmit = async (e) => {
@@ -353,14 +371,8 @@
                 pw
             };
             const res = await fetch('/api/admin', { method: 'POST', body: JSON.stringify(data) });
-            if ((await res.json()).success) { closeModal(); loadData(); }
-        }
-
-        async function deleteStudent(phone) {
-            if (!confirm('Hành động xóa vĩnh viễn không thể khôi phục. Tiếp tục?')) return;
-            const pw = localStorage.getItem('admin_pw');
-            await fetch('/api/admin', { method: 'POST', body: JSON.stringify({ action: 'delete-student', phone, pw }) });
-            loadData();
+            const result = await res.json();
+            if (result.success) { closeModal(); loadData(); }
         }
 
         function closeModal() { document.getElementById('edit-modal').style.display = 'none'; }
@@ -393,7 +405,7 @@
 
         function exportCSV() {
             const headers = ["Ghi danh,Hoc vien,Phone,Email,Trang thai"];
-            const rows = masterData.map(s => `"${s.timestamp}","${s.fullname}","${s.phone}","${s.email}","${s.status}"`);
+            const rows = filteredStudents.map(s => `"${s.timestamp}","${s.fullname}","${s.phone}","${s.email}","${s.status}"`);
             const blob = new Blob(["\ufeff" + headers.concat(rows).join("\n")], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement("a");
             link.href = URL.createObjectURL(blob);

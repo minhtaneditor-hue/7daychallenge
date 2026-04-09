@@ -198,6 +198,7 @@
                         <table>
                             <thead>
                                 <tr>
+                                    <th style="width: 50px;">STT</th>
                                     <th>Ghi danh lúc</th>
                                     <th>Thông tin học viên</th>
                                     <th>Email</th>
@@ -297,9 +298,9 @@
             const status = document.getElementById('filter-status').value;
             
             filteredStudents = masterData.filter(s => {
-                const matchSearch = s.fullname.toLowerCase().includes(search) || 
-                                    s.phone.includes(search) || 
-                                    s.email.toLowerCase().includes(search);
+                const matchSearch = String(s.fullname).toLowerCase().includes(search) || 
+                                    String(s.phone).includes(search) || 
+                                    String(s.email).toLowerCase().includes(search);
                 const matchStatus = status === 'all' || s.status === status;
                 return matchSearch && matchStatus;
             });
@@ -319,6 +320,7 @@
             const list = document.getElementById('student-list');
             list.innerHTML = data.map((s, index) => `
                 <tr>
+                    <td style="color: var(--text-muted); font-weight: 600;">${index + 1}</td>
                     <td><span style="font-size: 13px; color: var(--text-muted);">${s.timestamp}</span></td>
                     <td>
                         <div style="font-weight: 700; font-size: 16px;">${s.fullname}</div>
@@ -350,12 +352,19 @@
             if (!s) return;
             if (!confirm(`Hành động xóa vĩnh viễn học viên ${s.fullname} không thể khôi phục. Tiếp tục?`)) return;
             const pw = localStorage.getItem('admin_pw');
-            const res = await fetch('/api/admin', { 
-                method: 'POST', 
-                body: JSON.stringify({ action: 'delete-student', phone: s.phone, pw }) 
-            });
-            const result = await res.json();
-            if (result.success) loadData();
+            
+            try {
+                const res = await fetch('/api/admin', { 
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'delete-student', phone: s.phone, pw }) 
+                });
+                const result = await res.json();
+                if (result.success) {
+                    alert('Hệ thống đã xóa học viên thành công!');
+                    loadData();
+                }
+            } catch (err) { alert('Lỗi kết nối máy chủ!'); }
         }
 
         document.getElementById('edit-form').onsubmit = async (e) => {
@@ -370,9 +379,20 @@
                 status: document.getElementById('edit-status').value,
                 pw
             };
-            const res = await fetch('/api/admin', { method: 'POST', body: JSON.stringify(data) });
-            const result = await res.json();
-            if (result.success) { closeModal(); loadData(); }
+            
+            try {
+                const res = await fetch('/api/admin', { 
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data) 
+                });
+                const result = await res.json();
+                if (result.success) {
+                    alert('Đã cập nhật dữ liệu thành công!');
+                    closeModal();
+                    loadData();
+                }
+            } catch (err) { alert('Lỗi cập nhật!'); }
         }
 
         function closeModal() { document.getElementById('edit-modal').style.display = 'none'; }
@@ -392,7 +412,11 @@
             const config = {};
             document.querySelectorAll('#cms-editor textarea').forEach(ta => config[ta.id.replace('cms-', '')] = ta.value);
             const pw = localStorage.getItem('admin_pw');
-            const res = await fetch('/api/admin', { method: 'POST', body: JSON.stringify({ action: 'update-config', config, pw }) });
+            const res = await fetch('/api/admin', { 
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'update-config', config, pw }) 
+            });
             if ((await res.json()).success) alert('Đã tối ưu hóa nội dung website!');
         }
 

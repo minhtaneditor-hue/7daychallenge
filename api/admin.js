@@ -6,7 +6,7 @@ export default async function handler(req, res) {
     if (req.method === 'GET') {
         if (pw !== ADMIN_PASSWORD) return res.status(401).json({ success: false });
         try {
-            const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbzY6Y0FzxnoyZUzeqmnWbM2MFqlCJEEVnlFVAW_ewZTYbiwA7EXVicOvms8k_MZ0DO9EA/exec';
+            const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbwDgqqxjsvFPLWfmJT4P0WmKXJC5ALwycTPgE5YoaKAayXi_zoCJ3vO3dgEdokNP5ZcdQ/exec';
             const response = await fetch(GOOGLE_SHEET_URL);
             const data = await response.json();
             const normalizedData = data.map(item => ({
@@ -33,7 +33,7 @@ export default async function handler(req, res) {
             const admin_pw = body.pw || pw; // Lấy pass từ body hoặc query
             if (admin_pw !== ADMIN_PASSWORD) return res.status(401).json({ success: false, message: 'Invalid Password' });
 
-            const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbzY6Y0FzxnoyZUzeqmnWbM2MFqlCJEEVnlFVAW_ewZTYbiwA7EXVicOvms8k_MZ0DO9EA/exec';
+            const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbwDgqqxjsvFPLWfmJT4P0WmKXJC5ALwycTPgE5YoaKAayXi_zoCJ3vO3dgEdokNP5ZcdQ/exec';
             const response = await fetch(GOOGLE_SHEET_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },

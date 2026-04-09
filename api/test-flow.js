@@ -1,5 +1,3 @@
-import fetch from 'node-fetch';
-
 export default async function handler(req, res) {
     const { phone } = req.query;
     if (!phone) return res.status(400).json({ error: 'Missing phone' });

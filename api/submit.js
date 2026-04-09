@@ -42,9 +42,8 @@ export default async function handler(req, res) {
             const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbwswjN83gB61Hk4nRuOvLBh3I0PahQJlgZ-o6BIKR6Qv4NjerujSL6ZGLSP9J3iafNzZg/exec';
             await fetch(GOOGLE_SHEET_URL, {
                 method: 'POST',
-                mode: 'no-cors',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
+                body: JSON.stringify({ action: 'submit-lead', ...data })
             });
 
             // GỬI EMAIL CHÀO MỪNG (DAY 0) QUA RESEND

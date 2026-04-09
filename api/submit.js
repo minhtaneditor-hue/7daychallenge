@@ -39,7 +39,7 @@ export default async function handler(req, res) {
             });
 
             // Google Sheet
-            const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbwX0yiwRqL9GGWuzFBiufuEoa5VyZDNYahnWhyVhwGxlFWqulWwrioOq8MV8Q95-mUFdw/exec';
+            const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbwswjN83gB61Hk4nRuOvLBh3I0PahQJlgZ-o6BIKR6Qv4NjerujSL6ZGLSP9J3iafNzZg/exec';
             await fetch(GOOGLE_SHEET_URL, {
                 method: 'POST',
                 mode: 'no-cors',
@@ -88,7 +88,18 @@ export default async function handler(req, res) {
             await fetch(`https://api.telegram.org/bot8753662126:AAHjqwCiSyn50oxIg7ABgebgh_B1tiWNX0E/sendMessage`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ chat_id: '7384174497', text: message })
+                body: JSON.stringify({ 
+                    chat_id: '7384174497', 
+                    text: message,
+                    reply_markup: {
+                        inline_keyboard: [
+                            [
+                                { text: "✅ DUYỆT (PAID)", callback_data: `approve_${data.phone}` },
+                                { text: "❌ HUỶ ĐƠN", callback_data: `reject_${data.phone}` }
+                            ]
+                        ]
+                    }
+                })
             });
 
             return res.status(200).json({ success: true, message: 'Payment confirmation sent' });

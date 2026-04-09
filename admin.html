@@ -3,101 +3,206 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard | Minh Tấn Academy</title>
+    <title>Premium CRM | Minh Tấn Academy</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
     <style>
-        /* CSS BỔ SUNG CHO DASHBOARD MỚI */
-        .filter-panel { display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 25px; padding: 20px; }
-        .filter-group { flex: 1; min-width: 200px; position: relative; }
-        .filter-group i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #888; }
-        .filter-group input, .filter-group select { width: 100%; padding: 12px 12px 12px 40px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); color: white; }
+        :root {
+            --primary: #06403D;
+            --accent: #FFD700;
+            --dark-bg: #0a1110;
+            --card-bg: rgba(255, 255, 255, 0.03);
+            --border: rgba(255, 255, 255, 0.08);
+            --text-main: #e0e0e0;
+            --text-muted: #888;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--dark-bg);
+            color: var(--text-main);
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        /* LOGIN SCREEN PREMIUM */
+        #login-screen {
+            background: radial-gradient(circle at top right, #0d2a28, #0a1110);
+            display: flex; align-items: center; justify-content: center; height: 100vh;
+        }
+        .login-card {
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            padding: 50px; border-radius: 30px; text-align: center; width: 100%; max-width: 400px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+        .login-card i { font-size: 50px; color: var(--accent); margin-bottom: 20px; text-shadow: 0 0 20px rgba(255, 215, 0, 0.3); }
+        .login-input {
+            width: 100%; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border);
+            padding: 15px; border-radius: 12px; color: white; text-align: center; font-size: 18px; margin: 25px 0;
+        }
+
+        /* LAYOUT */
+        .admin-layout { display: flex; min-height: 100vh; }
         
-        .btn-icon { width: 35px; height: 35px; border-radius: 8px; border: none; cursor: pointer; transition: 0.3s; margin-right: 5px; }
-        .btn-icon.edit { background: rgba(52, 152, 219, 0.2); color: #3498db; }
-        .btn-icon.delete { background: rgba(231, 76, 60, 0.2); color: #e74c3c; }
-        .btn-icon:hover { transform: scale(1.1); }
+        .sidebar {
+            width: 280px; background: rgba(0, 0, 0, 0.3); border-right: 1px solid var(--border);
+            padding: 40px 20px; display: flex; flex-direction: column;
+        }
+        .sidebar-logo {
+            display: flex; align-items: center; gap: 15px; font-size: 22px; font-weight: 700;
+            letter-spacing: 1px; color: var(--accent); margin-bottom: 50px; padding-left: 10px;
+        }
+        .nav-menu { flex: 1; }
+        .nav-item {
+            display: flex; align-items: center; gap: 15px; padding: 15px 20px;
+            color: var(--text-muted); text-decoration: none; border-radius: 15px;
+            transition: 0.3s; margin-bottom: 8px; font-weight: 500;
+        }
+        .nav-item.active, .nav-item:hover {
+            background: rgba(6, 64, 61, 0.6); color: var(--accent);
+        }
 
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); z-index: 1000; align-items: center; justify-content: center; }
-        .modal-content { width: 100%; max-width: 500px; padding: 30px; }
-        .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 5px; color: #888; font-size: 14px; }
-        .form-group input, .form-group select { width: 100%; padding: 12px; border-radius: 8px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; }
+        .main-hero { flex: 1; padding: 40px 60px; background: radial-gradient(circle at 10% 20%, #0d1a19 0%, #0a1110 90%); }
 
-        .status-badge { padding: 4px 10px; border-radius: 50px; font-size: 12px; font-weight: bold; }
-        .status-paid { background: #27ae60; color: white; }
-        .status-lead { background: #f1c40f; color: black; }
-        .status-cancel { background: #c0392b; color: white; }
+        /* KPI CARDS */
+        .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px; margin-bottom: 40px; }
+        .stat-card {
+            background: var(--card-bg); border: 1px solid var(--border); padding: 30px; border-radius: 25px;
+            position: relative; overflow: hidden;
+        }
+        .stat-card::before {
+            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(255,215,0,0.03) 0%, transparent 70%);
+        }
+        .stat-val { font-size: 36px; font-weight: 700; display: block; margin-top: 10px; color: white; }
+        .stat-label { color: var(--text-muted); text-transform: uppercase; font-size: 12px; letter-spacing: 2px; }
+
+        /* FILTERS BAR */
+        .control-bar {
+            background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border);
+            padding: 15px 25px; border-radius: 20px; display: flex; gap: 20px; margin-bottom: 30px; align-items: center;
+        }
+        .search-box { flex: 1; background: transparent; border: none; color: white; font-size: 16px; outline: none; }
+        .filter-select { background: transparent; border: none; color: var(--accent); font-weight: 600; cursor: pointer; outline: none; }
+
+        /* DATA TABLE */
+        .data-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 25px; overflow: hidden; padding: 10px; }
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; padding: 20px; color: var(--text-muted); font-size: 13px; text-transform: uppercase; letter-spacing: 1px; }
+        td { padding: 20px; border-top: 1px solid var(--border); }
+        tr:hover { background: rgba(255, 255, 255, 0.01); }
+
+        .status-pill { padding: 6px 12px; border-radius: 10px; font-size: 11px; font-weight: 700; letter-spacing: 1px; }
+        .pill-paid { background: rgba(46, 204, 113, 0.15); color: #2ecc71; }
+        .pill-lead { background: rgba(241, 196, 15, 0.15); color: #f1c40f; }
+
+        .action-btn { 
+            background: rgba(255,255,255,0.05); color: white; border: none; width: 35px; height: 35px; 
+            border-radius: 10px; cursor: pointer; transition: 0.3s; margin-left: 5px;
+        }
+        .action-btn:hover { background: var(--accent); color: black; transform: translateY(-3px); }
+
+        /* MODAL GLASSMORPISM */
+        .modal { 
+            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); 
+            backdrop-filter: blur(10px); z-index: 9999; align-items: center; justify-content: center;
+        }
+        .modal-box { 
+            background: #111; border: 1px solid var(--border); padding: 40px; border-radius: 30px; 
+            width: 100%; max-width: 500px; box-shadow: 0 0 100px rgba(0,0,0,0.5);
+        }
+        .modal-box h3 { margin: 0 0 30px 0; font-size: 24px; color: var(--accent); }
+        .modal-input { 
+            width: 100%; background: #1a1a1a; border: 1px solid var(--border); padding: 15px; 
+            border-radius: 12px; color: white; margin-bottom: 20px; box-sizing: border-box;
+        }
+
+        .btn-gold { background: var(--accent); color: black; font-weight: 700; border: none; padding: 15px 30px; border-radius: 12px; cursor: pointer; transition: 0.3s; }
+        .btn-gold:hover { transform: scale(1.05); box-shadow: 0 0 30px rgba(255, 215, 0, 0.2); }
     </style>
 </head>
 <body class="dark-theme">
-    <div id="login-screen" style="display: flex; align-items: center; justify-content: center; height: 100vh;">
-        <div class="card" style="width: 350px; padding: 40px; text-align: center;">
-            <i class="fas fa-lock" style="font-size: 40px; margin-bottom: 20px; color: #06403D;"></i>
-            <h2>Admin Login</h2>
-            <input type="password" id="admin-pass" placeholder="Nhập mật khẩu..." style="width: 100%; margin: 20px 0; padding: 12px; border-radius: 8px; border: 1px solid #ddd;">
-            <button class="btn-primary" onclick="checkLogin()" style="width: 100%;">Truy cập ngay</button>
+
+    <!-- LOGIN -->
+    <div id="login-screen">
+        <div class="login-card" data-aos="zoom-in">
+            <i class="fas fa-fingerprint"></i>
+            <h1 style="font-size: 28px; margin: 0;">Access Admin</h1>
+            <p style="color: var(--text-muted);">Hệ thống Hub CRM - Minh Tấn Academy</p>
+            <input type="password" id="admin-pass" class="login-input" placeholder="••••••••">
+            <button class="btn-gold" onclick="checkLogin()" style="width: 100%;">Truy cập hệ thống</button>
         </div>
     </div>
 
+    <!-- DASHBOARD -->
     <div id="admin-dashboard" style="display: none;">
-        <div class="admin-container">
+        <div class="admin-layout">
             <aside class="sidebar">
-                <div class="sidebar-logo"><i class="fas fa-camera-retro"></i> <span>TẤN CRM</span></div>
-                <nav class="sidebar-nav">
-                    <a href="#" class="nav-item active" onclick="switchTab('leads')"><i class="fas fa-users"></i> Học Viên</a>
-                    <a href="#" class="nav-item" onclick="switchTab('cms')"><i class="fas fa-edit"></i> Website CMS</a>
-                    <a href="#" class="nav-item" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a>
+                <div class="sidebar-logo">
+                    <i class="fas fa-crown"></i>
+                    <span>TẤN ACADEMY</span>
+                </div>
+                <nav class="nav-menu">
+                    <a href="#" class="nav-item active" onclick="switchTab('leads')">
+                        <i class="fas fa-chart-pie"></i> Dashboard Học Viên
+                    </a>
+                    <a href="#" class="nav-item" onclick="switchTab('cms')">
+                        <i class="fas fa-sliders-h"></i> Tinh chỉnh Website
+                    </a>
+                    <a href="#" class="nav-item" onclick="logout()" style="margin-top: 50px;">
+                        <i class="fas fa-power-off"></i> Thoát hệ thống
+                    </a>
                 </nav>
             </aside>
 
-            <main class="main-content">
+            <main class="main-hero">
+                <!-- LEADS TAB -->
                 <section id="tab-leads" class="tab-content active">
-                    <header class="dashboard-header">
-                        <h1>Quản lý Học viên</h1>
-                        <div class="header-actions">
-                            <button class="btn-primary" onclick="exportToCSV()"><i class="fas fa-download"></i> Xuất dữ liệu</button>
+                    <div class="stats-row" data-aos="fade-up">
+                        <div class="stat-card">
+                            <span class="stat-label">Tổng quy mô</span>
+                            <span class="stat-val" id="stat-total">0</span>
                         </div>
-                    </header>
-
-                    <!-- FILTERS -->
-                    <div class="filter-panel card">
-                        <div class="filter-group">
-                            <i class="fas fa-search"></i>
-                            <input type="text" id="search-box" placeholder="Tìm theo tên, sđt..." oninput="applyFilters()">
+                        <div class="stat-card">
+                            <span class="stat-label">Học viên chính thức</span>
+                            <span class="stat-val" style="color: var(--accent);" id="stat-paid">0</span>
                         </div>
-                        <div class="filter-group">
-                            <i class="fas fa-filter"></i>
-                            <select id="filter-status" onchange="applyFilters()">
-                                <option value="all">Tất cả trạng thái</option>
-                                <option value="PAID">Đã thanh toán (PAID)</option>
-                                <option value="LEAD">Chờ xử lý (LEAD)</option>
-                                <option value="CANCEL">Đã hủy (CANCEL)</option>
-                            </select>
-                        </div>
-                        <div class="filter-group">
-                            <i class="fas fa-calendar-week"></i>
-                            <select id="filter-date" onchange="applyFilters()">
-                                <option value="all">Tất cả thời gian</option>
-                                <option value="today">Hôm nay</option>
-                                <option value="week">Trong tuần này</option>
-                                <option value="month">Trong tháng này</option>
-                            </select>
+                        <div class="stat-card">
+                            <span class="stat-label">Doanh thu dự kiến</span>
+                            <span class="stat-val" id="stat-revenue">0đ</span>
                         </div>
                     </div>
 
-                    <div class="table-container card">
+                    <div class="control-bar card" data-aos="fade-up" data-aos-delay="100">
+                        <i class="fas fa-search" style="color: var(--text-muted);"></i>
+                        <input type="text" id="main-search" class="search-box" placeholder="Tìm tên, email hoặc số điện thoại..." oninput="refreshUI()">
+                        
+                        <div style="height: 20px; width: 1px; background: var(--border);"></div>
+                        
+                        <select id="filter-status" class="filter-select" onchange="refreshUI()">
+                            <option value="all">Tất cả trạng thái</option>
+                            <option value="PAID">Đã thanh toán</option>
+                            <option value="LEAD">Đang chờ xử lý</option>
+                        </select>
+
+                        <button class="btn-gold" style="padding: 10px 20px; font-size: 13px;" onclick="exportCSV()">
+                            <i class="fas fa-file-excel"></i> XUẤT DATA
+                        </button>
+                    </div>
+
+                    <div class="data-card animate-up" data-aos="fade-up" data-aos-delay="200">
                         <table>
                             <thead>
                                 <tr>
-                                    <th>Thời gian</th>
-                                    <th>Họ và Tên</th>
-                                    <th>SĐT</th>
+                                    <th>Ghi danh lúc</th>
+                                    <th>Thông tin học viên</th>
                                     <th>Email</th>
-                                    <th>Trạng thái</th>
-                                    <th>Thao tác</th>
+                                    <th>Tiến độ</th>
+                                    <th style="text-align: right;">Thao tác</th>
                                 </tr>
                             </thead>
                             <tbody id="student-list"></tbody>
@@ -105,123 +210,125 @@
                     </div>
                 </section>
 
-                <section id="tab-cms" class="tab-content">
-                    <header class="dashboard-header">
-                        <h1>Website CMS</h1>
-                        <button class="btn-primary" onclick="saveCMS()">Lưu thay đổi</button>
+                <!-- CMS TAB -->
+                <section id="tab-cms" class="tab-content" style="display: none;">
+                    <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px;">
+                        <h1 style="font-size: 32px; margin: 0;">Cấu hình CMS</h1>
+                        <button class="btn-gold" onclick="saveCMS()"><i class="fas fa-save"></i> CẬP NHẬT WEBSITE</button>
                     </header>
-                    <div id="cms-fields" class="cms-grid"></div>
+                    <div id="cms-editor" class="stats-row" style="grid-template-columns: repeat(2, 1fr);">
+                        <!-- CMS Fields -->
+                    </div>
                 </section>
             </main>
         </div>
     </div>
 
-    <!-- EDIT MODAL -->
+    <!-- MODAL EDIT -->
     <div id="edit-modal" class="modal">
-        <div class="modal-content card">
-            <h3>Sửa thông tin học viên</h3>
+        <div class="modal-box" data-aos="zoom-in">
+            <h3>Hiệu chỉnh thông tin</h3>
             <form id="edit-form">
                 <input type="hidden" id="old-phone">
-                <div class="form-group"><label>Họ tên</label><input type="text" id="edit-name"></div>
-                <div class="form-group"><label>Số điện thoại</label><input type="text" id="edit-phone"></div>
-                <div class="form-group"><label>Email</label><input type="text" id="edit-email"></div>
-                <div class="form-group">
-                    <label>Trạng thái</label>
-                    <select id="edit-status">
-                        <option value="PAID">PAID</option>
-                        <option value="LEAD">LEAD</option>
-                        <option value="CANCEL">CANCEL</option>
-                    </select>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div>
+                        <label style="font-size: 12px; color: var(--text-muted);">HỌ VÀ TÊN</label>
+                        <input type="text" id="edit-name" class="modal-input">
+                    </div>
+                    <div>
+                        <label style="font-size: 12px; color: var(--text-muted);">SỐ ĐIỆN THOẠI</label>
+                        <input type="text" id="edit-phone" class="modal-input">
+                    </div>
                 </div>
-                <div class="modal-actions">
-                    <button type="button" class="btn-secondary" onclick="closeModal()">Hủy</button>
-                    <button type="submit" class="btn-primary">Cập nhật</button>
+                <label style="font-size: 12px; color: var(--text-muted);">ĐỊA CHỈ EMAIL</label>
+                <input type="text" id="edit-email" class="modal-input">
+                
+                <label style="font-size: 12px; color: var(--text-muted);">TRẠNG THÁI HỆ THỐNG</label>
+                <select id="edit-status" class="modal-input">
+                    <option value="PAID">PAID (Chính thức)</option>
+                    <option value="LEAD">LEAD (Chờ xử lý)</option>
+                    <option value="CANCEL">CANCEL (Đã hủy)</option>
+                </select>
+
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button type="button" class="btn-gold" style="background: rgba(255,255,255,0.05); color: white;" onclick="closeModal()">HỦY BỎ</button>
+                    <button type="submit" class="btn-gold" style="flex: 1;">LƯU THAY ĐỔI</button>
                 </div>
             </form>
         </div>
     </div>
 
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
     <script>
-        let allStudents = [];
-        let filteredStudents = [];
+        AOS.init({ duration: 800, once: true });
+
+        let masterData = [];
 
         function checkLogin() {
-            const pw = document.getElementById('admin-pass').value;
-            if (pw === 'admin7day') {
-                localStorage.setItem('admin_pw', pw);
-                showDashboard();
-            } else { alert('Sai mật khẩu!'); }
+            const pass = document.getElementById('admin-pass').value;
+            if (pass === 'admin7day') {
+                localStorage.setItem('admin_pw', pass);
+                initDashboard();
+            } else { alert('Mật khẩu không chính xác!'); }
         }
 
-        function showDashboard() {
+        async function initDashboard() {
             document.getElementById('login-screen').style.display = 'none';
             document.getElementById('admin-dashboard').style.display = 'block';
-            loadData();
-            loadCMS();
+            await loadData();
+            await loadCMS();
         }
 
         async function loadData() {
             const pw = localStorage.getItem('admin_pw');
-            const res = await fetch(`/api/admin?pw=${pw}`);
-            const result = await res.json();
-            if (result.success) {
-                allStudents = result.data;
-                applyFilters();
-            }
+            try {
+                const res = await fetch(`/api/admin?pw=${pw}`);
+                const result = await res.json();
+                if (result.success) {
+                    masterData = result.data;
+                    refreshUI();
+                } else { logout(); }
+            } catch (e) { console.error(e); }
         }
 
-        function applyFilters() {
-            const search = document.getElementById('search-box').value.toLowerCase();
+        function refreshUI() {
+            const search = document.getElementById('main-search').value.toLowerCase();
             const status = document.getElementById('filter-status').value;
-            const dateRange = document.getElementById('filter-date').value;
-            const now = new Date();
-
-            filteredStudents = allStudents.filter(s => {
+            
+            const filtered = masterData.filter(s => {
                 const matchSearch = s.fullname.toLowerCase().includes(search) || s.phone.includes(search);
                 const matchStatus = status === 'all' || s.status === status;
-                
-                // Lọc ngày cơ bản
-                const sDate = parseDate(s.timestamp);
-                let matchDate = true;
-                if (dateRange === 'today') matchDate = sDate && sDate.toDateString() === now.toDateString();
-                if (dateRange === 'week') matchDate = sDate && (now - sDate) < 7 * 24 * 3600 * 1000;
-                if (dateRange === 'month') matchDate = sDate && sDate.getMonth() === now.getMonth();
-
-                return matchSearch && matchStatus && matchDate;
+                return matchSearch && matchStatus;
             });
-            renderTable();
+
+            renderTable(filtered);
+            renderStats(filtered);
         }
 
-        function renderTable() {
+        function renderStats(data) {
+            const paid = data.filter(s => s.status === 'PAID').length;
+            document.getElementById('stat-total').innerText = data.length;
+            document.getElementById('stat-paid').innerText = paid;
+            document.getElementById('stat-revenue').innerText = (paid * 199000).toLocaleString() + 'đ';
+        }
+
+        function renderTable(data) {
             const list = document.getElementById('student-list');
-            list.innerHTML = filteredStudents.map(s => `
+            list.innerHTML = data.map(s => `
                 <tr>
-                    <td>${s.timestamp}</td>
-                    <td><b>${s.fullname}</b></td>
-                    <td>${s.phone}</td>
-                    <td>${s.email}</td>
-                    <td><span class="status-badge status-${s.status.toLowerCase()}">${s.status}</span></td>
+                    <td><span style="font-size: 13px; color: var(--text-muted);">${s.timestamp}</span></td>
                     <td>
-                        <button class="btn-icon edit" onclick='openEdit(${JSON.stringify(s)})'><i class="fas fa-edit"></i></button>
-                        <button class="btn-icon delete" onclick="deleteStudent('${s.phone}')"><i class="fas fa-trash"></i></button>
+                        <div style="font-weight: 700; font-size: 16px;">${s.fullname}</div>
+                        <div style="font-size: 12px; color: var(--text-muted);">${s.phone}</div>
+                    </td>
+                    <td><span style="color: #bbb; border-bottom: 1px dashed #444;">${s.email}</span></td>
+                    <td><span class="status-pill pill-${s.status.toLowerCase()}">${s.status}</span></td>
+                    <td style="text-align: right;">
+                        <button class="action-btn" onclick='openEdit(${JSON.stringify(s)})'><i class="fas fa-edit"></i></button>
+                        <button class="action-btn" onclick="deleteStudent('${s.phone}')" style="color: #ff4d4d;"><i class="fas fa-trash"></i></button>
                     </td>
                 </tr>
             `).join('');
-        }
-
-        function parseDate(ts) {
-            try { return new Date(ts.split(' ')[0].split('/').reverse().join('-')); } catch(e) { return null; }
-        }
-
-        function exportToCSV() {
-            const headers = ["Thoi gian,Ho ten,SDT,Email,Trang thai"];
-            const rows = filteredStudents.map(s => `"${s.timestamp}","${s.fullname}","${s.phone}","${s.email}","${s.status}"`);
-            const csv = headers.concat(rows).join("\n");
-            const blob = new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8;" });
-            const link = document.createElement("a");
-            link.href = URL.createObjectURL(blob);
-            link.download = `Hoc_Vien_7D_${new Date().toLocaleDateString()}.csv`;
-            link.click();
         }
 
         function openEdit(s) {
@@ -243,19 +350,16 @@
                 phone: document.getElementById('edit-phone').value,
                 email: document.getElementById('edit-email').value,
                 status: document.getElementById('edit-status').value,
-                pw: pw
+                pw
             };
-            await fetch('/api/admin', { method: 'POST', body: JSON.stringify(data) });
-            closeModal(); loadData();
+            const res = await fetch('/api/admin', { method: 'POST', body: JSON.stringify(data) });
+            if ((await res.json()).success) { closeModal(); loadData(); }
         }
 
         async function deleteStudent(phone) {
-            if (!confirm('Xóa vĩnh viễn học viên này?')) return;
+            if (!confirm('Hành động xóa vĩnh viễn không thể khôi phục. Tiếp tục?')) return;
             const pw = localStorage.getItem('admin_pw');
-            await fetch('/api/admin', { 
-                method: 'POST', 
-                body: JSON.stringify({ action: 'delete-student', phone, pw }) 
-            });
+            await fetch('/api/admin', { method: 'POST', body: JSON.stringify({ action: 'delete-student', phone, pw }) });
             loadData();
         }
 
@@ -264,33 +368,41 @@
         async function loadCMS() {
             const res = await fetch('/api/config');
             const config = await res.json();
-            document.getElementById('cms-fields').innerHTML = Object.keys(config).map(k => `
-                <div class="cms-card card"><label>${k}</label><textarea id="cms-${k}">${config[k]}</textarea></div>
+            document.getElementById('cms-editor').innerHTML = Object.keys(config).map(k => `
+                <div class="stat-card" style="padding: 20px;">
+                    <label style="font-size: 11px; color: var(--accent); letter-spacing: 1px;">KEY: ${k}</label>
+                    <textarea id="cms-${k}" style="width: 100%; height: 80px; background: transparent; border: none; color: white; margin-top: 10px; font-family: inherit; font-size: 14px; outline: none;">${config[k]}</textarea>
+                </div>
             `).join('');
         }
 
         async function saveCMS() {
-            const pw = localStorage.getItem('admin_pw');
             const config = {};
-            document.querySelectorAll('#cms-fields textarea').forEach(tx => {
-                config[tx.id.replace('cms-', '')] = tx.value;
-            });
-            await fetch('/api/admin', { 
-                method: 'POST', 
-                body: JSON.stringify({ action: 'update-config', config, pw }) 
-            });
-            alert('Đã lưu CMS thành công!');
+            document.querySelectorAll('#cms-editor textarea').forEach(ta => config[ta.id.replace('cms-', '')] = ta.value);
+            const pw = localStorage.getItem('admin_pw');
+            const res = await fetch('/api/admin', { method: 'POST', body: JSON.stringify({ action: 'update-config', config, pw }) });
+            if ((await res.json()).success) alert('Đã tối ưu hóa nội dung website!');
         }
 
         function switchTab(t) {
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            document.getElementById(`tab-${t}`).classList.add('active');
+            document.getElementById(`tab-${t}`).style.display = 'block';
             event.currentTarget.classList.add('active');
         }
 
+        function exportCSV() {
+            const headers = ["Ghi danh,Hoc vien,Phone,Email,Trang thai"];
+            const rows = masterData.map(s => `"${s.timestamp}","${s.fullname}","${s.phone}","${s.email}","${s.status}"`);
+            const blob = new Blob(["\ufeff" + headers.concat(rows).join("\n")], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = `Tấn_Academy_Data_${new Date().toLocaleDateString()}.csv`;
+            link.click();
+        }
+
         function logout() { localStorage.removeItem('admin_pw'); location.reload(); }
-        if (localStorage.getItem('admin_pw')) showDashboard();
+        if (localStorage.getItem('admin_pw')) initDashboard();
     </script>
 </body>
 </html>

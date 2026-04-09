@@ -28,7 +28,7 @@ export default async function handler(req, res) {
             });
 
             // 2. Gửi Google Sheet
-            const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbswjN83gB61Hk4nRuOvLBh3I0PahQJlgZ-o6BIKR6Qv4NjerujSL6ZGLSP9J3iafNzZg/exec';
+            const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycby0fMBmghoIz46t4q7VJobCLRC1x1oKLVH3UHC62fXQVLArmaI_vd82Onvb_PDr5tZ1cw/exec';
             await fetch(GOOGLE_SHEET_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },

@@ -6,6 +6,9 @@
     <title>Admin Dashboard | 7 Ngày Lên Tay Phó Nháy</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <style>
+        .status-day { background: rgba(0, 255, 128, 0.1); color: #00ff80; border: 1px solid rgba(0, 255, 128, 0.2); }
+    </style>
 </head>
 <body class="admin-body">
 
@@ -13,7 +16,7 @@
     <div id="login-overlay" class="admin-login-overlay">
         <div class="login-card">
             <h2 style="margin-bottom: 20px;">🔒 Admin Access</h2>
-            <input type="password" id="admin-pw" placeholder="Nhập mật khẩu..." style="width: 100%; padding: 15px; border-radius: 10px; border: 1px solid var(--glass-border); background: rgba(0,0,0,0.5); color: #fff; margin-bottom: 20px;">
+            <input type="password" id="admin-pw" placeholder="Nhập mật khẩu..." style="width: 100%; padding: 15px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.5); color: #fff; margin-bottom: 20px;">
             <button onclick="checkPassword()" class="cta-button" style="width: 100%;">Truy cập ngay</button>
         </div>
     </div>
@@ -23,10 +26,9 @@
         <header class="dashboard-header">
             <div>
                 <h1 style="font-size: 1.8rem; color: #fff;">DASHBOARD</h1>
-                <p style="color: var(--text-muted); font-size: 0.9rem;">Chào mừng quay trở lại, Tấn!</p>
+                <p style="color: #aaa; font-size: 0.9rem;">Chào mừng quay trở lại, Tấn!</p>
             </div>
             <button onclick="fetchLeads()" class="refresh-btn">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
                 Làm mới dữ liệu
             </button>
         </header>
@@ -35,34 +37,30 @@
             <div class="stat-card">
                 <div class="stat-label">Tổng số Lead</div>
                 <div id="total-leads" class="stat-value">0</div>
-                <div class="stat-trend">↑ 100% từ đầu chiến dịch</div>
             </div>
             <div class="stat-card">
                 <div class="stat-label">Đã thanh toán (PAID)</div>
                 <div id="total-paid" class="stat-value">0</div>
-                <div id="conversion-rate" class="stat-trend">Tỉ lệ chuyển đổi: 0%</div>
             </div>
             <div class="stat-card">
-                <div class="stat-label">Doanh thu tạm tính</div>
+                <div class="stat-label">Doanh thu</div>
                 <div id="total-revenue" class="stat-value">0đ</div>
-                <div class="stat-trend">Dựa trên đơn PAID</div>
             </div>
         </div>
 
         <div class="table-container">
-            <h3 style="margin-bottom: 20px; color: #fff;">Danh sách đăng ký gần đây</h3>
+            <h3 style="margin-bottom: 20px; color: #fff;">Danh sách học viên & Tiến độ</h3>
             <table class="admin-table">
                 <thead>
                     <tr>
                         <th>Thời gian</th>
                         <th>Khách hàng</th>
-                        <th>Số điện thoại</th>
+                        <th>SĐT</th>
                         <th>Email</th>
-                        <th>Trạng thái</th>
+                        <th>Trạng thái & Tiến độ</th>
                     </tr>
                 </thead>
                 <tbody id="lead-table-body">
-                    <!-- Data will be injected here -->
                 </tbody>
             </table>
         </div>
@@ -70,39 +68,26 @@
 
     <script>
         let adminPw = localStorage.getItem('admin_pw');
-
-        if (adminPw) {
-            login(adminPw);
-        }
+        if (adminPw) login(adminPw);
 
         async function checkPassword() {
             const pw = document.getElementById('admin-pw').value;
-            if (!pw) return alert("Vui lòng nhập mật khẩu!");
             login(pw);
         }
 
         async function login(pw) {
-            const overlay = document.getElementById('login-overlay');
-            const content = document.getElementById('dashboard-content');
-            
             try {
                 const response = await fetch(`/api/admin?pw=${pw}`);
                 const result = await response.json();
-
-                if (response.status === 200 && result.success) {
+                if (result.success) {
                     localStorage.setItem('admin_pw', pw);
-                    overlay.classList.add('hidden');
-                    content.classList.remove('hidden');
+                    document.getElementById('login-overlay').classList.add('hidden');
+                    document.getElementById('dashboard-content').classList.remove('hidden');
                     renderDashboard(result.data);
-                } else if (response.status === 401) {
-                    alert("Sai mật khẩu!");
-                    localStorage.removeItem('admin_pw');
                 } else {
-                    alert("Lỗi hệ thống: Không thể kết nối tới Google Sheets. Vui lòng kiểm tra lại Google Apps Script.");
+                    alert("Sai mật khẩu!");
                 }
-            } catch (e) {
-                alert("Lỗi kết nối server: " + e.message);
-            }
+            } catch (e) { alert("Lỗi: " + e.message); }
         }
 
         async function fetchLeads() {
@@ -113,47 +98,41 @@
         }
 
         function renderDashboard(leads) {
-            // Sort by Date (newest first)
             leads.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-
-            const totalLeads = leads.length;
-            const paidLeads = leads.filter(l => l.status === 'PAID').length;
-            const revenue = paidLeads * 199000;
-            const convRate = totalLeads > 0 ? ((paidLeads / totalLeads) * 100).toFixed(1) : 0;
-
-            document.getElementById('total-leads').innerText = totalLeads;
+            const paidLeads = leads.filter(l => l.status === 'PAID' || (l.status && l.status.startsWith('DAY_'))).length;
+            
+            document.getElementById('total-leads').innerText = leads.length;
             document.getElementById('total-paid').innerText = paidLeads;
-            document.getElementById('conversion-rate').innerText = `Tỉ lệ chuyển đổi: ${convRate}%`;
-            document.getElementById('total-revenue').innerText = revenue.toLocaleString('vi-VN') + 'đ';
+            document.getElementById('total-revenue').innerText = (paidLeads * 199000).toLocaleString() + 'đ';
 
             const tbody = document.getElementById('lead-table-body');
             tbody.innerHTML = leads.map(lead => {
                 const status = (lead.status || 'PENDING').toUpperCase();
-                let statusText = '⏳ Chờ thanh toán';
+                let statusText = '⏳ Chờ TV';
                 let statusClass = 'status-pending';
 
                 if (status === 'PAID') {
                     statusText = '✅ Đã thanh toán';
                     statusClass = 'status-paid';
+                } else if (status.startsWith('DAY_')) {
+                    const day = status.split('_')[1];
+                    statusText = `📖 Đang học (Ngày ${day})`;
+                    statusClass = 'status-day';
                 } else if (status === 'CANCELLED') {
                     statusText = '❌ Đã hủy';
                     statusClass = 'status-cancelled';
                 } else if (status === 'REMINDED') {
-                    statusText = '🔔 Đã nhắc nhở';
+                    statusText = '🔔 Đã nhắc';
                     statusClass = 'status-reminded';
                 }
 
                 return `
                     <tr>
                         <td>${new Date(lead.timestamp).toLocaleString('vi-VN')}</td>
-                        <td style="font-weight: 700;">${lead.fullname || 'Ẩn danh'}</td>
-                        <td>${lead.phone || '-'}</td>
-                        <td>${lead.email || '-'}</td>
-                        <td>
-                            <span class="status-badge ${statusClass}">
-                                ${statusText}
-                            </span>
-                        </td>
+                        <td style="font-weight:700;">${lead.fullname}</td>
+                        <td>${lead.phone}</td>
+                        <td>${lead.email}</td>
+                        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
                     </tr>
                 `;
             }).join('');

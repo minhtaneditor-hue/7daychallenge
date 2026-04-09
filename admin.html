@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Premium CRM | Minh Tấn Academy</title>
+    <title>Multi-CRM | Minh Tấn Academy</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
@@ -17,7 +17,7 @@
         #login-screen { display: flex; align-items: center; justify-content: center; height: 100vh; background: radial-gradient(circle, #0d2a28, #0a1110); }
         .login-card { background: var(--card-bg); backdrop-filter: blur(20px); border: 1px solid var(--border); padding: 50px; border-radius: 30px; text-align: center; width: 350px; }
         .login-input { width: 100%; padding: 15px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: white; border-radius: 12px; margin: 20px 0; text-align: center; }
-        .btn-gold { background: var(--accent); color: black; font-weight: 700; border: none; padding: 15px 30px; border-radius: 12px; cursor: pointer; transition: 0.3s; width: 100%; }
+        .btn-gold { background: var(--accent); color: black; font-weight: 700; border: none; padding: 12px 25px; border-radius: 10px; cursor: pointer; transition: 0.3s; width: 100%; font-size: 14px; }
         .admin-layout { display: flex; min-height: 100vh; }
         .sidebar { width: 260px; background: rgba(0,0,0,0.3); border-right: 1px solid var(--border); padding: 40px 20px; }
         .nav-item { display: flex; align-items: center; gap: 15px; padding: 15px; color: var(--text-muted); text-decoration: none; border-radius: 12px; margin-bottom: 5px; }
@@ -37,6 +37,10 @@
         .modal-box { background: #111; padding: 30px; border-radius: 20px; width: 400px; border: 1px solid var(--border); }
         .modal-input { width: 100%; padding: 12px; background: #1a1a1a; border: 1px solid var(--border); color: white; border-radius: 8px; margin-bottom: 15px; box-sizing: border-box; }
         textarea { width: 100%; height: 80px; background: transparent; border: 1px solid var(--border); color: white; border-radius: 8px; padding: 10px; box-sizing: border-box; }
+        
+        /* MULTI-SELECT PULSE */
+        .check-box { width: 18px; height: 18px; accent-color: var(--accent); cursor: pointer; }
+        .bulk-actions { display: none; background: #c0392b; color: white; padding: 10px 20px; border-radius: 50px; position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 99; box-shadow: 0 10px 30px rgba(0,0,0,0.5); align-items: center; gap: 15px; }
     </style>
 </head>
 <body>
@@ -50,6 +54,11 @@
     </div>
 
     <div id="admin-dashboard" style="display: none;">
+        <div class="bulk-actions" id="bulk-bar">
+            <span>Đã chọn <b id="bulk-count">0</b> học viên</span>
+            <button onclick="bulkDelete()" style="background:white; color:red; border:none; padding:5px 15px; border-radius:5px; cursor:pointer; font-weight:700;">XÓA TẤT CẢ MỤC ĐÃ CHỌN</button>
+        </div>
+
         <div class="admin-layout">
             <aside class="sidebar">
                 <div style="color: var(--accent); font-weight: 700; font-size: 20px; margin-bottom: 40px;">TẤN ACADEMY</div>
@@ -68,12 +77,15 @@
                     </div>
                     <div style="margin-bottom: 20px; display: flex; gap: 10px;">
                         <input type="text" id="search" placeholder="Tìm tên/sđt..." oninput="refreshUI()" style="flex: 1; padding: 12px; border-radius: 10px; background: var(--card-bg); border: 1px solid var(--border); color: white;">
-                        <button class="btn-gold" style="width: auto; padding: 0 20px;" onclick="exportCSV()">XUẤT DATA</button>
-                        <button class="btn-gold" style="width: auto; padding: 0 20px; background:#444; color:white;" onclick="loadData()">LÀM MỚI</button>
+                        <button class="btn-gold" style="width: auto;" onclick="exportCSV()">XUẤT DATA</button>
+                        <button class="btn-gold" style="width: auto; background:#444; color:white;" onclick="loadData()">LÀM MỚI</button>
                     </div>
                     <div class="data-card">
                         <table>
-                            <thead><tr><th>STT</th><th>Thời gian</th><th>Học viên</th><th>Tiến độ</th><th>Thao tác</th></tr></thead>
+                            <thead><tr>
+                                <th style="width: 30px;"><input type="checkbox" id="select-all" class="check-box" onclick="toggleAll()"></th>
+                                <th>STT</th><th>Học viên</th><th>Tiến độ</th><th>Thao tác</th>
+                            </tr></thead>
                             <tbody id="list"></tbody>
                         </table>
                     </div>
@@ -96,45 +108,29 @@
             <input type="text" id="edit-name" class="modal-input" placeholder="Họ tên">
             <input type="text" id="edit-phone" class="modal-input" placeholder="Số điện thoại">
             <input type="text" id="edit-email" class="modal-input" placeholder="Email">
-            <select id="edit-status" class="modal-input">
-                <option value="PAID">PAID</option>
-                <option value="LEAD">LEAD</option>
-                <option value="CANCEL">CANCEL</option>
-            </select>
-            <div style="display: flex; gap: 10px;">
-                <button class="btn-gold" style="background: #333; color: white;" onclick="closeModal()">Hủy</button>
-                <button class="btn-gold" onclick="saveEdit()">Cập nhật</button>
-            </div>
+            <select id="edit-status" class="modal-input"><option value="PAID">PAID</option><option value="LEAD">LEAD</option><option value="CANCEL">CANCEL</option></select>
+            <div style="display: flex; gap: 10px;"><button class="btn-gold" style="background:#333;color:white;" onclick="closeModal()">Hủy</button><button class="btn-gold" onclick="saveEdit()">Cập nhật</button></div>
         </div>
     </div>
 
     <script>
-        let allData = []; let displayData = [];
-        function checkLogin() {
-            if (document.getElementById('admin-pass').value === 'admin7day') {
-                localStorage.setItem('admin_pw', 'admin7day'); init();
-            } else alert('Sai!');
-        }
-        function init() {
-            document.getElementById('login-screen').style.display = 'none';
-            document.getElementById('admin-dashboard').style.display = 'block';
-            document.getElementById('search').value = ''; 
-            loadData(); loadCMS();
-        }
+        let allData = []; let displayData = []; let selectedPhones = [];
+        function checkLogin() { if (document.getElementById('admin-pass').value === 'admin7day') { localStorage.setItem('admin_pw', 'admin7day'); init(); } else alert('Sai!'); }
+        function init() { document.getElementById('login-screen').style.display='none'; document.getElementById('admin-dashboard').style.display='block'; loadData(); loadCMS(); }
         async function loadData() {
             try {
                 const res = await fetch('/api/admin?pw=admin7day&t=' + Date.now());
                 const result = await res.json();
                 if (result.success) { allData = result.data; refreshUI(); }
-            } catch(e) { console.error('Lỗi load data:', e); }
+            } catch(e) { console.error(e); }
         }
         function refreshUI() {
             const key = document.getElementById('search').value.toLowerCase();
             displayData = allData.filter(s => s.fullname.toLowerCase().includes(key) || s.phone.includes(key));
             document.getElementById('list').innerHTML = displayData.map((s, i) => `
                 <tr>
+                    <td><input type="checkbox" class="check-box row-check" data-phone="${s.phone}" onclick="updateSelected()"></td>
                     <td>${i+1}</td>
-                    <td>${s.timestamp}</td>
                     <td><b>${s.fullname}</b><br><small>${s.phone}</small></td>
                     <td><span class="status-pill pill-${s.status.toLowerCase()}">${s.status}</span></td>
                     <td>
@@ -143,10 +139,27 @@
                     </td>
                 </tr>
             `).join('');
+            updateSelected();
             const paid = allData.filter(s => s.status === 'PAID').length;
             document.getElementById('stat-total').innerText = allData.length;
             document.getElementById('stat-paid').innerText = paid;
             document.getElementById('stat-rev').innerText = (paid * 199000).toLocaleString() + 'đ';
+        }
+        function toggleAll() {
+            const isChecked = document.getElementById('select-all').checked;
+            document.querySelectorAll('.row-check').forEach(cb => cb.checked = isChecked);
+            updateSelected();
+        }
+        function updateSelected() {
+            selectedPhones = Array.from(document.querySelectorAll('.row-check:checked')).map(cb => cb.dataset.phone);
+            const bulkBar = document.getElementById('bulk-bar');
+            bulkBar.style.display = selectedPhones.length > 0 ? 'flex' : 'none';
+            document.getElementById('bulk-count').innerText = selectedPhones.length;
+        }
+        async function bulkDelete() {
+            if (!confirm(`Bạn có chắc muốn xóa vĩnh viễn ${selectedPhones.length} học viên đã chọn?`)) return;
+            const res = await fetch('/api/admin', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({action: 'delete-multiple', phones: selectedPhones, pw: 'admin7day'}) });
+            if ((await res.json()).success) { alert('Đã dọn dẹp xong!'); loadData(); }
         }
         function openEdit(i) {
             const s = displayData[i]; if (!s) return;
@@ -158,14 +171,7 @@
             document.getElementById('edit-status').value = s.status;
         }
         async function saveEdit() {
-            const data = {
-                action: 'update-student', pw: 'admin7day',
-                oldPhone: document.getElementById('old-phone').value,
-                fullname: document.getElementById('edit-name').value,
-                phone: document.getElementById('edit-phone').value,
-                email: document.getElementById('edit-email').value,
-                status: document.getElementById('edit-status').value
-            };
+            const data = { action: 'update-student', pw: 'admin7day', oldPhone: document.getElementById('old-phone').value, fullname: document.getElementById('edit-name').value, phone: document.getElementById('edit-phone').value, email: document.getElementById('edit-email').value, status: document.getElementById('edit-status').value };
             const res = await fetch('/api/admin', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data) });
             if ((await res.json()).success) { alert('Xong!'); closeModal(); loadData(); }
         }
@@ -175,24 +181,16 @@
             if ((await res.json()).success) { alert('Đã xóa!'); loadData(); }
         }
         async function loadCMS() {
-            const container = document.getElementById('cms-fields');
-            container.innerHTML = '<div style="color:var(--accent)">Đang tải cấu hình website...</div>';
             try {
                 const res = await fetch('/api/config?t=' + Date.now());
                 const config = await res.json();
-                if (Object.keys(config).length === 0) {
-                    container.innerHTML = '<div style="color:red">Không tìm thấy sheet "Config" (Lưu ý: Sheet phải có tên chính xác là "Config" hoặc "config").</div>';
-                    return;
-                }
-                container.innerHTML = Object.keys(config).map(k => `
+                document.getElementById('cms-fields').innerHTML = Object.keys(config).map(k => `
                     <div class="stat-card">
                         <label style="font-size: 11px; color: var(--accent);">${k}</label>
                         <textarea id="cms-${k}">${config[k] || ""}</textarea>
                     </div>
                 `).join('');
-            } catch(e) { 
-                container.innerHTML = '<div style="color:red">Lỗi khi tải CMS. Vui lòng kiểm tra lại link Google Apps Script!</div>';
-            }
+            } catch(e) { }
         }
         async function saveCMS() {
             const config = {}; document.querySelectorAll('#tab-cms textarea').forEach(t => config[t.id.replace('cms-', '')] = t.value);

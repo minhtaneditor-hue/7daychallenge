@@ -40,6 +40,25 @@ export default async function handler(req, res) {
                 body: JSON.stringify(body)
             });
             const result = await response.json();
+
+            // KÍCH HOẠT EMAIL CHÀO MỪNG NẾU ĐƯỢC CHUYỂN SANG PAID
+            if (result.success && (body.action === 'update-student' || body.action === 'update-status') && body.status === 'PAID') {
+                try {
+                    const protocol = req.headers['x-forwarded-proto'] || 'http';
+                    const host = req.headers.host;
+                    await fetch(`${protocol}://${host}/api/emails`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ 
+                            action: 'welcome', 
+                            fullname: body.fullname, 
+                            email: body.email, 
+                            phone: body.phone 
+                        })
+                    });
+                } catch (e) { console.error('Email trigger error:', e); }
+            }
+
             return res.status(200).json(result);
         } catch (error) {
             console.error('Admin POST Error:', error);

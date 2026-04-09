@@ -14,11 +14,10 @@ export default async function handler(req, res) {
         if (!student || !student.email) return res.status(404).json({ error: 'Student not found' });
 
         const days = [1, 2, 3, 4, 5, 6, 7];
-        const results = [];
-
-        // 2. Gửi lần lượt 7 ngày (Mỗi ngày cách nhau 1 giây để tránh bị spam block)
-        for (const day of days) {
-            const emailRes = await fetch('https://api.resend.com/emails', {
+        
+        // 2. Gửi song song toàn bộ 7 ngày
+        const promises = days.map(day => {
+            return fetch('https://api.resend.com/emails', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -27,25 +26,14 @@ export default async function handler(req, res) {
                 body: JSON.stringify({
                     from: 'Minh Tấn <challenge@minhtanacademy.com>',
                     to: student.email,
-                    subject: `[DAY ${day}] Bài học Thử thách 7 Ngày Lên Tay Phó Nháy`,
-                    html: `
-                        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; color: #333;">
-                            <h2>Học phần Ngày ${day}</h2>
-                            <p>Chào ${student.fullname}, đây là bài học thử nghiệm cho Ngày ${day} của bạn.</p>
-                            <div style="padding: 20px; background: #f9f9f9; border-radius: 8px; margin: 20px 0;">
-                                <p>Nội dung bài học Ngày ${day} sẽ xuất hiện tại đây...</p>
-                                <p>Bạn hãy kiểm tra giao diện và nội dung xem đã ưng ý chưa nhé!</p>
-                            </div>
-                            <p>-- <br><strong>Minh Tấn</strong></p>
-                        </div>
-                    `
+                    subject: `[TEST DAY ${day}] Bài học Thử thách 7 Ngày`,
+                    html: `<h3>Chào ${student.fullname}, đây là bài học Ngày ${day} của bạn.</h3><p>Nội dung đang được kiểm tra...</p>`
                 })
             });
-            results.push({ day, status: emailRes.status });
-            await new Promise(r => setTimeout(r, 1000));
-        }
+        });
 
-        res.status(200).json({ success: true, results });
+        const responses = await Promise.all(promises);
+        res.status(200).json({ success: true, count: responses.length });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

@@ -127,7 +127,6 @@
 </head>
 <body class="dark-theme">
 
-    <!-- LOGIN -->
     <div id="login-screen">
         <div class="login-card" data-aos="zoom-in">
             <i class="fas fa-fingerprint"></i>
@@ -138,7 +137,6 @@
         </div>
     </div>
 
-    <!-- DASHBOARD -->
     <div id="admin-dashboard" style="display: none;">
         <div class="admin-layout">
             <aside class="sidebar">
@@ -160,7 +158,6 @@
             </aside>
 
             <main class="main-hero">
-                <!-- LEADS TAB -->
                 <section id="tab-leads" class="tab-content active">
                     <div class="stats-row" data-aos="fade-up">
                         <div class="stat-card">
@@ -211,7 +208,6 @@
                     </div>
                 </section>
 
-                <!-- CMS TAB -->
                 <section id="tab-cms" class="tab-content" style="display: none;">
                     <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px;">
                         <h1 style="font-size: 32px; margin: 0;">Cấu hình CMS</h1>
@@ -225,7 +221,6 @@
         </div>
     </div>
 
-    <!-- MODAL EDIT -->
     <div id="edit-modal" class="modal">
         <div class="modal-box" data-aos="zoom-in">
             <h3>Hiệu chỉnh thông tin</h3>
@@ -246,9 +241,9 @@
                 
                 <label style="font-size: 12px; color: var(--text-muted);">TRẠNG THÁI HỆ THỐNG</label>
                 <select id="edit-status" class="modal-input">
-                    <option value="PAID">PAID (Chính thức)</option>
-                    <option value="LEAD">LEAD (Chờ xử lý)</option>
-                    <option value="CANCEL">CANCEL (Đã hủy)</option>
+                    <option value="PAID">PAID</option>
+                    <option value="LEAD">LEAD</option>
+                    <option value="CANCEL">CANCEL</option>
                 </select>
 
                 <div style="display: flex; gap: 10px; margin-top: 20px;">
@@ -298,13 +293,10 @@
             const status = document.getElementById('filter-status').value;
             
             filteredStudents = masterData.filter(s => {
-                const matchSearch = String(s.fullname).toLowerCase().includes(search) || 
-                                    String(s.phone).includes(search) || 
-                                    String(s.email).toLowerCase().includes(search);
+                const matchSearch = String(s.fullname).toLowerCase().includes(search) || String(s.phone).includes(search) || String(s.email).toLowerCase().includes(search);
                 const matchStatus = status === 'all' || s.status === status;
                 return matchSearch && matchStatus;
             });
-
             renderTable(filteredStudents);
             renderStats(filteredStudents);
         }
@@ -349,22 +341,14 @@
 
         async function deleteStudent(index) {
             const s = filteredStudents[index];
-            if (!s) return;
-            if (!confirm(`Hành động xóa vĩnh viễn học viên ${s.fullname} không thể khôi phục. Tiếp tục?`)) return;
+            if (!s || !confirm(`Xóa học viên ${s.fullname}?`)) return;
             const pw = localStorage.getItem('admin_pw');
-            
-            try {
-                const res = await fetch('/api/admin', { 
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: 'delete-student', phone: s.phone, pw }) 
-                });
-                const result = await res.json();
-                if (result.success) {
-                    alert('Hệ thống đã xóa học viên thành công!');
-                    loadData();
-                }
-            } catch (err) { alert('Lỗi kết nối máy chủ!'); }
+            const res = await fetch('/api/admin', { 
+                method: 'POST', 
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'delete-student', phone: s.phone, pw }) 
+            });
+            if ((await res.json()).success) { alert('Đã xóa!'); loadData(); }
         }
 
         document.getElementById('edit-form').onsubmit = async (e) => {
@@ -379,45 +363,31 @@
                 status: document.getElementById('edit-status').value,
                 pw
             };
-            
-            try {
-                const res = await fetch('/api/admin', { 
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data) 
-                });
-                const result = await res.json();
-                if (result.success) {
-                    alert('Đã cập nhật dữ liệu thành công!');
-                    closeModal();
-                    loadData();
-                }
-            } catch (err) { alert('Lỗi cập nhật!'); }
+            const res = await fetch('/api/admin', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+            if ((await res.json()).success) { alert('Đã lưu!'); closeModal(); loadData(); }
         }
 
         function closeModal() { document.getElementById('edit-modal').style.display = 'none'; }
         
         async function loadCMS() {
-            const res = await fetch('/api/config');
-            const config = await res.json();
-            document.getElementById('cms-editor').innerHTML = Object.keys(config).map(k => `
-                <div class="stat-card" style="padding: 20px;">
-                    <label style="font-size: 11px; color: var(--accent); letter-spacing: 1px;">KEY: ${k}</label>
-                    <textarea id="cms-${k}" style="width: 100%; height: 80px; background: transparent; border: none; color: white; margin-top: 10px; font-family: inherit; font-size: 14px; outline: none;">${config[k]}</textarea>
-                </div>
-            `).join('');
+            try {
+                const res = await fetch('/api/config');
+                const config = await res.json();
+                document.getElementById('cms-editor').innerHTML = Object.keys(config).map(k => `
+                    <div class="stat-card" style="padding: 20px;">
+                        <label style="font-size: 11px; color: var(--accent); letter-spacing: 1px;">KEY: ${k}</label>
+                        <textarea id="cms-${k}" style="width: 100%; height: 80px; background: transparent; border: none; color: white; margin-top: 10px; font-family: inherit; font-size: 14px; outline: none;">${config[k]}</textarea>
+                    </div>
+                `).join('');
+            } catch(e) { console.error(e); }
         }
 
         async function saveCMS() {
             const config = {};
             document.querySelectorAll('#cms-editor textarea').forEach(ta => config[ta.id.replace('cms-', '')] = ta.value);
             const pw = localStorage.getItem('admin_pw');
-            const res = await fetch('/api/admin', { 
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ action: 'update-config', config, pw }) 
-            });
-            if ((await res.json()).success) alert('Đã tối ưu hóa nội dung website!');
+            const res = await fetch('/api/admin', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'update-config', config, pw }) });
+            if ((await res.json()).success) alert('Đã lưu CMS!');
         }
 
         function switchTab(t) {
@@ -428,12 +398,13 @@
         }
 
         function exportCSV() {
+            if (filteredStudents.length === 0) return alert('Không có dữ liệu để xuất!');
             const headers = ["Ghi danh,Hoc vien,Phone,Email,Trang thai"];
             const rows = filteredStudents.map(s => `"${s.timestamp}","${s.fullname}","${s.phone}","${s.email}","${s.status}"`);
             const blob = new Blob(["\ufeff" + headers.concat(rows).join("\n")], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement("a");
             link.href = URL.createObjectURL(blob);
-            link.download = `Tấn_Academy_Data_${new Date().toLocaleDateString()}.csv`;
+            link.download = `Tấn_Academy_Data.csv`;
             link.click();
         }
 

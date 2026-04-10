@@ -43,34 +43,6 @@
     src="https://www.facebook.com/tr?id=980574684677924&ev=PageView&noscript=1"
     /></noscript>
     <!-- End Meta Pixel Code -->
-    <style>
-        .headline {
-            font-size: clamp(2.2rem, 10vw, 4rem);
-            color: #fff;
-            margin: 15px 0 10px;
-            background: linear-gradient(45deg, #fff, var(--light-green));
-            background: -webkit-linear-gradient(45deg, #fff, var(--light-green));
-            background-clip: text;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            line-height: 1.1;
-            text-align: left;
-        }
-        .subheadline {
-            font-size: clamp(1.1rem, 4vw, 1.5rem);
-            color: var(--text-muted);
-            font-family: 'Montserrat', sans-serif;
-            font-weight: 400;
-            text-align: left;
-        }
-        @media (max-width: 768px) {
-            .headline { text-align: center; }
-            .subheadline { text-align: center; }
-            .hero-text { display: flex; flex-direction: column; align-items: center; text-align: center; }
-            .divider { margin: 20px auto; }
-            .context-text { text-align: center; }
-        }
-    </style>
 </head>
 <body>
     <!-- Top Logo / Header -->
@@ -565,6 +537,10 @@
     
     <!-- Messenger Chat Widget -->
     <script>
+        var chatButton = document.createElement('a');
+        chatButton.href = 'https://m.me/61583837884143'; 
+        chatButton.target = '_blank';
+        chatButton.id = 'messenger-chat-button';
         chatButton.style.cssText = 'position: fixed; bottom: 30px; right: 20px; background: #0084FF; color: white; padding: 12px 20px; border-radius: 50px; text-decoration: none; font-weight: 600; z-index: 9999; box-shadow: 0 4px 15px rgba(0,132,255,0.4); transition: all 0.3s; font-family: sans-serif;';
         
         function updateMessengerButton() {

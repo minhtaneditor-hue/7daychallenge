@@ -1330,3 +1330,83 @@ footer p {
     transform: rotate(5deg);
     filter: brightness(1.1);
 }
+
+/* --- 1.5 WAITING LIST SECTION (STEP 2 SOP) --- */
+.waiting-list-section {
+    padding: 100px 0;
+    background: linear-gradient(180deg, #06201e, var(--dark-bg));
+}
+.waitlist-card {
+    background: var(--glass-bg);
+    border: 2px solid var(--glass-border);
+    padding: 60px 40px;
+    border-radius: 30px;
+    backdrop-filter: blur(20px);
+    display: flex;
+    gap: 50px;
+    align-items: center;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+}
+.waitlist-text {
+    flex: 1;
+}
+.waitlist-text p {
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    margin-top: 15px;
+}
+.waitlist-form {
+    flex: 1.5;
+}
+.waitlist-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+.waitlist-grid .full-width {
+    grid-column: span 2;
+}
+.waitlist-form .form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--light-green);
+}
+.waitlist-form .form-group input, 
+.waitlist-form .form-group select {
+    width: 100%;
+    padding: 15px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(0, 0, 0, 0.4);
+    color: #fff;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1rem;
+    transition: all 0.3s;
+}
+.waitlist-form .form-group input:focus, 
+.waitlist-form .form-group select:focus {
+    outline: none;
+    border-color: var(--light-green);
+    background: rgba(0, 0, 0, 0.6);
+    box-shadow: 0 0 15px rgba(37, 195, 137, 0.2);
+}
+
+@media (max-width: 992px) {
+    .waitlist-card {
+        flex-direction: column;
+        padding: 40px 20px;
+        text-align: center;
+    }
+    .waitlist-text .section-title {
+        text-align: center;
+    }
+    .waitlist-grid {
+        grid-template-columns: 1fr;
+    }
+    .waitlist-grid .full-width {
+        grid-column: span 1;
+    }
+}
+

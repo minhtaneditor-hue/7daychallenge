@@ -85,6 +85,58 @@
         </div>
     </section>
 
+    <!-- 1.5 WAITING LIST SECTION (STEP 2 SOP) -->
+    <section id="waiting-list-section" class="waiting-list-section">
+        <div class="container">
+            <div class="waitlist-card">
+                <div id="waitlist-content">
+                    <div class="waitlist-text">
+                        <h2 class="section-title left-align">GIA NHẬP <span class="no-break">DANH SÁCH CHỜ</span></h2>
+                        <p>Nếu bạn chưa sẵn sàng tham gia ngay, hãy để lại thông tin. Chúng tôi sẽ ưu đãi đặc biệt khi khóa học có đợt mới.</p>
+                    </div>
+                    <form id="waitlist-form" class="waitlist-form" onsubmit="return false;">
+                        <div class="waitlist-grid">
+                            <div class="form-group">
+                                <label>Họ và tên</label>
+                                <input type="text" name="name" placeholder="Ví dụ: Nguyễn Văn A" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Số điện thoại / Zalo</label>
+                                <input type="tel" name="phone" placeholder="Số điện thoại của bạn" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Bạn đang dùng điện thoại gì?</label>
+                                <input type="text" name="device" placeholder="Ví dụ: iPhone 15 Pro Max" required>
+                            </div>
+                            <div class="form-group full-width">
+                                <label>Lời phàn nàn nào từ bạn gái khiến bạn "đau lòng" nhất?</label>
+                                <input type="text" name="complaint" placeholder="Chia sẻ thật lòng nhé..." required>
+                            </div>
+                            <div class="form-group full-width">
+                                <label>Kỹ năng muốn học nhất trong 7 ngày tới?</label>
+                                <select name="target_skill" required>
+                                    <option value="" disabled selected>Chọn 1 kỹ năng</option>
+                                    <option value="Góc chụp">Góc chụp (Chân dài, mặt thon)</option>
+                                    <option value="Ánh sáng">Ánh sáng (Da đẹp tự nhiên)</option>
+                                    <option value="Bố cục">Bố cục (Sạch sẽ, chuyên nghiệp)</option>
+                                    <option value="Tạo dáng">Cách tạo dáng cho người yêu</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button type="submit" id="waitlist-submit-btn" class="cta-button pulse" style="width: 100%; margin-top: 20px;">ĐĂNG KÝ DANH SÁCH CHỜ</button>
+                    </form>
+                </div>
+                <!-- Success Box for Waitlist -->
+                <div id="waitlist-success" class="success-box hidden">
+                    <span class="success-icon">✨</span>
+                    <h3>ĐÃ GIA NHẬP DANH SÁCH CHỜ!</h3>
+                    <p>Cảm ơn bạn đã quan tâm. Chúng tôi đã ghi nhận thông tin và sẽ gửi ưu đãi sớm nhất cho bạn khi có đợt mới.</p>
+                    <button type="button" class="cta-button" onclick="window.location.reload()" style="margin-top: 20px; font-size: 0.9rem; padding: 10px 25px;">QUAY LẠI</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- 2. PROBLEM SECTION -->
     <section class="problem-section">
         <div class="container">
@@ -411,7 +463,38 @@
         const qrBox = document.getElementById('qr-box');
         const successBox = document.getElementById('success-box');
         const regForm = document.getElementById('register-form');
+        const waitlistForm = document.getElementById('waitlist-form');
+        const waitlistContent = document.getElementById('waitlist-content');
+        const waitlistSuccess = document.getElementById('waitlist-success');
         let currentLeadData = {};
+
+        if (waitlistForm) {
+            waitlistForm.onsubmit = async function(e) {
+                e.preventDefault();
+                const formData = new FormData(this);
+                const data = Object.fromEntries(formData.entries());
+                
+                const btn = document.getElementById('waitlist-submit-btn');
+                btn.innerText = "Đang gửi...";
+                btn.disabled = true;
+
+                try {
+                    await fetch('/api/submit', { 
+                        method: 'POST', 
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ action: 'submit-waitlist', ...data }) 
+                    });
+                    
+                    waitlistContent.style.display = 'none';
+                    waitlistSuccess.classList.remove('hidden');
+                    waitlistSuccess.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                } catch(e) {
+                    alert("Có lỗi xảy ra, vui lòng thử lại!");
+                    btn.disabled = false;
+                    btn.innerText = "ĐĂNG KÝ DANH SÁCH CHỜ";
+                }
+            };
+        }
 
         if (regForm) {
             regForm.onsubmit = async function(e) {
@@ -426,11 +509,17 @@
                 submitBtn.disabled = true;
 
                 try {
-                    await fetch('/api/submit', { 
+                    const res = await fetch('/api/submit', { 
                         method: 'POST', 
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ action: 'submit-lead', ...currentLeadData }) 
                     });
+                    const resData = await res.json();
+                    
+                    // Lưu teleMsgId để dùng cho bước sau (Hợp nhất thông báo)
+                    if (resData.teleMsgId) {
+                        localStorage.setItem('teleMsgId', resData.teleMsgId);
+                    }
                     
                     // Tracking Lead
                     fbq('track', 'Lead');
@@ -454,11 +543,18 @@
             confirmBtn.disabled = true;
 
             try {
+                // Lấy teleMsgId từ localStorage để hợp nhất thông báo
+                const teleMsgId = localStorage.getItem('teleMsgId');
+
                 // Bước 2: Gửi Confirm (Khách báo đã chuyển tiền)
                 await fetch('/api/submit', { 
                     method: 'POST', 
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: 'confirm-payment', ...currentLeadData }) 
+                    body: JSON.stringify({ 
+                        action: 'confirm-payment', 
+                        teleMsgId: teleMsgId,
+                        ...currentLeadData 
+                    }) 
                 });
 
                 // Tracking Purchase

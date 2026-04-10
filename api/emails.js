@@ -4,12 +4,16 @@ import { RESEND_API_KEY, FROM_EMAIL, BOT_TOKEN, CHAT_ID } from './_constants.js'
 
 const resend = new Resend(RESEND_API_KEY);
 
-async function notifyTelegram(message) {
+async function notifyTelegram(message, teleMsgId = null) {
     try {
-        await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+        const method = teleMsgId ? 'editMessageText' : 'sendMessage';
+        const body = { chat_id: CHAT_ID, text: message };
+        if (teleMsgId) body.message_id = teleMsgId;
+
+        await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/${method}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ chat_id: CHAT_ID, text: message })
+            body: JSON.stringify(body)
         });
     } catch (e) { console.error('Telegram Error:', e); }
 }
@@ -17,7 +21,7 @@ async function notifyTelegram(message) {
 export default async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-    const { action, fullname, email, phone, day } = req.body;
+    const { action, fullname, email, phone, day, teleMsgId } = req.body;
 
     try {
         let emailData;
@@ -49,11 +53,13 @@ export default async function handler(req, res) {
         });
 
         if (error) {
-            await notifyTelegram(`⚠️ **LỖI GỬI MAIL:** ${logType}\n👤 Khách: ${fullname}\n📧 Email: ${email}\n❌ Lỗi: ${JSON.stringify(error)}`);
+            const errorMsg = `⚠️ **LỖI GỬI MAIL:** ${logType}\n👤 Khách: ${fullname}\n📧 Email: ${email}\n❌ Lỗi: ${JSON.stringify(error)}`;
+            await notifyTelegram(errorMsg); // Lỗi thì có thể nổ tin mới để admin biết
             return res.status(400).json(error);
         }
 
-        await notifyTelegram(`✅ **GỬI MAIL THÀNH CÔNG**\n📝 Loại: ${logType}\n👤 Khách: ${fullname}\n📧 Email: ${email}`);
+        // THÀNH CÔNG: Nếu có teleMsgId thì không báo tin mới, chỉ cần log/update (tùy nhu cầu)
+        // Trong flow này, chúng ta sẽ để tệp gọi (webhook/admin) tự update UI cho đẹp
         return res.status(200).json({ success: true, data });
     } catch (err) {
         await notifyTelegram(`🚨 **HỆ THỐNG EMAIL CRASH**\n⚠️ Lỗi: ${err.message}`);

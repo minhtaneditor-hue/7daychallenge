@@ -1,4 +1,4 @@
-import templates from './emails.js';
+import templates from './emails-templates.js';
 
 export default async function handler(req, res) {
     const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbzY6Y0FzxnoyZUzeqmnWbM2MFqlCJEEVnlFVAW_ewZTYbiwA7EXVicOvms8k_MZ0DO9EA/exec';
@@ -33,7 +33,7 @@ export default async function handler(req, res) {
                     await fetch(resendUrl, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${RESEND_API_KEY}` },
-                        body: JSON.stringify({ from: 'Minh Tấn <challenge@minhtanacademy.com>', to: lead.email, subject: emailData.subject, html: emailData.html })
+                        body: JSON.stringify({ from: 'Minh Tấn Academy <marketing@minhtanacademy.com>', to: lead.email, subject: emailData.subject, html: emailData.html })
                     });
                     await fetch(GOOGLE_SHEET_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'update-status', phone: lead.phone, status: 'REMINDED' }) });
                     continue;
@@ -47,7 +47,7 @@ export default async function handler(req, res) {
                         await fetch(resendUrl, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${RESEND_API_KEY}` },
-                            body: JSON.stringify({ from: 'Minh Tấn <challenge@minhtanacademy.com>', to: lead.email, subject: emailData.subject, html: emailData.html })
+                            body: JSON.stringify({ from: 'Minh Tấn Academy <marketing@minhtanacademy.com>', to: lead.email, subject: emailData.subject, html: emailData.html })
                         });
                         await fetch(GOOGLE_SHEET_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'update-status', phone: lead.phone, status: `DAY_${nextDay}` }) });
                         sentLogs.push({ email: lead.email, sent_day: nextDay });

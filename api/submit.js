@@ -1,3 +1,4 @@
+export default async (req, res) => {
     const BOT_TOKEN = '8753662126:AAHjqwCiSyn50oxIg7ABgebgh_B1tiWNX0E';
     const CHAT_ID = '7384174497';
     const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbzY6Y0FzxnoyZUzeqmnWbM2MFqlCJEEVnlFVAW_ewZTYbiwA7EXVicOvms8k_MZ0DO9EA/exec';
@@ -41,7 +42,6 @@
 
             } catch (err) {
                 await notifyAdmin(`🚨 **LỖI GHI SHEET (LEAD):**\n👤 Khách: ${data.fullname}\n📞 SĐT: ${data.phone}\n⚠️ Chi tiết: ${err.message}`);
-                // Vẫn trả về 200 để khách không thấy lỗi trên web, nhưng Admin đã biết.
             }
 
             return res.status(200).json({ success: true });

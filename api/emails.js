@@ -1,11 +1,10 @@
 import { Resend } from 'resend';
 import templates from './emails-templates.js';
+import { RESEND_API_KEY, FROM_EMAIL, BOT_TOKEN, CHAT_ID } from './_constants.js';
 
-const resend = new Resend(process.env.RESEND_API_KEY || 're_Gq7KcaeK_2ar8XM8RhiQxeyNMgnjpEr2o');
+const resend = new Resend(RESEND_API_KEY);
 
 async function notifyTelegram(message) {
-    const BOT_TOKEN = '8753662126:AAHjqwCiSyn50oxIg7ABgebgh_B1tiWNX0E';
-    const CHAT_ID = '7384174497';
     try {
         await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
             method: 'POST',
@@ -18,7 +17,7 @@ async function notifyTelegram(message) {
 export default async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-        const { action, fullname, email, phone, day } = req.body;
+    const { action, fullname, email, phone, day } = req.body;
 
     try {
         let emailData;
@@ -43,7 +42,7 @@ export default async function handler(req, res) {
         if (!emailData) return res.status(400).json({ error: 'Action hoặc Day không hợp lệ' });
 
         const { data, error } = await resend.emails.send({
-            from: 'Minh Tấn Academy <marketing@minhtanacademy.com>',
+            from: FROM_EMAIL,
             to: [email],
             subject: emailData.subject,
             html: emailData.html,

@@ -1,89 +1,83 @@
-export default async function handler(req, res) {
-    if (req.method !== 'POST') return res.status(405).send('Method Not Allowed');
-    const update = req.body;
-    const BOT_TOKEN = '8753662126:AAHjqwCiSyn50oxIg7ABgebgh_B1tiWNX0E';
-    const CHAT_ID = '7384174497';
-    const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbxbChrkAVLRFvQ128Qde_o123wYGBwHN-zPrd34Cm2k_QpiqtlgZNpM5acf9Yy2YCjCgg/exec';
+import { GOOGLE_SHEET_URL, BOT_TOKEN } from './_constants.js';
 
-    // Helper to send message back to admin
-    const notifyAdmin = async (text) => {
-        await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ chat_id: CHAT_ID, text })
-        });
-    };
+export default async function handler(req, res) {
+    if (req.method !== 'POST') return res.status(405).end();
 
     try {
-        if (update.callback_query) {
-            const { id: callbackId, data, message } = update.callback_query;
-            const [action, phone] = data.split('_');
-            const vnTime = new Date().toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });
+        const { message, callback_query } = req.body;
 
-            if (action === 'approve') {
-                // Immediate feedback to Telegram UI
-                await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/answerCallbackQuery`, {
+        // XỬ LÝ NÚT BẤM (CALLBACK QUERY)
+        if (callback_query) {
+            const data = callback_query.data;
+            const chatId = callback_query.message.chat.id;
+            const messageId = callback_query.message.message_id;
+            const originalText = callback_query.message.text;
+
+            if (data.startsWith('approve_') || data.startsWith('reject_')) {
+                const [action, phone] = data.split('_');
+                const isApprove = action === 'approve';
+                const status = isApprove ? 'PAID' : 'CANCEL';
+
+                // 1. CẬP NHẬT GOOGLE SHEET
+                const gsRes = await fetch(GOOGLE_SHEET_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ callback_query_id: callbackId, text: '⌛ Đang xử lý Duyệt & Gửi Email...' })
+                    body: JSON.stringify({ action: 'update-status', phone, status })
                 });
+                const gsData = await gsRes.json();
 
-                try {
-                    // 1. Fetch data from Google Sheet to get Email
-                    const gsRes = await fetch(GOOGLE_SHEET_URL);
-                    const leads = await gsRes.json();
-                    const student = leads.find(l => String(l.phone).replace(/\D/g,'').includes(phone.replace(/\D/g,'')));
-
-                    if (!student) {
-                        await notifyAdmin(`❌ KHÔNG TÌM THẤY SĐT: ${phone} trong Google Sheet!`);
-                        return res.status(200).json({ ok: true });
+                if (gsData.success) {
+                    // 2. NẾU DUYỆT -> GỬI EMAIL CHÀO MỪNG (Dùng api/emails)
+                    if (isApprove) {
+                        try {
+                            const protocol = req.headers['x-forwarded-proto'] || 'http';
+                            const host = req.headers.host;
+                            // Lấy thông tin khách từ dữ liệu trả về của Sheet (nếu Google Script trả về)
+                            // Hoặc gọi email welcome đơn giản
+                            await fetch(`${protocol}://${host}/api/emails`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ 
+                                    action: 'welcome', 
+                                    fullname: gsData.fullname || 'Học viên', 
+                                    email: gsData.email,
+                                    phone: phone 
+                                })
+                            });
+                        } catch (e) { console.error('Email trigger error:', e); }
                     }
 
-                    // 2. Trigger Welcome Email
-                    const protocol = req.headers['x-forwarded-proto'] || 'https';
-                    const host = req.headers.host;
-                    const emailRes = await fetch(`${protocol}://${host}/api/emails`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ 
-                            action: 'welcome', 
-                            fullname: student.fullname, 
-                            email: student.email, 
-                            phone: student.phone 
-                        })
-                    });
-
-                    if (!emailRes.ok) {
-                        const errData = await emailRes.json();
-                        await notifyAdmin(`⚠️ LỖI GỬI EMAIL: ${JSON.stringify(errData)}`);
-                    }
-
-                    // 3. Update Status to PAID in Google Sheet
-                    await fetch(GOOGLE_SHEET_URL, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ action: 'update-status', phone: phone, status: 'PAID' })
-                    });
-                    
-                    // 4. Update the message buttons in chat
+                    // 3. CẬP NHẬT LẠI TIN NHẮN TELEGRAM (Ẩn nút)
+                    const statusText = isApprove ? '✅ ĐÃ DUYỆT (PAID)' : '❌ ĐÃ HỦY ĐƠN';
                     await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/editMessageText`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
-                            chat_id: CHAT_ID,
-                            message_id: message.message_id,
-                            text: message.text + `\n\n✅ ĐÃ DUYỆT & GỬI CHÀO MỪNG\n⏰ ${vnTime}`,
-                            reply_markup: { inline_keyboard: [[{ text: "✅ THÀNH CÔNG", callback_data: "none" }]] }
+                            chat_id: chatId,
+                            message_id: messageId,
+                            text: `${originalText}\n\nTrạng thái: ${statusText}`
                         })
                     });
-
-                } catch (err) {
-                    await notifyAdmin(`🚨 LỖI WEBHOOK: ${err.message}`);
                 }
             }
+            return res.status(200).json({ success: true });
         }
-        res.status(200).json({ ok: true });
+
+        // PHẢN HỒI TIN NHẮN THƯỜNG (Nếu cần)
+        if (message && message.text === '/start') {
+            await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    chat_id: message.chat.id,
+                    text: "Chào Tấn, Bot quản trị 7 Day Challenge đã sẵn sàng!"
+                })
+            });
+        }
+
+        return res.status(200).json({ success: true });
     } catch (error) {
-        res.status(200).json({ ok: true });
+        console.error('Webhook Error:', error);
+        return res.status(200).json({ error: error.message }); // Luôn trả 200 cho Tele
     }
 }

@@ -37,18 +37,16 @@ h1, h2, h3 {
 }
 
 .container {
-    width: 100%;
+    width: 90%;
     max-width: 1200px;
     margin: 0 auto;
-    padding-left: max(5px, env(safe-area-inset-left));
-    padding-right: max(5px, env(safe-area-inset-right));
 }
 
-@media (min-width: 768px) {
+@media (max-width: 768px) {
     .container {
-        width: 90%;
-        padding-left: 0;
-        padding-right: 0;
+        width: 100%;
+        padding-left: max(5px, env(safe-area-inset-left));
+        padding-right: max(5px, env(safe-area-inset-right));
     }
 }
 
@@ -666,32 +664,33 @@ footer p {
 .contact-social-section h2 { margin-bottom: 40px; font-size: 2.2rem; }
 .social-links { display: flex; justify-content: center; gap: 20px; margin-bottom: 40px; flex-wrap: wrap; }
 .social-btn { 
-    display: inline-flex; 
+    display: flex; 
     align-items: center; 
-    justify-content: center;
     gap: 10px; 
     background: rgba(255,255,255,0.05); 
-    padding: 12px 25px; 
+    padding: 12px 30px; 
     border-radius: 30px; 
     color: #fff; 
     text-decoration: none; 
-    font-weight: 700; 
+    font-weight: 800; 
     transition: all 0.3s; 
     border: 1px solid rgba(255,255,255,0.15); 
-    font-size: 0.95rem;
+}
+@media (max-width: 768px) {
+    .social-btn { padding: 12px 20px; font-size: 0.9rem; font-weight: 700; }
 }
 .social-btn:hover { background: var(--light-green); color: #000; border-color: var(--light-green); transform: translateY(-3px); }
 .s-icon { 
     display: flex; 
     align-items: center; 
     justify-content: center; 
-    width: 24px; 
-    height: 24px; 
+    width: 26px; 
+    height: 26px; 
     background: #fff; 
     color: #000; 
     border-radius: 50%; 
     font-weight: 900; 
-    font-size: 0.75rem; 
+    font-size: 0.8rem; 
     flex-shrink: 0;
 }
 .social-btn:hover .s-icon { background: #000; color: var(--light-green); }
@@ -1071,9 +1070,12 @@ footer p {
 
 .reward-countdown {
     display: flex;
-    justify-content: center;
     gap: 15px;
     margin-top: 30px;
+}
+
+@media (max-width: 768px) {
+    .reward-countdown { justify-content: center; }
 }
 
 .countdown-item {

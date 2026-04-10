@@ -18,7 +18,7 @@ async function notifyTelegram(message) {
 export default async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-    const { action, fullname, email, phone, day } = req.body;
+        const { action, fullname, email, phone, day } = req.body;
 
     try {
         let emailData;
@@ -40,7 +40,7 @@ export default async function handler(req, res) {
             logType = 'NHẮC THANH TOÁN';
         }
 
-        if (!emailData) return res.status(400).json({ error: 'Invalid action or day' });
+        if (!emailData) return res.status(400).json({ error: 'Action hoặc Day không hợp lệ' });
 
         const { data, error } = await resend.emails.send({
             from: 'Minh Tấn Academy <marketing@minhtanacademy.com>',
@@ -50,14 +50,14 @@ export default async function handler(req, res) {
         });
 
         if (error) {
-            await notifyTelegram(`❌ LỖI GỬI MAIL ${logType}\n👤 Khách: ${fullname}\n📧 Email: ${email}\n⚠️ Lỗi: ${JSON.stringify(error)}`);
+            await notifyTelegram(`⚠️ **LỖI GỬI MAIL:** ${logType}\n👤 Khách: ${fullname}\n📧 Email: ${email}\n❌ Lỗi: ${JSON.stringify(error)}`);
             return res.status(400).json(error);
         }
 
-        await notifyTelegram(`✅ GỬI MAIL THÀNH CÔNG\n📝 Loại: ${logType}\n👤 Khách: ${fullname}\n📧 Email: ${email}`);
+        await notifyTelegram(`✅ **GỬI MAIL THÀNH CÔNG**\n📝 Loại: ${logType}\n👤 Khách: ${fullname}\n📧 Email: ${email}`);
         return res.status(200).json({ success: true, data });
     } catch (err) {
-        await notifyTelegram(`🚨 HỆ THỐNG EMAIL CRASH\n⚠️ Lỗi: ${err.message}`);
+        await notifyTelegram(`🚨 **HỆ THỐNG EMAIL CRASH**\n⚠️ Lỗi: ${err.message}`);
         return res.status(500).json({ error: err.message });
     }
 }

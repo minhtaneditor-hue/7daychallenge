@@ -21,7 +21,7 @@ export default async (req, res) => {
         const body = req.body;
         const { action, teleMsgId, ...data } = body;
 
-            // 1. NGƯỜI DÙNG ĐĂNG KÍ (LEAD)
+        // 1. NGƯỜI DÙNG ĐĂNG KÍ (LEAD)
         if (!action || action === 'submit-lead') {
             const leadMsg = `🔔 **CÓ KHÁCH MỚI ĐĂNG KÝ!**\n` +
                           `👤 Họ tên: ${data.fullname || 'Không có'}\n` +
@@ -39,7 +39,8 @@ export default async (req, res) => {
                 const gsRes = await fetch(GOOGLE_SHEET_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: 'submit-lead', ...data })
+                    body: JSON.stringify({ action: 'submit-lead', ...data }),
+                    redirect: 'follow'
                 });
                 if (!gsRes.ok) throw new Error();
             } catch (err) { 
@@ -63,33 +64,25 @@ export default async (req, res) => {
 
         // 1.5. DANH SÁCH CHỜ (WAITLIST)
         if (action === 'submit-waitlist') {
-            const waitlistMsg = `✨ **KHÁCH MỚI GIA NHẬP DANH SÁCH CHỜ!**\n` +
-                              `━━━━━━━━━━━━━━━\n` +
-                              `👤 Họ tên: ${data.name || 'Không có'}\n` +
-                              `📞 SĐT: ${data.phone || 'Không có'}\n` +
-                              `📱 Máy: ${data.device || 'Không có'}\n` +
-                              `💡 Kỹ năng: ${data.target_skill || 'Không chọn'}\n` +
-                              `❌ Phàn nàn: ${data.complaint || 'Không có'}\n` +
-                              `━━━━━━━━━━━━━━━\n` +
-                              `📊 Đang ghi vào Google Sheet...`;
+            // Tắt thông báo Telegram cho Waitlist theo yêu cầu của USER
             
-            const firstMsg = await notifyAdmin(waitlistMsg);
-            const msgId = firstMsg?.result?.message_id;
-
             // Cập nhật Google Sheet
-            let sheetStatus = "\n📊 Sheet: ✅ Đã lưu";
             try {
-                await fetch(GOOGLE_SHEET_URL, {
+                const gsRes = await fetch(GOOGLE_SHEET_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: 'submit-waitlist', ...data })
+                    body: JSON.stringify({ action: 'submit-waitlist', ...data }),
+                    redirect: 'follow' // Quan trọng cho Apps Script
                 });
+                
+                if (!gsRes.ok) {
+                    const errorText = await gsRes.text();
+                    console.error('Google Sheet Error Output:', errorText);
+                    throw new Error(`Sheet returned ${gsRes.status}`);
+                }
             } catch (err) { 
-                sheetStatus = "\n📊 Sheet: ❌ Lỗi ghi"; 
-            }
-
-            if (msgId) {
-                await notifyAdmin(waitlistMsg.replace('📊 Đang ghi vào Google Sheet...', sheetStatus), msgId);
+                console.error('CRITICAL: Failed to call Google Sheet for Waitlist:', err.message);
+                // Vẫn trả về 200 để khách không thấy lỗi trên UI
             }
 
             return res.status(200).json({ success: true });
@@ -111,11 +104,9 @@ export default async (req, res) => {
                 ]]
             };
 
-            // Nếu có mã tin nhắn cũ -> Tìm và sửa lại chính tin nhắn đó
             if (teleMsgId) {
                 await notifyAdmin(message, teleMsgId, replyMarkup);
             } else {
-                // Nếu không có (lỗi trình duyệt) -> Gửi tin nhắn mới như cũ
                 await notifyAdmin(message, null, replyMarkup);
             }
 

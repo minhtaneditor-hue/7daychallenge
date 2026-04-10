@@ -479,17 +479,22 @@
                 btn.disabled = true;
 
                 try {
-                    await fetch('/api/submit', { 
+                    const res = await fetch('/api/submit', { 
                         method: 'POST', 
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ action: 'submit-waitlist', ...data }) 
                     });
                     
+                    if (!res.ok) {
+                        const errorRes = await res.json();
+                        throw new Error(errorRes.error || "Lỗi Server");
+                    }
+                    
                     waitlistContent.style.display = 'none';
                     waitlistSuccess.classList.remove('hidden');
                     waitlistSuccess.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 } catch(e) {
-                    alert("Có lỗi xảy ra, vui lòng thử lại!");
+                    alert("LỖI GỬI SHEET: " + e.message);
                     btn.disabled = false;
                     btn.innerText = "ĐĂNG KÝ DANH SÁCH CHỜ";
                 }

@@ -1,7 +1,7 @@
 export default async (req, res) => {
     const BOT_TOKEN = '8753662126:AAHjqwCiSyn50oxIg7ABgebgh_B1tiWNX0E';
     const CHAT_ID = '7384174497';
-    const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbzY6Y0FzxnoyZUzeqmnWbM2MFqlCJEEVnlFVAW_ewZTYbiwA7EXVicOvms8k_MZ0DO9EA/exec';
+    const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbxbChrkAVLRFvQ128Qde_o123wYGBwHN-zPrd34Cm2k_QpiqtlgZNpM5acf9Yy2YCjCgg/exec';
 
     const notifyAdmin = async (text) => {
         try {
@@ -19,9 +19,32 @@ export default async (req, res) => {
 
         // 1. NGƯỜI DÙNG ĐĂNG KÍ (LEAD)
         if (!action || action === 'submit-lead') {
-            const vnTime = new Date().toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });
-            
-            // Gửi Google Sheet TRƯỚC để đảm bảo dữ liệu được lưu
+            // Bước 1: Thông báo Telegram NGAY LẬP TỨC để Admin nắm thông tin khách
+            const leadMsg = `🔔 **CÓ KHÁCH MỚI ĐĂNG KÝ!**\n` +
+                          `👤 Họ tên: ${data.fullname || 'Không có'}\n` +
+                          `📞 SĐT: ${data.phone || 'Không có'}\n` +
+                          `📧 Email: ${data.email || 'Không có'}\n` +
+                          `----------------------------\n` +
+                          `⏳ Đang ghi vào Google Sheet...`;
+            await notifyAdmin(leadMsg);
+
+            // Bước 2: Kích hoạt Email Chào mừng (Day 0) luôn để khách nhận được mail ngay
+            try {
+                const protocol = req.headers['x-forwarded-proto'] || 'http';
+                const host = req.headers.host;
+                fetch(`${protocol}://${host}/api/emails`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        action: 'welcome', 
+                        fullname: data.fullname, 
+                        email: data.email, 
+                        phone: data.phone 
+                    })
+                }); // Không await để tránh block luồng chính
+            } catch (e) { console.error('Email trigger error:', e); }
+
+            // Bước 3: Gửi Google Sheet
             try {
                 const gsRes = await fetch(GOOGLE_SHEET_URL, {
                     method: 'POST',
@@ -29,19 +52,13 @@ export default async (req, res) => {
                     body: JSON.stringify({ action: 'submit-lead', ...data })
                 });
                 
-                if (!gsRes.ok) throw new Error(`Google Sheet Error: ${gsRes.status}`);
-
-                // Nếu lưu Sheet thành công thì mới báo Telegram
-                const message = `🔔 **CÓ KHÁCH MỚI ĐĂNG KÝ!**\n` +
-                              `👤 Họ tên: ${data.fullname || 'Không có'}\n` +
-                              `📞 SĐT: ${data.phone || 'Không có'}\n` +
-                              `📧 Email: ${data.email || 'Không có'}\n` +
-                              `----------------------------\n` +
-                              `✅ Đã lưu vào Google Sheet thành công.`;
-                await notifyAdmin(message);
+                if (!gsRes.ok) throw new Error(`Status: ${gsRes.status}`);
+                
+                // Cập nhật trạng thái thành công lên Telegram (tùy chọn)
+                // await notifyAdmin(`✅ Đã lưu vào Google Sheet thành công cho: ${data.fullname}`);
 
             } catch (err) {
-                await notifyAdmin(`🚨 **LỖI GHI SHEET (LEAD):**\n👤 Khách: ${data.fullname}\n📞 SĐT: ${data.phone}\n⚠️ Chi tiết: ${err.message}`);
+                await notifyAdmin(`🚨 **LỖI GHI SHEET (LEAD):**\n👤 Khách: ${data.fullname}\n⚠️ Chi tiết: ${err.message}`);
             }
 
             return res.status(200).json({ success: true });
@@ -49,7 +66,6 @@ export default async (req, res) => {
 
         // 2. KHÁCH XÁC NHẬN ĐÃ CHUYỂN TIỀN (CONFIRM)
         if (action === 'confirm-payment') {
-            const vnTime = new Date().toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });
             const message = `💰 **XÁC NHẬN CHUYỂN TIỀN!**\n` +
                           `👤 Khách: ${data.fullname || 'Không rõ'}\n` +
                           `📞 SĐT: ${data.phone}\n` +
@@ -65,7 +81,7 @@ export default async (req, res) => {
                     text: message,
                     reply_markup: {
                         inline_keyboard: [[
-                            { text: "✅ DUYỆT (PAID & Gửi Email)", callback_data: `approve_${data.phone}` },
+                            { text: "✅ DUYỆT (PAID)", callback_data: `approve_${data.phone}` },
                             { text: "❌ HUỶ ĐƠN", callback_data: `reject_${data.phone}` }
                         ]]
                     }

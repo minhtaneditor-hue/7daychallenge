@@ -55,7 +55,7 @@
         <div class="container hero-content">
             <div class="hero-text">
                 <a href="#register-form-section" class="badge" style="text-decoration: none; display: inline-block;">START NOW</a>
-                <h1 class="headline">7 Ngày Lên Tay "Phó Nháy" Cho Người Yêu</h1>
+                <h1 class="headline">7 Ngày Lên Tay <span class="no-break">"Phó Nháy"</span> Cho Người Yêu</h1>
                 <h2 class="subheadline">Biến chiếc điện thoại của bạn thành "camera bạn trai" trong 7 ngày</h2>
                 <div class="divider"></div>
                 <p class="context-text">Dành cho những người đàn ông luôn bị bạn gái chê: <strong>"Anh chụp hình xấu quá!"</strong></p>
@@ -88,7 +88,7 @@
     <!-- 2. PROBLEM SECTION -->
     <section class="problem-section">
         <div class="container">
-            <h2 class="section-title">BẠN CÓ TỪNG GẶP TÌNH HUỐNG NÀY CHƯA?</h2>
+            <h2 class="section-title">BẠN CÓ TỪNG GẶP TÌNH HUỐNG <span class="no-break">NÀY CHƯA?</span></h2>
             
             <div class="problem-grid">
                 <div class="problem-card">
@@ -258,7 +258,7 @@
             <div class="reward-card">
                 <div class="reward-info">
                     <span class="reward-tag">🎁 QUÀ TẶNG ĐẶC BIỆT</span>
-                    <h2 class="reward-title">Tham gia thử thách.<br>Nhận ngay <span>lộ trình 21 ngày</span> biến điện thoại thành tài sản miễn phí</h2>
+                    <h2 class="reward-title">Tham gia thử thách.<br>Nhận ngay <span class="no-break">lộ trình 21 ngày</span> biến điện thoại thành tài sản miễn phí</h2>
                     <p style="color: #ccc; line-height: 1.6; margin-bottom: 20px;">
                         Dành riêng cho học viên tham gia đầy đủ 7 ngày, thực hành đúng quy trình và có kết quả tương tác tốt nhất. 
                         Cơ hội sở hữu trọn bộ kiến thức <b>"Video thành Tài Sản"</b>.
@@ -327,7 +327,7 @@
                             <input type="email" id="email" name="email" placeholder="Email" required>
                         </div>
                         
-                        <button type="submit" id="submit-btn" class="cta-button massive">Thanh toán & Nhận mã QR</button>
+                        <button type="submit" id="submit-btn" class="cta-button massive">THANH TOÁN & <span class="no-break">NHẬN MÃ QR</span></button>
                     </form>
                 </div>
 
@@ -541,8 +541,12 @@
         chatButton.href = 'https://m.me/61583837884143'; 
         chatButton.target = '_blank';
         chatButton.id = 'messenger-chat-button';
-        chatButton.innerHTML = '<span style="display: flex; align-items: center; gap: 8px;"><svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M12 2C6.36 2 1.81 6.13 1.81 11.23c0 2.86 1.48 5.4 3.8 7.08v3.42l3.47-1.92c.93.26 1.91.4 2.92.4 5.64 0 10.19-4.13 10.19-9.23S17.64 2 12 2zm1.09 12.35l-2.73-2.9-5.32 2.9 5.86-6.22 2.83 2.9 5.21-2.9-5.85 6.22z"/></svg> Chat Messenger</span>';
-        chatButton.style.cssText = 'position: fixed; bottom: 30px; right: 20px; background: #0084FF; color: white; padding: 12px 20px; border-radius: 50px; text-decoration: none; font-weight: 600; z-index: 9999; box-shadow: 0 4px 15px rgba(0,132,255,0.4); transition: all 0.3s; font-family: sans-serif;';
+        chatButton.style.cssText = 'position: fixed; bottom: 20px; right: 15px; background: #0084FF; color: white; padding: 10px 16px; border-radius: 50px; text-decoration: none; font-weight: 600; z-index: 9999; box-shadow: 0 4px 15px rgba(0,132,255,0.4); transition: all 0.3s; font-family: sans-serif; font-size: 0.9rem;';
+        if (window.innerWidth < 768) {
+            chatButton.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M12 2C6.36 2 1.81 6.13 1.81 11.23c0 2.86 1.48 5.4 3.8 7.08v3.42l3.47-1.92c.93.26 1.91.4 2.92.4 5.64 0 10.19-4.13 10.19-9.23S17.64 2 12 2zm1.09 12.35l-2.73-2.9-5.32 2.9 5.86-6.22 2.83 2.9 5.21-2.9-5.85 6.22z"/></svg>';
+            chatButton.style.padding = '12px';
+            chatButton.style.borderRadius = '50%';
+        }
         chatButton.onmouseover = function() { this.style.transform = 'translateY(-3px)'; this.style.boxShadow = '0 6px 20px rgba(0,132,255,0.6)'; };
         chatButton.onmouseout = function() { this.style.transform = 'translateY(0)'; this.style.boxShadow = '0 4px 15px rgba(0,132,255,0.4)'; };
         document.body.appendChild(chatButton);

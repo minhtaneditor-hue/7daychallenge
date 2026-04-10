@@ -27,27 +27,7 @@ export default async function handler(req, res) {
                 const gsData = await gsRes.json();
 
                 if (gsData.success) {
-                    // 2. NẾU DUYỆT -> GỬI EMAIL CHÀO MỪNG (Dùng api/emails)
-                    if (isApprove) {
-                        try {
-                            const protocol = req.headers['x-forwarded-proto'] || 'http';
-                            const host = req.headers.host;
-                            // Lấy thông tin khách từ dữ liệu trả về của Sheet (nếu Google Script trả về)
-                            // Hoặc gọi email welcome đơn giản
-                            await fetch(`${protocol}://${host}/api/emails`, {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ 
-                                    action: 'welcome', 
-                                    fullname: gsData.fullname || 'Học viên', 
-                                    email: gsData.email,
-                                    phone: phone 
-                                })
-                            });
-                        } catch (e) { console.error('Email trigger error:', e); }
-                    }
-
-                    // 3. CẬP NHẬT LẠI TIN NHẮN TELEGRAM (Ẩn nút)
+                    // 2. CẬP NHẬT LẠI TIN NHẮN TELEGRAM (Ẩn nút)
                     const statusText = isApprove ? '✅ ĐÃ DUYỆT (PAID)' : '❌ ĐÃ HỦY ĐƠN';
                     await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/editMessageText`, {
                         method: 'POST',

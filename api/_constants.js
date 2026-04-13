@@ -1,4 +1,9 @@
-export const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbwsszyBOYqtpbCP4eg4-yKJOwPxoAXYsycHcn9kLkZdcCj7we-1TX6Zf6LdcLYWEo9MQQ/exec';
+export const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbxbChrkAVLRFvQ128Qde_o123wYGBwHN-zPrd34Cm2k_QpiqtlgZNpM5acf9Yy2YCjCgg/exec';
+export const LEAD_SPREADSHEET_ID = '1_ugE0zCfoqHpjHbkebCbyyL1BUw4p27k6250kRzdkx0';
+
+export const WAITLIST_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwsszyBOYqtpbCP4eg4-yKJOwPxoAXYsycHcn9kLkZdcCj7we-1TX6Zf6LdcLYWEo9MQQ/exec';
+export const WAITLIST_SPREADSHEET_ID = '1alyguq8nSaEKnnzyS4cXRm9rxyDhs3_2HXhsv6nPfh4';
+
 export const BOT_TOKEN = '8753662126:AAHjqwCiSyn50oxIg7ABgebgh_B1tiWNX0E';
 export const CHAT_ID = '7384174497';
 export const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin7day';

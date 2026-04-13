@@ -640,34 +640,122 @@
         updateCountdown();
     </script>
     
-    <!-- Messenger Chat Widget -->
+    <!-- Sales Chatbot Widget -->
+    <div id="sales-chatbot-toggle" onclick="toggleChat()">
+        <svg viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.477 2 12c0 1.821.487 3.53 1.338 5L2 22l5-1.338c1.47.851 3.179 1.338 5 1.338 5.523 0 10-4.477 10-10S17.523 2 12 2zm0 18c-1.477 0-2.863-.449-4.015-1.215l-3.111.831.832-3.11C4.949 15.362 4.5 13.977 4.5 12.5c0-4.142 3.358-7.5 7.5-7.5s7.5 3.358 7.5 7.5-3.358 7.5-7.5 7.5zm5-8.5h-10v1h10v-1zm-3 2h-7v1h7v-1zm3-4h-10v1h10v-1z"/></svg>
+    </div>
+
+    <div id="sales-chatbot-container">
+        <div class="chatbot-header">
+            <div class="chatbot-header-info">
+                <div class="chatbot-avatar"></div>
+                <div class="chatbot-header-text">
+                    <h4>Minh Tấn (Phó Nháy)</h4>
+                    <span>Đang hoạt động • AI Assistant</span>
+                </div>
+            </div>
+            <div class="chatbot-close" onclick="toggleChat()">&times;</div>
+        </div>
+        <div class="chatbot-messages" id="chat-messages">
+            <!-- Messages will appear here -->
+            <div class="typing-indicator" id="typing">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+        <div class="chatbot-options" id="chat-options">
+            <!-- Options will appear here -->
+        </div>
+    </div>
+
     <script>
-        var chatButton = document.createElement('a');
-        chatButton.href = 'https://m.me/61583837884143'; 
-        chatButton.target = '_blank';
-        chatButton.id = 'messenger-chat-button';
-        chatButton.style.cssText = 'position: fixed; bottom: 30px; right: 20px; background: #0084FF; color: white; padding: 12px 20px; border-radius: 50px; text-decoration: none; font-weight: 600; z-index: 9999; box-shadow: 0 4px 15px rgba(0,132,255,0.4); transition: all 0.3s; font-family: sans-serif;';
+        const chatMessages = document.getElementById('chat-messages');
+        const chatOptions = document.getElementById('chat-options');
+        const typingIndicator = document.getElementById('typing');
+        const chatContainer = document.getElementById('sales-chatbot-container');
         
-        function updateMessengerButton() {
-            if (window.innerWidth < 768) {
-                chatButton.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M12 2C6.36 2 1.81 6.13 1.81 11.23c0 2.86 1.48 5.4 3.8 7.08v3.42l3.47-1.92c.93.26 1.91.4 2.92.4 5.64 0 10.19-4.13 10.19-9.23S17.64 2 12 2zm1.09 12.35l-2.73-2.9-5.32 2.9 5.86-6.22 2.83 2.9 5.21-2.9-5.85 6.22z"/></svg>';
-                chatButton.style.padding = '12px';
-                chatButton.style.borderRadius = '50%';
-                chatButton.style.bottom = '20px';
-                chatButton.style.right = '15px';
-            } else {
-                chatButton.innerHTML = '<span style="display: flex; align-items: center; gap: 8px;"><svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M12 2C6.36 2 1.81 6.13 1.81 11.23c0 2.86 1.48 5.4 3.8 7.08v3.42l3.47-1.92c.93.26 1.91.4 2.92.4 5.64 0 10.19-4.13 10.19-9.23S17.64 2 12 2zm1.09 12.35l-2.73-2.9-5.32 2.9 5.86-6.22 2.83 2.9 5.21-2.9-5.85 6.22z"/></svg> Chat Messenger</span>';
-                chatButton.style.padding = '12px 20px';
-                chatButton.style.borderRadius = '50px';
-                chatButton.style.bottom = '30px';
-                chatButton.style.right = '20px';
+        const script = {
+            greeting: "Chào ông bạn! Đang đau đầu vì bị người yêu chê 'chụp ảnh không có tâm' đúng không? 😂 <br><br>Tấn đây, phó nháy thực chiến của bạn. Tôi ở đây để giúp bạn biến chiếc điện thoại thành vũ khí lợi hại, khiến cô ấy phải thốt lên: 'Sao hôm nay anh chụp đẹp thế!'<br><br>Ông cần tôi hỗ trợ gì nào?",
+            faqs: [
+                { q: "Giá khóa học bao nhiêu?", a: "Chỉ 199.000đ thôi ông. Rẻ hơn 3 ly cafe nhưng đổi lại là sự yên ổn mỗi lần đi chơi với người yêu. Đáng đầu tư đúng không? 😉" },
+                { q: "Android có học được không?", a: "Quá được luôn! Tấn dạy về tư duy góc máy, ánh sáng và bố cục. Dù ông dùng iPhone 15 hay con Samsung đời cũ thì áp dụng đúng bài là ảnh vẫn 'lung linh' ngay." },
+                { q: "Mình không có khiếu...", a: "Yên tâm. Tấn không dạy lý thuyết suông. Mọi thứ đều là công thức 1+1=2. Chỉ cần làm theo đúng bước là có ảnh đẹp, không cần năng khiếu gì đâu." },
+                { q: "Học xong có quà gì không?", a: "Có chứ! Hoàn thành 7 ngày thử thách, Tấn tặng ông lộ trình 21 ngày 'Video thành Tài Sản' trị giá 10 củ hoàn toàn FREE. Kèo này quá hời!" },
+                { q: "Khi nào thì được học?", a: "Tấn gởi bài qua Email vào mỗi sáng. Chuyển khoản xong là sáng mai bài học đầu tiên 'bay' thẳng vào inbox của ông luôn." },
+                { q: "Cần cài app gì không?", a: "Mục tiêu của 7 ngày này là ảnh gốc phải đẹp. Khi ảnh gốc đã xịn thì chẳng cần app gì đâu, cùng lắm chỉnh sáng tí là xong." },
+                { q: "Bận không thực hành kịp?", a: "Bài học nằm trong Email, ông có thể xem lại bất cứ lúc nào. Nhưng lời khuyên của Tấn là nên thực hành ngay trong ngày để tạo phản xạ tốt nhất." },
+                { q: "Chụp ngoài trời khó không?", a: "Có bí kíp cả! Day 4 Tấn sẽ chỉ ông cách tách người yêu ra khỏi đám đông dù ở chỗ đó có đông nghịt người. Ảnh vẫn cứ là 'chuyên nghiệp'." },
+                { q: "Quán cafe bị tối?", a: "Đó là do ông chưa làm chủ được ánh sáng. Day 2 và Day 5 Tấn sẽ 'bắt mạch' và xử lý vụ này cho ông trong 1 nốt nhạc." },
+                { q: "Để mình suy nghĩ thêm.", a: "Ok ông bạn. Cứ cân nhắc nhé. Nhưng đừng để đến lúc đi du lịch với người yêu rồi mới thấy tiếc vì chụp tấm nào cũng bị mắng. Lúc đó 199k không cứu nổi đâu! 😂" }
+            ],
+            ctas: [
+                { text: "ĐĂNG KÝ NGAY - 199K", type: "buy", link: "#register-form-section" },
+                { text: "GIA NHẬP DANH SÁCH CHỜ", type: "waitlist", link: "#waiting-list-section" }
+            ]
+        };
+
+        function toggleChat() {
+            chatContainer.classList.toggle('active');
+            if (chatContainer.classList.contains('active') && chatMessages.children.length <= 1) {
+                startChat();
             }
         }
-        updateMessengerButton();
-        window.addEventListener('resize', updateMessengerButton);
-        chatButton.onmouseover = function() { this.style.transform = 'translateY(-3px)'; this.style.boxShadow = '0 6px 20px rgba(0,132,255,0.6)'; };
-        chatButton.onmouseout = function() { this.style.transform = 'translateY(0)'; this.style.boxShadow = '0 4px 15px rgba(0,132,255,0.4)'; };
-        document.body.appendChild(chatButton);
+
+        function startChat() {
+            showTyping();
+            setTimeout(() => {
+                hideTyping();
+                addMessage(script.greeting, 'bot');
+                showOptions();
+            }, 1000);
+        }
+
+        function addMessage(text, side) {
+            const msg = document.createElement('div');
+            msg.className = `chat-msg ${side}`;
+            msg.innerHTML = text;
+            chatMessages.insertBefore(msg, typingIndicator);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function showOptions() {
+            chatOptions.innerHTML = '';
+            
+            // Show FAQ buttons (random 3 for variety or just first few)
+            const randomFaqs = script.faqs.slice(0, 4);
+            randomFaqs.forEach(faq => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = faq.q;
+                btn.onclick = () => handleFaq(faq);
+                chatOptions.appendChild(btn);
+            });
+
+            // Show CTAs
+            script.ctas.forEach(cta => {
+                const btn = document.createElement('button');
+                btn.className = `option-btn chat-cta-${cta.type}`;
+                btn.innerText = cta.text;
+                btn.onclick = () => {
+                    toggleChat();
+                    window.location.href = cta.link;
+                };
+                chatOptions.appendChild(btn);
+            });
+        }
+
+        function handleFaq(faq) {
+            addMessage(faq.q, 'user');
+            chatOptions.innerHTML = '';
+            showTyping();
+            setTimeout(() => {
+                hideTyping();
+                addMessage(faq.a, 'bot');
+                showOptions();
+            }, 800);
+        }
+
+        function showTyping() { typingIndicator.style.display = 'block'; chatMessages.scrollTop = chatMessages.scrollHeight; }
+        function hideTyping() { typingIndicator.style.display = 'none'; }
     </script>
 </body>
 </html>

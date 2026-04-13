@@ -662,6 +662,10 @@
                 <span></span><span></span><span></span>
             </div>
         </div>
+        <div id="chat-options-toggle" class="chatbot-options-toggle" onclick="toggleOptions()" style="display: none;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+            <span>Câu hỏi gợi ý</span>
+        </div>
         <div class="chatbot-options" id="chat-options">
             <!-- Options will appear here -->
         </div>
@@ -670,9 +674,12 @@
     <script>
         const chatMessages = document.getElementById('chat-messages');
         const chatOptions = document.getElementById('chat-options');
+        const chatOptionsToggle = document.getElementById('chat-options-toggle');
         const typingIndicator = document.getElementById('typing');
         const chatContainer = document.getElementById('sales-chatbot-container');
         
+        let isOptionsExpanded = false;
+
         const script = {
             greeting: "Chào ông bạn! Đang đau đầu vì bị người yêu chê 'chụp ảnh không có tâm' đúng không? 😂 <br><br>Tấn đây, phó nháy thực chiến của bạn. Tôi ở đây để giúp bạn biến chiếc điện thoại thành vũ khí lợi hại, khiến cô ấy phải thốt lên: 'Sao hôm nay anh chụp đẹp thế!'<br><br>Ông cần tôi hỗ trợ gì nào?",
             faqs: [
@@ -705,7 +712,7 @@
             setTimeout(() => {
                 hideTyping();
                 addMessage(script.greeting, 'bot');
-                showOptions();
+                showOptions(true); // Mặc định hiện gợi ý lần đầu
             }, 1000);
         }
 
@@ -717,12 +724,12 @@
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
 
-        function showOptions() {
+        function showOptions(expand = false) {
             chatOptions.innerHTML = '';
+            chatOptionsToggle.style.display = 'flex';
             
-            // Show FAQ buttons (random 3 for variety or just first few)
-            const randomFaqs = script.faqs.slice(0, 4);
-            randomFaqs.forEach(faq => {
+            // Show FAQ buttons
+            script.faqs.slice(0, 4).forEach(faq => {
                 const btn = document.createElement('button');
                 btn.className = 'option-btn';
                 btn.innerText = faq.q;
@@ -741,16 +748,30 @@
                 };
                 chatOptions.appendChild(btn);
             });
+
+            if (expand) {
+                chatOptions.classList.add('show');
+                isOptionsExpanded = true;
+            }
+        }
+
+        function toggleOptions() {
+            isOptionsExpanded = !isOptionsExpanded;
+            if (isOptionsExpanded) {
+                chatOptions.classList.add('show');
+            } else {
+                chatOptions.classList.remove('show');
+            }
         }
 
         function handleFaq(faq) {
             addMessage(faq.q, 'user');
-            chatOptions.innerHTML = '';
+            toggleOptions(); // Thu gọn sau khi chọn
             showTyping();
             setTimeout(() => {
                 hideTyping();
                 addMessage(faq.a, 'bot');
-                showOptions();
+                showOptions(true); // Hiện lại gợi ý sau khi bot trả lời
             }, 800);
         }
 

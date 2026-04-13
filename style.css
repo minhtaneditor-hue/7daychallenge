@@ -1605,3 +1605,54 @@ footer p {
     from { opacity: 0.3; transform: translateY(0); }
     to { opacity: 1; transform: translateY(-5px); }
 }
+
+/* --- CHATBOT UI OPTIMIZATION --- */
+#sales-chatbot-container {
+    padding-bottom: 60px; /* Space for the floating toggle button */
+}
+
+.chatbot-options-toggle {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    background: var(--primary-green);
+    color: #fff;
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    z-index: 10002;
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    transition: all 0.3s;
+}
+
+.chatbot-options-toggle:hover {
+    background: var(--light-green);
+    color: #000;
+}
+
+#chat-options {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease-out, padding 0.3s;
+    padding: 0 20px;
+    background: rgba(0, 0, 0, 0.4);
+    border-top: none;
+}
+
+#chat-options.show {
+    max-height: 250px; /* Adjust based on content */
+    padding: 15px 20px;
+    border-top: 1px solid var(--glass-border);
+    overflow-y: auto;
+}
+
+.chatbot-messages {
+    flex: 1;
+    /* Adjust padding to ensure messages aren't covered by the toggle button when it's there */
+}

@@ -65,7 +65,7 @@ export default async function handler(req, res) {
             });
 
             // TELEGRAM NOTIFICATION
-            await notifyAdmin(`💰 <b>TIỀN ĐÃ VỀ TỰ ĐỘNG!</b>\n━━━━━━━━━━━━━━━\n👤: ${customer.fullname}\n📞: ${phone}\n💵: ${amount.toLocaleString()}đ\n\n✅ Hệ thống đã tự động duyệt và gửi mail kích hoạt cho học viên!`);
+            await notifyAdmin(`💰 <b>TIỀN ĐÃ VỀ TỰ ĐỘNG!</b>\n━━━━━━━━━━━━━━━\n👤: ${customer.fullname}\n📧: ${customer.email}\n📞: ${phone}\n💵: ${amount.toLocaleString()}đ\n\n✅ Hệ thống đã tự động duyệt và gửi mail kích hoạt cho học viên!`);
         } catch (e) { 
             console.error('Notification error:', e); 
         }

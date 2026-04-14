@@ -51,7 +51,7 @@ export default async (req, res) => {
             }
 
             if (msgId) {
-                await notifyAdmin(`👤 <b>KHÁCH ĐĂNG KÝ MỚI</b>\n👤: ${data.fullname}\n📞: ${data.phone}${sheetStatus}`, msgId);
+                await notifyAdmin(`👤 <b>KHÁCH ĐĂNG KÝ MỚI</b>\n👤: ${data.fullname}\n📧: ${data.email}\n📞: ${data.phone}${sheetStatus}`, msgId);
             }
 
             // GỬI QUÀ TẶNG NGAY LẬP TỨC (STEP 5)

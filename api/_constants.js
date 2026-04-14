@@ -1,4 +1,4 @@
-export const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbzY6Y0FzxnoyZUzeqmnWbM2MFqlCJEEVnlFVAW_ewZTYbiwA7EXVicOvms8k_MZ0DO9EA/exec';
+export const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbzJjah4zB0WKz4Eugd3zbd0_tnmGdXGsQBSs0ojD9cOowFwRJ1Pr4KUyNpTlW_YiEbFmA/exec';
 export const LEAD_SPREADSHEET_ID = '1_ugE0zCfoqHpjHbkebCbyyL1BUw4p27k6250kRzdkx0';
 
 export const WAITLIST_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwsszyBOYqtpbCP4eg4-yKJOwPxoAXYsycHcn9kLkZdcCj7we-1TX6Zf6LdcLYWEo9MQQ/exec';

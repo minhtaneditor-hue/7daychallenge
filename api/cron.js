@@ -2,7 +2,8 @@ import { GOOGLE_SHEET_URL } from './_constants.js';
 
 export default async function handler(req, res) {
     const CRON_SECRET = process.env.CRON_SECRET;
-    if (req.headers.get('Authorization') !== `Bearer ${CRON_SECRET}`) {
+    const authHeader = req.headers.authorization || req.headers.Authorization;
+    if (authHeader !== `Bearer ${CRON_SECRET}`) {
         return res.status(401).end('Unauthorized');
     }
 

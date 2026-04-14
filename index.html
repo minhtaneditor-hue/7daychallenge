@@ -387,7 +387,7 @@
                     <h3>Quét mã chuyển khoản</h3>
                     <div class="price-tag">Số tiền: 199.000đ</div>
                     <div class="qr-img-wrapper">
-                        <img src="assets/QR CODE 7DBFC.jpg" alt="QR Code Thanh Toán">
+                        <img id="qr-image" src="assets/QR CODE 7DBFC.jpg" alt="QR Code Thanh Toán">
                     </div>
                     <p style="color: #aaa; margin-bottom: 25px; font-size: 0.9rem;">Vui lòng chuyển đúng số tiền để hệ thống xác nhận nhanh nhất.</p>
                     <button type="button" id="confirm-btn">Xác nhận đã chuyển tiền</button>
@@ -529,6 +529,15 @@
                     // Tracking Lead
                     fbq('track', 'Lead');
                     
+                    // Cập nhật mã QR động theo SĐT khách (ACB - 221896279)
+                    const qrImg = document.getElementById('qr-image');
+                    const amount = 199000;
+                    const phone = currentLeadData.phone;
+                    const bankId = 'ACB';
+                    const accountNo = '221896279';
+                    const accountName = 'LE MINH TAN';
+                    qrImg.src = `https://img.vietqr.io/image/${bankId}-${accountNo}-compact.png?amount=${amount}&addInfo=7Day%20${phone}&accountName=${encodeURIComponent(accountName)}`;
+
                     // Hiển thị QR Code & Ẩn sạch Form
                     formContent.style.display = 'none';
                     qrBox.classList.remove('hidden');

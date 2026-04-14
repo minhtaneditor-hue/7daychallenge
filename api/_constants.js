@@ -9,3 +9,9 @@ export const CHAT_ID = '7384174497';
 export const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin7day';
 export const RESEND_API_KEY = process.env.RESEND_API_KEY || 're_Gq7KcaeK_2ar8XM8RhiQxeyNMgnjpEr2o';
 export const FROM_EMAIL = 'Minh Tấn Academy <marketing@minhtanacademy.com>';
+
+// BANK & SEPAY CONFIG
+export const BANK_ID = 'ACB';
+export const ACCOUNT_NO = '221896279';
+export const ACCOUNT_NAME = 'LE MINH TAN';
+export const SEPAY_API_KEY = process.env.SEPAY_API_KEY || ''; // Fill in later if needed

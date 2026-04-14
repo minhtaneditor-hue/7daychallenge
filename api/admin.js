@@ -10,23 +10,11 @@ export default async function handler(req, res) {
     }
 
     try {
-        // --- GET DATA ---
-        if (req.method === 'GET') {
-            const sheetRes = await fetch(`${GOOGLE_SHEET_URL}?action=get-data`);
-            const data = await sheetRes.json();
-            return res.status(200).json({ success: true, data });
-        }
-
-        // --- POST ACTIONS (Forward to Google Sheets) ---
-        if (req.method === 'POST') {
-            const sheetRes = await fetch(GOOGLE_SHEET_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(reqBody)
-            });
-            const result = await sheetRes.json();
-            return res.status(200).json(result);
-        }
+        // --- DATA ACTIONS (Forward to Google Sheets via GET) ---
+        const url = `${GOOGLE_SHEET_URL}?action=${action || 'get-data'}&type=${type || ''}&payload=${encodeURIComponent(JSON.stringify(payload || {}))}`;
+        const sheetRes = await fetch(url);
+        const result = await sheetRes.json();
+        return res.status(200).json(result);
 
     } catch (err) {
         console.error('Admin Proxy Error:', err);

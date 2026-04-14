@@ -31,21 +31,19 @@ export default async (req, res) => {
 
             let sheetStatus = "\n📊 CRM: ✅ Đã lưu";
             try {
-                // Sync with Plan B CRM logic
-                await fetch(GOOGLE_SHEET_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        action: 'create', 
-                        type: 'customer',
-                        payload: {
-                            fullname: data.fullname,
-                            phone: data.phone,
-                            email: data.email,
-                            zalo: data.zalo || ''
-                        }
-                    })
-                });
+            try {
+                // Sync with Plan B CRM logic (GET-ONLY STABLE)
+                const payload = {
+                    fullname: data.fullname,
+                    phone: data.phone,
+                    email: data.email,
+                    zalo: data.zalo || ''
+                };
+                const url = `${GOOGLE_SHEET_URL}?action=create&type=customer&payload=${encodeURIComponent(JSON.stringify(payload))}`;
+                await fetch(url);
+            } catch (err) { 
+                sheetStatus = "\n📊 CRM: ❌ Lỗi ghi"; 
+            }
             } catch (err) { 
                 sheetStatus = "\n📊 CRM: ❌ Lỗi ghi"; 
             }

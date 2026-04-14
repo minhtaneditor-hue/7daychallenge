@@ -34,23 +34,17 @@ export default async function handler(req, res) {
         const customer = customers.find(c => String(c.phone) === String(phone));
         if (!customer) return res.status(200).json({ success: true, message: 'Customer not found' });
 
-        // 3. CREATE ORDER
+        // 3. CREATE ORDER (GET-ONLY STABLE)
         const product = products[0] || { id: 1 };
-        await fetch(GOOGLE_SHEET_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                action: 'create',
-                type: 'order',
-                payload: {
-                    customer_id: customer.id,
-                    product_id: product.id,
-                    amount: amount,
-                    status: 'success',
-                    transaction_id: referenceNum
-                }
-            })
-        });
+        const payload = {
+            customer_id: customer.id,
+            product_id: product.id,
+            amount: amount,
+            status: 'success',
+            transaction_id: referenceNum
+        };
+        const url = `${GOOGLE_SHEET_URL}?action=create&type=order&payload=${encodeURIComponent(JSON.stringify(payload))}`;
+        await fetch(url);
 
         // 4. TRIGGER EMAIL & TELEGRAM ALERT
         try {

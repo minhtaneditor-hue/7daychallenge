@@ -1,4 +1,5 @@
-import { GOOGLE_SHEET_URL, BOT_TOKEN, CHAT_ID } from './_constants.js';
+import { GOOGLE_SHEET_URL, BOT_TOKEN, CHAT_ID, RESEND_API_KEY, FROM_EMAIL } from './_constants.js';
+import templates from './emails-templates.js';
 
 export default async (req, res) => {
     const notifyAdmin = async (text, msgId = null, replyMarkup = null) => {
@@ -52,6 +53,27 @@ export default async (req, res) => {
             if (msgId) {
                 await notifyAdmin(`👤 <b>KHÁCH ĐĂNG KÝ MỚI</b>\n👤: ${data.fullname}\n📞: ${data.phone}${sheetStatus}`, msgId);
             }
+
+            // GỬI QUÀ TẶNG NGAY LẬP TỨC (STEP 5)
+            try {
+                const { subject, html } = templates.gift(data.fullname);
+                await fetch('https://api.resend.com/emails', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${RESEND_API_KEY}`
+                    },
+                    body: JSON.stringify({
+                        from: FROM_EMAIL,
+                        to: data.email,
+                        subject: subject,
+                        html: html
+                    })
+                });
+            } catch (err) {
+                console.error('Gift Email Error:', err);
+            }
+
             return res.status(200).json({ success: true, teleMsgId: msgId });
         }
 

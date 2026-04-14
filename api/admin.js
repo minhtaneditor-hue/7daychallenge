@@ -10,6 +10,8 @@ export default async function handler(req, res) {
     }
 
     try {
+        const { action, type, payload } = req.method === 'POST' ? reqBody : req.query;
+
         // --- DATA ACTIONS (Forward to Google Sheets via GET) ---
         const url = `${GOOGLE_SHEET_URL}?action=${action || 'get-data'}&type=${type || ''}&payload=${encodeURIComponent(JSON.stringify(payload || {}))}`;
         const sheetRes = await fetch(url);

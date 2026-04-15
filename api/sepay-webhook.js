@@ -32,17 +32,26 @@ export default async function handler(req, res) {
         const customer = customers[0];
         if (!customer) return res.status(200).json({ success: true, message: 'Customer not found' });
 
-        // 2. CREATE ORDER IN SQLITE
-        const products = query('SELECT * FROM products LIMIT 1');
-        const product = products[0] || { id: 1 };
-        
-        execute(
-            'INSERT INTO orders (customer_id, product_id, amount, status, transaction_id) VALUES (?, ?, ?, ?, ?)',
-            [customer.id, product.id, amount, 'success', referenceNum]
-        );
+        // 2. FIND PENDING ORDER OR CREATE SUCCESS
+        const orders = await query('SELECT * FROM orders WHERE customer_id = ? AND status = ? ORDER BY id DESC LIMIT 1', [customer.id, 'pending']);
+        const pendingOrder = orders[0];
+
+        if (pendingOrder) {
+            await execute(
+                'UPDATE orders SET status = ?, transaction_id = ?, amount = ? WHERE id = ?',
+                ['success', referenceNum, amount, pendingOrder.id]
+            );
+        } else {
+            await execute(
+                'INSERT INTO orders (customer_id, product_id, amount, status, transaction_id) VALUES (?, ?, ?, ?, ?)',
+                [customer.id, 1, amount, 'success', referenceNum]
+            );
+        }
 
         // 3. UPDATE STOCK
-        execute('UPDATE products SET stock = stock - 1 WHERE id = ?', [product.id]);
+        const products = await query('SELECT id FROM products LIMIT 1');
+        const product = products[0] || { id: 1 };
+        await execute('UPDATE products SET stock = stock - 1 WHERE id = ?', [product.id]);
 
         // 4. TRIGGER EMAIL & TELEGRAM ALERT
         try {

@@ -14,4 +14,8 @@ export const FROM_EMAIL = 'Minh Tấn Academy <marketing@minhtanacademy.com>';
 export const BANK_ID = 'ACB';
 export const ACCOUNT_NO = '221896279';
 export const ACCOUNT_NAME = 'LE MINH TAN';
-export const SEPAY_API_KEY = process.env.SEPAY_API_KEY || ''; // Fill in later if needed
+export const SEPAY_API_KEY = process.env.SEPAY_API_KEY || ''; 
+
+// TURSO CLOUD DB CONFIG (Set these in Vercel Dashboard for production)
+export const TURSO_URL = process.env.TURSO_URL || ''; 
+export const TURSO_TOKEN = process.env.TURSO_TOKEN || '';

@@ -542,6 +542,11 @@
                     formContent.style.display = 'none';
                     qrBox.classList.remove('hidden');
                     qrBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+                    // BẮT ĐẦU POLLING KIỂM TRA THANH TOÁN (WOW FACTOR)
+                    if (resData.orderId) {
+                        startPaymentPolling(resData.orderId);
+                    }
                 } catch(e) {
                     alert("Có lỗi xảy ra, vui lòng thử lại!");
                     submitBtn.disabled = false;
@@ -550,39 +555,48 @@
             };
         }
 
+        let pollingInterval = null;
+        function startPaymentPolling(orderId) {
+            if (pollingInterval) clearInterval(pollingInterval);
+            
+            pollingInterval = setInterval(async () => {
+                try {
+                    const res = await fetch(`/api/order-status?id=${orderId}`);
+                    const data = await res.json();
+                    
+                    if (data.success && data.status === 'success') {
+                        clearInterval(pollingInterval);
+                        showSuccessState();
+                    }
+                } catch (e) { console.error('Polling error:', e); }
+            }, 3000); // Check mỗi 3 giây
+        }
+
+        function showSuccessState() {
+            // Tracking Purchase nếu chưa track
+            fbq('track', 'Purchase', { value: 199000, currency: 'VND' });
+            
+            // Chuyển sang bảng thành công
+            qrBox.classList.add('hidden');
+            successBox.classList.remove('hidden');
+            successBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
         document.getElementById('confirm-btn').addEventListener('click', async () => {
             const confirmBtn = document.getElementById('confirm-btn');
-            const originalText = confirmBtn.innerText;
             confirmBtn.innerText = "Đang xác thực...";
             confirmBtn.disabled = true;
 
             try {
-                // Lấy teleMsgId từ localStorage để hợp nhất thông báo
                 const teleMsgId = localStorage.getItem('teleMsgId');
-
-                // Bước 2: Gửi Confirm (Khách báo đã chuyển tiền)
                 await fetch('/api/submit', { 
                     method: 'POST', 
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        action: 'confirm-payment', 
-                        teleMsgId: teleMsgId,
-                        ...currentLeadData 
-                    }) 
+                    body: JSON.stringify({ action: 'confirm-payment', teleMsgId, ...currentLeadData }) 
                 });
-
-                // Tracking Purchase
-                fbq('track', 'Purchase', { value: 199000, currency: 'VND' });
-
-                // Chuyển sang bảng thành công
-                qrBox.classList.add('hidden');
-                successBox.classList.remove('hidden');
-                successBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                showSuccessState();
             } catch(e) {
-                // Nếu lỗi thì vẫn cho qua để khách không chờ đợi quá lâu
-                qrBox.classList.add('hidden');
-                successBox.classList.remove('hidden');
-                successBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                showSuccessState();
             }
         });
 

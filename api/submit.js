@@ -31,16 +31,29 @@ export default async (req, res) => {
             const msgId = firstMsg?.result?.message_id;
 
             let dbStatus = "\n📊 CRM: ✅ Đã lưu";
+            let orderId = null;
             try {
-                const sql = `INSERT INTO customers (fullname, phone, email, zalo) VALUES (?, ?, ?, ?)`;
-                execute(sql, [data.name || data.fullname, data.phone, data.email || '', data.zalo || '']);
+                // 1. Lưu Customer
+                const custSql = `INSERT INTO customers (fullname, phone, email, zalo) VALUES (?, ?, ?, ?)`;
+                const custRes = await execute(custSql, [data.name || data.fullname, data.phone, data.email || '', data.zalo || '']);
+                const customerId = custRes.id;
+
+                // 2. Tạo Order ở trạng thái PENDING
+                // Lấy sản phẩm đầu tiên (khóa học chính) hoặc mặc định ID 1
+                const products = await query('SELECT id FROM products LIMIT 1');
+                const productId = products[0]?.id || 1;
+                
+                const orderSql = `INSERT INTO orders (customer_id, product_id, amount, status) VALUES (?, ?, ?, ?)`;
+                const orderRes = await execute(orderSql, [customerId, productId, 199000, 'pending']);
+                orderId = orderRes.id;
+
             } catch (err) {
                 console.error('DB Insert Error:', err);
                 dbStatus = "\n📊 CRM: ❌ Lỗi ghi (SQLite)";
             }
 
             if (msgId) {
-                await notifyAdmin(`👤 <b>KHÁCH ĐĂNG KÝ MỚI</b>\n👤: ${data.name || data.fullname}\n📞: ${data.phone}${dbStatus}`, msgId);
+                await notifyAdmin(`👤 <b>KHÁCH ĐĂNG KÝ MỚI</b>\n👤: ${data.name || data.fullname}\n📞: ${data.phone}${dbStatus}${orderId ? `\n🆔 Đơn hàng: #${orderId}` : ''}`, msgId);
             }
 
             // GỬI QUÀ TẶNG NGAY LẬP TỨC nếu có email
@@ -65,7 +78,7 @@ export default async (req, res) => {
                 }
             }
 
-            return res.status(200).json({ success: true, teleMsgId: msgId });
+            return res.status(200).json({ success: true, teleMsgId: msgId, orderId: orderId });
         }
 
         // 2. CONFIRM PAYMENT (NOTIFY FOR MANUAL CHECK)

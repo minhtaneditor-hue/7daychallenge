@@ -216,7 +216,10 @@
                     dbData = result.data;
                     renderTable();
                 }
-            } catch (e) { console.error('Load error:', e); }
+            } catch (e) { 
+                console.error('Load error:', e);
+                alert("❌ LỖI TẢI DỮ LIỆU!\n\nNếu bạn đang xem trên Vercel: Vui lòng kiểm tra đã cấu hình TURSO_URL và TURSO_TOKEN chưa.\n\nNếu đang chạy Local: Đảm bảo server đang bật và brain.db tồn tại.");
+            }
         }
 
         function switchTab(tab) {

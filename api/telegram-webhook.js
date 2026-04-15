@@ -19,16 +19,16 @@ export default async function handler(req, res) {
                 const status = isApprove ? 'success' : 'cancel';
 
                 // 1. FIND CUSTOMER IN SQLITE
-                const customers = query('SELECT * FROM customers WHERE phone = ?', [phone]);
+                const customers = await query('SELECT * FROM customers WHERE phone = ?', [phone]);
                 const customer = customers[0];
                 
                 if (customer) {
                     // 2. FIND AND UPDATE LATEST ORDER
-                    const orders = query('SELECT * FROM orders WHERE customer_id = ? ORDER BY id DESC LIMIT 1', [customer.id]);
+                    const orders = await query('SELECT * FROM orders WHERE customer_id = ? ORDER BY id DESC LIMIT 1', [customer.id]);
                     const latestOrder = orders[0];
                     
                     if (latestOrder) {
-                        execute('UPDATE orders SET status = ? WHERE id = ?', [status, latestOrder.id]);
+                        await execute('UPDATE orders SET status = ? WHERE id = ?', [status, latestOrder.id]);
 
                         // 3. IF APPROVED -> TRIGGER EMAIL DAY 0 (WELCOME)
                         if (isApprove) {

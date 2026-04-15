@@ -14,9 +14,9 @@ export default async function handler(req, res) {
         const { action, type, payload } = req.method === 'POST' ? reqBody : req.query;
 
         if (req.method === 'GET' || action === 'get-data') {
-            const products = query('SELECT * FROM products');
-            const customers = query('SELECT * FROM customers ORDER BY registration_date DESC');
-            const orders = query('SELECT orders.*, customers.fullname as customer_name, products.name as product_name FROM orders JOIN customers ON orders.customer_id = customers.id JOIN products ON orders.product_id = products.id ORDER BY created_at DESC');
+            const products = await query('SELECT * FROM products');
+            const customers = await query('SELECT * FROM customers ORDER BY registration_date DESC');
+            const orders = await query('SELECT orders.*, customers.fullname as customer_name, products.name as product_name FROM orders JOIN customers ON orders.customer_id = customers.id JOIN products ON orders.product_id = products.id ORDER BY created_at DESC');
             
             return res.status(200).json({ 
                 success: true, 
@@ -31,20 +31,20 @@ export default async function handler(req, res) {
                 const keys = Object.keys(payload);
                 const values = Object.values(payload);
                 const sql = `INSERT INTO ${table} (${keys.join(', ')}) VALUES (${keys.map(() => '?').join(', ')})`;
-                execute(sql, values);
+                await execute(sql, values);
                 
                 // Special logic: if adding order, decrement stock
                 if (type === 'order') {
-                    execute('UPDATE products SET stock = stock - 1 WHERE id = ?', [payload.product_id]);
+                    await execute('UPDATE products SET stock = stock - 1 WHERE id = ?', [payload.product_id]);
                 }
             } else if (action === 'update') {
                 const { id, ...data } = payload;
                 const keys = Object.keys(data);
                 const values = Object.values(data);
                 const sql = `UPDATE ${table} SET ${keys.map(k => `${k} = ?`).join(', ')} WHERE id = ?`;
-                execute(sql, [...values, id]);
+                await execute(sql, [...values, id]);
             } else if (action === 'delete') {
-                execute(`DELETE FROM ${table} WHERE id = ?`, [payload.id]);
+                await execute(`DELETE FROM ${table} WHERE id = ?`, [payload.id]);
             }
 
             return res.status(200).json({ success: true });

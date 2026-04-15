@@ -11,13 +11,7 @@ export default async function handler(req, res) {
 
     try {
         // 1. LẤY DANH SÁCH PAID STUDENTS TỪ BD (Orders success JOIN Customers)
-        const sql = `
-            SELECT c.fullname, c.email, c.phone, o.status as order_status, o.id as order_id
-            FROM orders o
-            JOIN customers c ON o.customer_id = c.id
-            WHERE o.status NOT IN ('pending', 'CANCEL', 'DONE')
-        `;
-        const students = query(sql);
+        const students = await query(sql);
 
         if (!students || students.length === 0) {
             return res.status(200).json({ message: 'No active students found' });
@@ -53,12 +47,12 @@ export default async function handler(req, res) {
                 });
 
                 // Cập nhật trạng thái mới vào table orders
-                execute('UPDATE orders SET status = ? WHERE id = ?', [`DAY${nextDay}`, student.order_id]);
+                await execute('UPDATE orders SET status = ? WHERE id = ?', [`DAY${nextDay}`, student.order_id]);
 
                 results.push({ student: student.fullname, day: nextDay });
             } else {
                 // Kết thúc khóa học
-                execute("UPDATE orders SET status = 'DONE' WHERE id = ?", [student.order_id]);
+                await execute("UPDATE orders SET status = 'DONE' WHERE id = ?", [student.order_id]);
             }
         }
 

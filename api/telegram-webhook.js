@@ -1,4 +1,5 @@
-import { GOOGLE_SHEET_URL, BOT_TOKEN } from './_constants.js';
+import { BOT_TOKEN } from './_constants.js';
+import { query, execute } from './_db.js';
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).end();
@@ -17,29 +18,19 @@ export default async function handler(req, res) {
                 const isApprove = action === 'approve';
                 const status = isApprove ? 'success' : 'cancel';
 
-                // 1. FETCH ALL CRM DATA
-                const listRes = await fetch(`${GOOGLE_SHEET_URL}?action=get-data`);
-                const { customers, orders } = await listRes.json();
-                
-                const customer = customers.find(c => String(c.phone) === String(phone));
+                // 1. FIND CUSTOMER IN SQLITE
+                const customers = query('SELECT * FROM customers WHERE phone = ?', [phone]);
+                const customer = customers[0];
                 
                 if (customer) {
-                    // Update latest order for this customer
-                    const latestOrder = orders.filter(o => String(o.customer_id) === String(customer.id)).sort((a,b) => b.id - a.id)[0];
+                    // 2. FIND AND UPDATE LATEST ORDER
+                    const orders = query('SELECT * FROM orders WHERE customer_id = ? ORDER BY id DESC LIMIT 1', [customer.id]);
+                    const latestOrder = orders[0];
                     
                     if (latestOrder) {
-                        // 2. UPDATE STATUS IN CRM
-                        await fetch(GOOGLE_SHEET_URL, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ 
-                                action: 'update', 
-                                type: 'order', 
-                                payload: { id: latestOrder.id, status: status } 
-                            })
-                        });
+                        execute('UPDATE orders SET status = ? WHERE id = ?', [status, latestOrder.id]);
 
-                        // 3. IF APPROVED -> TRIGGER EMAIL DAY 0
+                        // 3. IF APPROVED -> TRIGGER EMAIL DAY 0 (WELCOME)
                         if (isApprove) {
                             try {
                                 const protocol = req.headers['x-forwarded-proto'] || 'http';

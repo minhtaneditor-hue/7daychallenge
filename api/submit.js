@@ -1,5 +1,6 @@
-import { GOOGLE_SHEET_URL, BOT_TOKEN, CHAT_ID, RESEND_API_KEY, FROM_EMAIL } from './_constants.js';
+import { BOT_TOKEN, CHAT_ID, RESEND_API_KEY, FROM_EMAIL } from './_constants.js';
 import templates from './emails-templates.js';
+import { execute } from './_db.js';
 
 export default async (req, res) => {
     const notifyAdmin = async (text, msgId = null, replyMarkup = null) => {
@@ -24,58 +25,50 @@ export default async (req, res) => {
         
         const { action, teleMsgId, ...data } = body;
 
-        // 1. NGƯỜI DÙNG ĐĂNG KÍ (LEAD -> CUSTOMER IN CRM)
-        if (!action || action === 'submit-lead') {
-            const firstMsg = await notifyAdmin(`🔔 <b>CÓ KHÁCH MỚI!</b>\n⏳ Đang lưu vào CRM...`);
+        // 1. NGƯỜI DÙNG ĐĂNG KÍ (LEAD / WAITLIST -> CUSTOMER IN CRM)
+        if (!action || action === 'submit-lead' || action === 'submit-waitlist') {
+            const firstMsg = await notifyAdmin(`🔔 <b>CÓ KHÁCH MỚI (${action || 'lead'})!</b>\n⏳ Đang lưu vào CRM...`);
             const msgId = firstMsg?.result?.message_id;
 
-            let sheetStatus = "\n📊 CRM: ✅ Đã lưu";
+            let dbStatus = "\n📊 CRM: ✅ Đã lưu";
             try {
-            try {
-                // Sync with Plan B CRM logic (GET-ONLY STABLE)
-                const payload = {
-                    fullname: data.fullname,
-                    phone: data.phone,
-                    email: data.email,
-                    zalo: data.zalo || ''
-                };
-                const url = `${GOOGLE_SHEET_URL}?action=create&type=customer&payload=${encodeURIComponent(JSON.stringify(payload))}`;
-                await fetch(url);
-            } catch (err) { 
-                sheetStatus = "\n📊 CRM: ❌ Lỗi ghi"; 
-            }
-            } catch (err) { 
-                sheetStatus = "\n📊 CRM: ❌ Lỗi ghi"; 
+                const sql = `INSERT INTO customers (fullname, phone, email, zalo) VALUES (?, ?, ?, ?)`;
+                execute(sql, [data.name || data.fullname, data.phone, data.email || '', data.zalo || '']);
+            } catch (err) {
+                console.error('DB Insert Error:', err);
+                dbStatus = "\n📊 CRM: ❌ Lỗi ghi (SQLite)";
             }
 
             if (msgId) {
-                await notifyAdmin(`👤 <b>KHÁCH ĐĂNG KÝ MỚI</b>\n👤: ${data.fullname}\n📧: ${data.email}\n📞: ${data.phone}${sheetStatus}`, msgId);
+                await notifyAdmin(`👤 <b>KHÁCH ĐĂNG KÝ MỚI</b>\n👤: ${data.name || data.fullname}\n📞: ${data.phone}${dbStatus}`, msgId);
             }
 
-            // GỬI QUÀ TẶNG NGAY LẬP TỨC (STEP 5)
-            try {
-                const { subject, html } = templates.gift(data.fullname);
-                await fetch('https://api.resend.com/emails', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${RESEND_API_KEY}`
-                    },
-                    body: JSON.stringify({
-                        from: FROM_EMAIL,
-                        to: data.email,
-                        subject: subject,
-                        html: html
-                    })
-                });
-            } catch (err) {
-                console.error('Gift Email Error:', err);
+            // GỬI QUÀ TẶNG NGAY LẬP TỨC nếu có email
+            if (data.email) {
+                try {
+                    const { subject, html } = templates.gift(data.name || data.fullname);
+                    await fetch('https://api.resend.com/emails', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${RESEND_API_KEY}`
+                        },
+                        body: JSON.stringify({
+                            from: FROM_EMAIL,
+                            to: data.email,
+                            subject: subject,
+                            html: html
+                        })
+                    });
+                } catch (err) {
+                    console.error('Gift Email Error:', err);
+                }
             }
 
             return res.status(200).json({ success: true, teleMsgId: msgId });
         }
 
-        // 2. CONFIRM PAYMENT (STILL NOTIFY FOR MANUAL CHECK IF NEEDED)
+        // 2. CONFIRM PAYMENT (NOTIFY FOR MANUAL CHECK)
         if (action === 'confirm-payment') {
             const message = `💰 <b>XÁC NHẬN CHUYỂN TIỀN!</b>\n` +
                           `━━━━━━━━━━━━━━━\n` +

@@ -1,41 +1,46 @@
-import { GOOGLE_SHEET_URL } from './_constants.js';
+import { query, execute } from './_db.js';
 
 export default async function handler(req, res) {
     const CRON_SECRET = process.env.CRON_SECRET;
     const authHeader = req.headers.authorization || req.headers.Authorization;
+    
+    // Auth bypass for local testing if needed, or strict for production
     if (authHeader !== `Bearer ${CRON_SECRET}`) {
         return res.status(401).end('Unauthorized');
     }
 
     try {
-        // 1. LẤY DANH SÁCH PAID STUDENTS
-        const response = await fetch(`${GOOGLE_SHEET_URL}?action=get-students`);
-        const students = await response.json();
+        // 1. LẤY DANH SÁCH PAID STUDENTS TỪ BD (Orders success JOIN Customers)
+        const sql = `
+            SELECT c.fullname, c.email, c.phone, o.status as order_status, o.id as order_id
+            FROM orders o
+            JOIN customers c ON o.customer_id = c.id
+            WHERE o.status NOT IN ('pending', 'CANCEL', 'DONE')
+        `;
+        const students = query(sql);
 
-        if (!students || !Array.isArray(students)) {
-            return res.status(200).json({ message: 'No students found' });
+        if (!students || students.length === 0) {
+            return res.status(200).json({ message: 'No active students found' });
         }
-
-        // 2. LỌC NHỮNG NGƯỜI ĐANG TRONG QUÁ TRÌNH HỌC (PAID hoặc DAY X)
-        const activeStudents = students.filter(s => 
-            s.status !== 'LEAD' && s.status !== 'CANCEL' && s.status !== 'DONE'
-        );
 
         const results = [];
         const protocol = req.headers['x-forwarded-proto'] || 'http';
         const host = req.headers.host;
 
-        for (const student of activeStudents) {
+        for (const student of students) {
             // Xác định ngày tiếp theo
             let currentDay = 0;
-            if (student.status.startsWith('DAY')) {
-                currentDay = parseInt(student.status.replace('DAY', ''));
+            if (student.order_status.startsWith('DAY')) {
+                currentDay = parseInt(student.order_status.replace('DAY', ''));
+            } else if (student.order_status === 'success') {
+                currentDay = 0; // Vừa mua xong, chuẩn bị sang DAY1
             }
+            
             const nextDay = currentDay + 1;
 
             if (nextDay <= 7) {
-                // Gửi Email bài học
-                const emailRes = await fetch(`${protocol}://${host}/api/emails`, {
+                // Gửi Email bài học (gọi API emails)
+                await fetch(`${protocol}://${host}/api/emails`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -47,29 +52,13 @@ export default async function handler(req, res) {
                     })
                 });
 
-                // Cập nhật trạng thái mới lên Sheet
-                await fetch(GOOGLE_SHEET_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        action: 'update-status',
-                        phone: student.phone,
-                        status: `DAY${nextDay}`
-                    })
-                });
+                // Cập nhật trạng thái mới vào table orders
+                execute('UPDATE orders SET status = ? WHERE id = ?', [`DAY${nextDay}`, student.order_id]);
 
                 results.push({ student: student.fullname, day: nextDay });
             } else {
                 // Kết thúc khóa học
-                await fetch(GOOGLE_SHEET_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        action: 'update-status',
-                        phone: student.phone,
-                        status: 'DONE'
-                    })
-                });
+                execute("UPDATE orders SET status = 'DONE' WHERE id = ?", [student.order_id]);
             }
         }
 

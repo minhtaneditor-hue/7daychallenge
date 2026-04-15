@@ -1,5 +1,6 @@
-import { GOOGLE_SHEET_URL, RESEND_API_KEY, FROM_EMAIL, BOT_TOKEN, CHAT_ID } from './_constants.js';
+import { RESEND_API_KEY, FROM_EMAIL, BOT_TOKEN, CHAT_ID } from './_constants.js';
 import templates from './emails-templates.js';
+import { query, execute } from './_db.js';
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
@@ -26,25 +27,22 @@ export default async function handler(req, res) {
         if (!phoneMatch) return res.status(200).json({ success: true, message: 'No phone matched' });
         const phone = phoneMatch[0];
 
-        // 1. FETCH CRM DATA
-        const sheetRes = await fetch(`${GOOGLE_SHEET_URL}?action=get-data`);
-        const { customers, products } = await sheetRes.json();
-
-        // 2. FIND CUSTOMER
-        const customer = customers.find(c => String(c.phone) === String(phone));
+        // 1. FIND CUSTOMER IN SQLITE
+        const customers = query('SELECT * FROM customers WHERE phone = ?', [phone]);
+        const customer = customers[0];
         if (!customer) return res.status(200).json({ success: true, message: 'Customer not found' });
 
-        // 3. CREATE ORDER (GET-ONLY STABLE)
+        // 2. CREATE ORDER IN SQLITE
+        const products = query('SELECT * FROM products LIMIT 1');
         const product = products[0] || { id: 1 };
-        const payload = {
-            customer_id: customer.id,
-            product_id: product.id,
-            amount: amount,
-            status: 'success',
-            transaction_id: referenceNum
-        };
-        const url = `${GOOGLE_SHEET_URL}?action=create&type=order&payload=${encodeURIComponent(JSON.stringify(payload))}`;
-        await fetch(url);
+        
+        execute(
+            'INSERT INTO orders (customer_id, product_id, amount, status, transaction_id) VALUES (?, ?, ?, ?, ?)',
+            [customer.id, product.id, amount, 'success', referenceNum]
+        );
+
+        // 3. UPDATE STOCK
+        execute('UPDATE products SET stock = stock - 1 WHERE id = ?', [product.id]);
 
         // 4. TRIGGER EMAIL & TELEGRAM ALERT
         try {

@@ -6,15 +6,13 @@ const SQLITE_PATH = '/usr/bin/sqlite3';
 
 export function query(sql, params = []) {
     try {
-        // Sanitize and format params for CLI
         let formattedSql = sql;
-        params.forEach((param, i) => {
+        for (const param of params) {
             const val = typeof param === 'string' ? `'${param.replace(/'/g, "''")}'` : param;
             formattedSql = formattedSql.replace('?', val);
-        });
+        }
 
-        // Run sqlite3 CLI and get JSON output
-        const cmd = `${SQLITE_PATH} -json ${DB_PATH} "${formattedSql.replace(/"/g, '\\"')}"`;
+        const cmd = `"${SQLITE_PATH}" -json "${DB_PATH}" "${formattedSql.replace(/"/g, '\\"')}"`;
         const output = execSync(cmd).toString();
         return output ? JSON.parse(output) : [];
     } catch (err) {
@@ -26,16 +24,16 @@ export function query(sql, params = []) {
 export function execute(sql, params = []) {
     try {
         let formattedSql = sql;
-        params.forEach((param, i) => {
+        for (const param of params) {
             const val = typeof param === 'string' ? `'${param.replace(/'/g, "''")}'` : param;
             formattedSql = formattedSql.replace('?', val);
-        });
+        }
 
-        const cmd = `${SQLITE_PATH} ${DB_PATH} "${formattedSql.replace(/"/g, '\\"')}"`;
+        const cmd = `"${SQLITE_PATH}" "${DB_PATH}" "${formattedSql.replace(/"/g, '\\"')}"`;
         execSync(cmd);
         return { success: true };
     } catch (err) {
-        console.error('DB Execute Error:', err);
+        console.error('DB Execute Error:', err.message);
         throw err;
     }
 }

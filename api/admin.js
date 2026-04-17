@@ -1,6 +1,6 @@
-import { ADMIN_PASSWORD, RESEND_API_KEY, FROM_EMAIL } from './_constants.js';
-import { query, execute } from './_db.js';
-import templates from './_emails-templates.js';
+import { ADMIN_PASSWORD, RESEND_API_KEY, FROM_EMAIL } from '../lib/constants.js';
+import { query, execute } from '../lib/db.js';
+import templates from '../lib/emails-templates.js';
 
 export default async function handler(req, res) {
     const { pw } = req.query;

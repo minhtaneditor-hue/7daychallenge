@@ -1,4 +1,4 @@
-import { BANK_ID, ACCOUNT_NO, ACCOUNT_NAME } from './_constants.js';
+import { BANK_ID, ACCOUNT_NO, ACCOUNT_NAME } from '../lib/constants.js';
 
 export default async function handler(req, res) {
     try {

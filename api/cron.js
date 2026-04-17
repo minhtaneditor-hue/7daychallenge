@@ -1,4 +1,4 @@
-import { query, execute } from './_db.js';
+import { query, execute } from '../lib/db.js';
 
 export default async function handler(req, res) {
     const CRON_SECRET = process.env.CRON_SECRET;

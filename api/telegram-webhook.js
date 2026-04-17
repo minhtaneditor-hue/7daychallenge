@@ -1,5 +1,5 @@
-import { BOT_TOKEN } from './_constants.js';
-import { query, execute } from './_db.js';
+import { BOT_TOKEN } from '../lib/constants.js';
+import { query, execute } from '../lib/db.js';
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).end();

@@ -1,6 +1,6 @@
-import { RESEND_API_KEY, FROM_EMAIL, BOT_TOKEN, CHAT_ID } from '../lib/constants.js';
+import { RESEND_API_KEY, FROM_EMAIL, BOT_TOKEN, CHAT_ID } from './_lib/constants.js';
 import templates from './emails-templates.js';
-import { query, execute } from '../lib/db.js';
+import { query, execute } from './_lib/db.js';
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });

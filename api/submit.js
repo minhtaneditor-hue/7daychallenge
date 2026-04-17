@@ -1,6 +1,6 @@
-import { BOT_TOKEN, CHAT_ID, RESEND_API_KEY, FROM_EMAIL } from '../lib/constants.js';
-import templates from '../lib/emails-templates.js';
-import { query, execute } from '../lib/db.js';
+import { BOT_TOKEN, CHAT_ID, RESEND_API_KEY, FROM_EMAIL } from './_lib/constants.js';
+import templates from './_lib/emails-templates.js';
+import { query, execute } from './_lib/db.js';
 
 export default async (req, res) => {
     try {

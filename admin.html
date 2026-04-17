@@ -295,14 +295,35 @@
         let searchQuery = '';
         let dbData = { products: [], customers: [], orders: [], stats: {} };
 
+        // 🛡️ SECURITY: Admin Authentication
+        function getAuthKey() {
+            return sessionStorage.getItem('admin_pw');
+        }
+
+        async function requireAuth() {
+            let pw = getAuthKey();
+            if (!pw) {
+                pw = prompt("Vui lòng nhập mật khẩu quản trị:");
+                if (pw) sessionStorage.setItem('admin_pw', pw);
+            }
+            return pw;
+        }
+
         async function loadData() {
+            const pw = await requireAuth();
+            if (!pw) return;
+
             try {
-                const res = await fetch('/api/admin?pw=admin7day&action=get-stats');
+                const res = await fetch(`/api/admin?pw=${encodeURIComponent(pw)}&action=get-stats`);
                 const result = await res.json();
                 if (result.success) {
                     dbData = result.data;
                     renderStats();
                     renderTable();
+                } else if (result.message === 'Unauthorized') {
+                    sessionStorage.removeItem('admin_pw');
+                    alert("Mật khẩu không chính xác!");
+                    loadData();
                 }
             } catch (e) { console.error('Load error:', e); }
         }
@@ -319,14 +340,12 @@
         function switchTab(tab) {
             currentTab = tab;
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-            if (event) event.currentTarget.classList.add('active');
+            if (event && event.currentTarget) event.currentTarget.classList.add('active');
             const titles = { products: 'Quản lý Sản phẩm', customers: 'Danh sách Khách hàng', orders: 'Quản lý Đơn hàng' };
             document.getElementById('tab-title').innerText = titles[tab];
             
-            // Clear search when switching tabs
             searchQuery = '';
             document.getElementById('search-input').value = '';
-            
             renderTable();
         }
 
@@ -338,24 +357,16 @@
         function renderTable() {
             const thead = document.querySelector('#data-table thead');
             const tbody = document.querySelector('#data-table tbody');
-            
             let data = dbData[currentTab] || [];
             
-            // Apply Search Filtering
             if (searchQuery) {
                 data = data.filter(item => {
                     if (currentTab === 'products') {
                         return item.name.toLowerCase().includes(searchQuery) || String(item.id).includes(searchQuery);
                     } else if (currentTab === 'customers') {
-                        return item.fullname.toLowerCase().includes(searchQuery) || 
-                               item.phone.includes(searchQuery) || 
-                               (item.email && item.email.toLowerCase().includes(searchQuery)) ||
-                               (item.zalo && item.zalo.toLowerCase().includes(searchQuery));
+                        return item.fullname.toLowerCase().includes(searchQuery) || item.phone.includes(searchQuery) || (item.email && item.email.toLowerCase().includes(searchQuery));
                     } else if (currentTab === 'orders') {
-                        return String(item.id).includes(searchQuery) || 
-                               item.customer_name.toLowerCase().includes(searchQuery) ||
-                               item.product_name.toLowerCase().includes(searchQuery) ||
-                               item.status.toLowerCase().includes(searchQuery);
+                        return String(item.id).includes(searchQuery) || item.customer_name.toLowerCase().includes(searchQuery) || item.product_name.toLowerCase().includes(searchQuery);
                     }
                     return false;
                 });
@@ -403,8 +414,11 @@
         }
 
         async function confirmPayment(id) {
+            const pw = await requireAuth();
+            if (!pw) return;
             if (!confirm('Xác nhận khách đã chuyển tiền cho đơn hàng này?')) return;
-            const res = await fetch('/api/admin?pw=admin7day', {
+            
+            const res = await fetch(`/api/admin?pw=${encodeURIComponent(pw)}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ action: 'update', type: 'order', payload: { id, status: 'success' } })
@@ -461,18 +475,16 @@
             document.getElementById('crud-modal').style.display = 'flex';
         }
 
-        function editItem(type, id) {
-            const data = dbData[type + 's'].find(x => x.id == id);
-            if (data) openModal(data);
-        }
-
         async function saveData(e) {
             e.preventDefault();
+            const pw = await requireAuth();
+            if (!pw) return;
+
             const formData = new FormData(e.target);
             const payload = Object.fromEntries(formData.entries());
             const id = payload.id;
             
-            const res = await fetch('/api/admin?pw=admin7day', {
+            const res = await fetch(`/api/admin?pw=${encodeURIComponent(pw)}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ action: id ? 'update' : 'create', type: currentTab.replace(/s$/, ''), payload })
@@ -487,8 +499,11 @@
         }
 
         async function deleteItem(type, id) {
+            const pw = await requireAuth();
+            if (!pw) return;
             if (!confirm('Xóa dữ liệu này?')) return;
-            const res = await fetch('/api/admin?pw=admin7day', {
+
+            const res = await fetch(`/api/admin?pw=${encodeURIComponent(pw)}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ action: 'delete', type, payload: { id } })
@@ -498,51 +513,42 @@
 
         function closeModal() { document.getElementById('crud-modal').style.display = 'none'; }
 
+        // 📊 EXPORT: Optimized CSV for Marketing
         function exportData() {
             let data = dbData[currentTab] || [];
-            
-            // Apply Search Filtering for export too
-            if (searchQuery) {
-                data = data.filter(item => {
-                    if (currentTab === 'products') {
-                        return item.name.toLowerCase().includes(searchQuery) || String(item.id).includes(searchQuery);
-                    } else if (currentTab === 'customers') {
-                        return item.fullname.toLowerCase().includes(searchQuery) || item.phone.includes(searchQuery) || (item.email && item.email.toLowerCase().includes(searchQuery));
-                    } else if (currentTab === 'orders') {
-                        return String(item.id).includes(searchQuery) || item.customer_name.toLowerCase().includes(searchQuery) || item.product_name.toLowerCase().includes(searchQuery);
-                    }
-                    return false;
-                });
-            }
-
             if (data.length === 0) return alert('Không có dữ liệu để xuất');
 
-            const headers = Object.keys(data[0]);
-            const csvRows = [];
-            csvRows.push(headers.join(','));
+            // Map headers to readable Vietnamese for Excel/Marketing
+            const headerMapping = {
+                products: { id: 'ID', name: 'Tên sản phẩm', price: 'Giá bán', stock: 'Tồn kho', code_prefix: 'Mã Prefix' },
+                customers: { id: 'ID', fullname: 'Họ tên', phone: 'Số điện thoại', email: 'Email', zalo: 'Zalo', registration_date: 'Ngày đăng ký' },
+                orders: { id: 'Mã đơn', customer_name: 'Khách hàng', product_name: 'Sản phẩm', amount: 'Số tiền', status: 'Trạng thái', created_at: 'Ngày tạo' }
+            };
+
+            const mapping = headerMapping[currentTab];
+            const keys = Object.keys(mapping);
+            const csvRows = [keys.map(k => mapping[k]).join(',')];
 
             for (const row of data) {
-                const values = headers.map(header => {
-                    const val = row[header];
-                    const escaped = ('' + (val || '')).replace(/"/g, '""');
+                const values = keys.map(key => {
+                    let val = row[key] || '';
+                    if (key.includes('date') || key.includes('_at')) val = new Date(val).toLocaleString();
+                    const escaped = ('' + val).replace(/"/g, '""');
                     return `"${escaped}"`;
                 });
                 csvRows.push(values.join(','));
             }
 
-            const csvString = '\ufeff' + csvRows.join('\n'); // Add BOM for Excel UTF-8 support
+            const csvString = '\ufeff' + csvRows.join('\n');
             const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
-            const url = URL.createObjectURL(blob);
             const link = document.createElement('a');
-            link.setAttribute('href', url);
-            link.setAttribute('download', `${currentTab}_export_${new Date().toISOString().split('T')[0]}.csv`);
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
+            link.href = URL.createObjectURL(blob);
+            link.download = `${currentTab}_marketing_${new Date().toISOString().split('T')[0]}.csv`;
             link.click();
-            document.body.removeChild(link);
         }
 
         loadData();
     </script>
+
 </body>
 </html>

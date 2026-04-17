@@ -37,22 +37,51 @@ export default async function handler(req, res) {
 
         if (req.method === 'POST') {
             const table = type + 's'; // e.g., product -> products
+            console.log(`[Admin Action] ${action} on ${table}`, JSON.stringify(payload));
+
+            // Whitelist columns to avoid SQL errors
+            const tableColumns = {
+                products: ['name', 'price', 'description', 'stock'],
+                customers: ['fullname', 'phone', 'email', 'zalo'],
+                orders: ['customer_id', 'product_id', 'amount', 'status']
+            };
+
+            const sanitizePayload = (p, cols) => {
+                const cleaned = {};
+                cols.forEach(col => {
+                    if (p[col] !== undefined) {
+                        // Convert to number if it looks like one and isn't a phone number
+                        const val = p[col];
+                        if (val !== '' && !isNaN(val) && col !== 'phone' && col !== 'zalo') {
+                            cleaned[col] = Number(val);
+                        } else {
+                            cleaned[col] = val;
+                        }
+                    }
+                });
+                return cleaned;
+            };
             
             if (action === 'create') {
-                const keys = Object.keys(payload);
-                const values = Object.values(payload);
+                const data = sanitizePayload(payload, tableColumns[table]);
+                const keys = Object.keys(data);
+                const values = Object.values(data);
                 const sql = `INSERT INTO ${table} (${keys.join(', ')}) VALUES (${keys.map(() => '?').join(', ')})`;
-                await execute(sql, values);
+                console.log('[Executing SQL]', sql, values);
+                const result = await execute(sql, values);
                 
-                // Special logic: if adding order, decrement stock
                 if (type === 'order') {
-                    await execute('UPDATE products SET stock = stock - 1 WHERE id = ?', [payload.product_id]);
+                    await execute('UPDATE products SET stock = stock - 1 WHERE id = ?', [data.product_id]);
                 }
+                return res.status(200).json({ success: true, id: result.id });
+                
             } else if (action === 'update') {
-                const { id, ...data } = payload;
+                const { id, ...rest } = payload;
+                const data = sanitizePayload(rest, tableColumns[table]);
                 const keys = Object.keys(data);
                 const values = Object.values(data);
                 const sql = `UPDATE ${table} SET ${keys.map(k => `${k} = ?`).join(', ')} WHERE id = ?`;
+                console.log('[Executing SQL]', sql, [...values, id]);
                 await execute(sql, [...values, id]);
 
                 // TRIGGER EMAIL IF STATUS UPDATED TO SUCCESS
@@ -76,11 +105,12 @@ export default async function handler(req, res) {
                         console.error('Admin Email Error:', e);
                     }
                 }
+                return res.status(200).json({ success: true });
+                
             } else if (action === 'delete') {
                 await execute(`DELETE FROM ${table} WHERE id = ?`, [payload.id]);
+                return res.status(200).json({ success: true });
             }
-
-            return res.status(200).json({ success: true });
         }
 
     } catch (err) {

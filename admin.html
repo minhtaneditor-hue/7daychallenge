@@ -280,7 +280,7 @@
         <div class="modal-content">
             <h2 id="modal-title">Thêm mới</h2>
             <form id="crud-form" onsubmit="saveData(event)">
-                <input type="hidden" id="item-id">
+                <input type="hidden" id="item-id" name="id">
                 <div id="form-fields"></div>
                 <div style="display: flex; gap: 12px; margin-top: 40px;">
                     <button type="button" class="btn btn-outline" onclick="closeModal()" style="flex:1">Hủy</button>
@@ -467,15 +467,22 @@
 
         async function saveData(e) {
             e.preventDefault();
-            const id = document.getElementById('item-id').value;
-            const payload = Object.fromEntries(new FormData(e.target).entries());
-            if (id) payload.id = id;
+            const formData = new FormData(e.target);
+            const payload = Object.fromEntries(formData.entries());
+            const id = payload.id;
+            
             const res = await fetch('/api/admin?pw=admin7day', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ action: id ? 'update' : 'create', type: currentTab.replace(/s$/, ''), payload })
             });
-            if ((await res.json()).success) { closeModal(); loadData(); }
+            const result = await res.json();
+            if (result.success) { 
+                closeModal(); 
+                loadData(); 
+            } else {
+                alert('Lỗi: ' + (result.message || 'Không thể lưu dữ liệu'));
+            }
         }
 
         async function deleteItem(type, id) {

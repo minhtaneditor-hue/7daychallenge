@@ -3,23 +3,23 @@ import templates from '../lib/emails-templates.js';
 import { query, execute } from '../lib/db.js';
 
 export default async (req, res) => {
-    const notifyAdmin = async (text, msgId = null, replyMarkup = null) => {
-        try {
-            const method = msgId ? 'editMessageText' : 'sendMessage';
-            const body = { chat_id: CHAT_ID, text, parse_mode: 'HTML' };
-            if (msgId) body.message_id = msgId;
-            if (replyMarkup) body.reply_markup = replyMarkup;
-
-            const tgRes = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/${method}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(body)
-            });
-            return await tgRes.json();
-        } catch (e) { console.error('Telegram Notify Error:', e); return null; }
-    };
-
     try {
+        const notifyAdmin = async (text, msgId = null, replyMarkup = null) => {
+            try {
+                const method = msgId ? 'editMessageText' : 'sendMessage';
+                const body = { chat_id: CHAT_ID, text, parse_mode: 'HTML' };
+                if (msgId) body.message_id = msgId;
+                if (replyMarkup) body.reply_markup = replyMarkup;
+
+                const tgRes = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/${method}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+                return await tgRes.json();
+            } catch (e) { console.error('Telegram Notify Error:', e); return null; }
+        };
+
         const body = req.body;
         if (!body) return res.status(400).json({ error: 'No body' });
         
@@ -32,6 +32,8 @@ export default async (req, res) => {
 
             let dbStatus = "\n📊 CRM: ✅ Đã lưu";
             let orderId = null;
+            let product = { id: 1, name: 'Thử thách 7 Ngày Lên Tay Phó Nháy', price: 199000 };
+
             try {
                 // 1. Lưu Customer (Xử lý trùng SĐT bằng ON CONFLICT)
                 const custSql = `
@@ -52,7 +54,9 @@ export default async (req, res) => {
                 // Lấy thông tin sản phẩm đã chọn hoặc mặc định
                 const selProductId = data.productId || 1;
                 const products = await query('SELECT * FROM products WHERE id = ?', [selProductId]);
-                const product = products[0] || { id: 1, name: 'Thử thách 7 Ngày Lên Tay Phó Nháy', price: 199000 };
+                if (products && products[0]) {
+                    product = products[0];
+                }
                 
                 const orderSql = `INSERT INTO orders (customer_id, product_id, amount, status) VALUES (?, ?, ?, ?)`;
                 // Dùng giá từ database để an toàn
@@ -90,7 +94,6 @@ export default async (req, res) => {
                             body.scheduled_at = scheduledDate.toISOString();
                         }
 
-                        console.log(`[Email] Sending ${templateName} to ${email}...`);
                         const response = await fetch('https://api.resend.com/emails', {
                             method: 'POST',
                             headers: {
@@ -102,10 +105,8 @@ export default async (req, res) => {
 
                         const resData = await response.json();
                         if (!response.ok) {
-                            console.error(`[Email Error] Resend returned ${response.status}:`, resData);
                             throw new Error(resData.message || 'Resend error. Check if sender is verified.');
                         }
-                        console.log(`[Email Success] ${templateName} sent! ID: ${resData.id}`);
                         return resData;
                     };
 
@@ -131,7 +132,7 @@ export default async (req, res) => {
                 orderId: orderId,
                 amount: product.price,
                 productName: product.name,
-                emailError: emailError // Trả về lỗi để debug ở frontend nếu cần
+                emailError: emailError
             });
         }
 
@@ -155,7 +156,12 @@ export default async (req, res) => {
             return res.status(200).json({ success: true });
         }
     } catch (error) {
-        console.error('Submit API Error:', error);
-        res.status(500).json({ success: false });
+        console.error('Submit API Fatal Error:', error);
+        return res.status(500).json({ 
+            success: false, 
+            error: error.message, 
+            stack: error.stack,
+            context: 'Submit API Diagnostic Block'
+        });
     }
 }

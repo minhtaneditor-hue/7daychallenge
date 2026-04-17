@@ -24,7 +24,7 @@ export const BOT_TOKEN = getSecret('BOT_TOKEN', 'telegram_config.txt');
 export const CHAT_ID = getSecret('CHAT_ID', 'chat_id.txt') || '7384174497';
 export const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin7day';
 
-export const RESEND_API_KEY = getSecret('RESEND_API_KEY', 'resend_config.txt');
+export const RESEND_API_KEY = getSecret('RESEND_API_KEY', 'resend_config.txt') || 're_EWSXG3oC_GXTzJez9ihbAkXVYynxv3jp9';
 export const FROM_EMAIL = process.env.FROM_EMAIL || 'Minh Tấn Academy <customer@minhtanacademy.com>';
 
 // BANK & SEPAY CONFIG

@@ -146,7 +146,7 @@ const templates = {
     day7: (name) => ({
         subject: "[DAY 7] Tấm ảnh \"Masterpiece\" thay lời muốn nói 🏆",
         html: baseTemplate(name, `
-            <h2 style="color: #06403D; font-size: 24px;">🎖️ NGÀY CUỐI CÙNG: TRỞ THÀNH "PHÓ NHÁY" THỰC THỤ</h2>
+            <h2 style="color: #06403D; font-size: 24px;">🎖️ NGÀY CUỐI CÙNG: TRỞ THÀNH "PHÓ NHÁY" THỰC CHIẾN</h2>
             <p>Chúc mừng bạn đã đi đến chặng đường cuối. Đây là thời điểm để tổng hợp mọi tinh hoa.</p>
 
             <p><b>[HÀNH ĐỘNG]</b><br>
@@ -164,7 +164,7 @@ const templates = {
         html: baseTemplate(name, `
             <h2 style="color: #06403D; font-size: 22px;">CHÚNG TÔI ĐÃ GHI NHẬN THÔNG TIN CỦA BẠN</h2>
             <p>Chào ${name}, tôi là Tấn.</p>
-            <p>Rất mừng vì bạn đã nhận ra tầm quan trọng của việc làm chủ chiếc điện thoại trong tay. Với hơn 10 năm kinh nghiệm Editor cho các show lớn như <i>2 Ngày 1 Đêm</i>, tôi hiểu rõ ranh giới giữa một bức ảnh "bình thường" và "xuất sắc" chỉ mỏng manh như một cử chỉ cầm máy.</p>
+            <p>Rất mừng vì bạn đã nhận ra tầm quan trọng của việc làm chủ chiếc điện thoại trong tay. Với hơn 10 năm kinh nghiệm Editor cho các show lớn như <i>2 Ngày 1 Đêm</i>, tôi hiểu rõ ranh giới giữa một bức ảnh "bình thường" and "xuất sắc" chỉ mỏng manh như một cử chỉ cầm máy.</p>
             
             <div style="background: #fffaf0; border: 1px dashed #d69e2e; padding: 20px; border-radius: 10px; margin: 25px 0;">
                 <p style="margin: 0; font-style: italic;">"Người chụp ảnh đẹp nhất không phải người có máy xịn nhất. Mà là người hiểu rõ nhất quy trình tối giản để tạo ra khoảnh khắc."</p>
@@ -228,7 +228,7 @@ const templates = {
 };
 
 function baseTemplate(name, body) {
-    return \`
+    return `
         <div style="background: #f4f4f4; padding: 30px 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
             <div style="max-width: 600px; margin: 0 auto; background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.05);">
                 <!-- Header -->
@@ -239,8 +239,8 @@ function baseTemplate(name, body) {
                 
                 <!-- Content -->
                 <div style="padding: 40px 30px; color: #2D3748; line-height: 1.8; font-size: 16px;">
-                    <p style="margin-top: 0;">Xin chào <b>\${name || 'bạn'}</b>,</p>
-                    \${body}
+                    <p style="margin-top: 0;">Xin chào <b>${name || 'bạn'}</b>,</p>
+                    ${body}
                     
                     <!-- Signature -->
                     <div style="margin-top: 45px; border-top: 1px solid #edf2f7; padding-top: 30px; text-align: center;">
@@ -261,27 +261,27 @@ function baseTemplate(name, body) {
                 <a href="https://7day.minhtanacademy.com" style="color: #a0aec0; text-decoration: underline;">Trang chủ</a>
             </div>
         </div>
-    \`;
+    `;
 }
 
 function missionBox(day, task, hashtag) {
-    const title = day === "CUỐI" ? "🏆 BÀI THI TỔNG LỰC" : \`🔥 NHIỆM VỤ NGÀY \${day}\`;
-    return \`
+    const title = day === "CUỐI" ? "🏆 BÀI THI TỔNG LỰC" : `🔥 NHIỆM VỤ NGÀY ${day}`;
+    return `
         <div style="margin: 30px 0; background: #fffaf0; border: 1px solid #feebc8; border-left: 6px solid #d69e2e; padding: 25px; border-radius: 12px;">
-            <h4 style="margin: 0; color: #9c4221; font-size: 16px; text-transform: uppercase; letter-spacing: 1px;">\${title}</h4>
-            <div style="margin: 15px 0; color: #4a5568; font-size: 16px;">\${task}</div>
-            <div style="display: inline-block; background: #fefcbf; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: bold; color: #744210;">\${hashtag}</div>
+            <h4 style="margin: 0; color: #9c4221; font-size: 16px; text-transform: uppercase; letter-spacing: 1px;">${title}</h4>
+            <div style="margin: 15px 0; color: #4a5568; font-size: 16px;">${task}</div>
+            <div style="display: inline-block; background: #fefcbf; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: bold; color: #744210;">${hashtag}</div>
         </div>
-    \`;
+    `;
 }
 
 function communityButton() {
-    return \`
+    return `
         <div style="text-align: center; margin-top: 35px;">
             <p style="font-size: 14px; color: #718096; margin-bottom: 15px;">Tham gia cộng đồng và khoe thành quả ngay:</p>
-            <a href="\${COMMUNITY_LINK}" style="display: inline-block; background: #2D3748; color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">KHOE THÀNH QUẢ TRÊN GROUP →</a>
+            <a href="${COMMUNITY_LINK}" style="display: inline-block; background: #2D3748; color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">KHOE THÀNH QUẢ TRÊN GROUP →</a>
         </div>
-    \`;
+    `;
 }
 
 export default templates;

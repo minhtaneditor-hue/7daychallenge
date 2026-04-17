@@ -1,6 +1,6 @@
 import { BOT_TOKEN, CHAT_ID, RESEND_API_KEY, FROM_EMAIL } from './_constants.js';
 import templates from './emails-templates.js';
-import { execute } from './_db.js';
+import { query, execute } from './_db.js';
 
 export default async (req, res) => {
     const notifyAdmin = async (text, msgId = null, replyMarkup = null) => {
@@ -33,10 +33,20 @@ export default async (req, res) => {
             let dbStatus = "\n📊 CRM: ✅ Đã lưu";
             let orderId = null;
             try {
-                // 1. Lưu Customer
-                const custSql = `INSERT INTO customers (fullname, phone, email, zalo) VALUES (?, ?, ?, ?)`;
-                const custRes = await execute(custSql, [data.name || data.fullname, data.phone, data.email || '', data.zalo || '']);
-                const customerId = custRes.id;
+                // 1. Lưu Customer (Xử lý trùng SĐT bằng ON CONFLICT)
+                const custSql = `
+                    INSERT INTO customers (fullname, phone, email, zalo) 
+                    VALUES (?, ?, ?, ?) 
+                    ON CONFLICT(phone) DO UPDATE SET 
+                        fullname = excluded.fullname,
+                        email = excluded.email,
+                        zalo = excluded.zalo
+                `;
+                await execute(custSql, [data.name || data.fullname, data.phone, data.email || '', data.zalo || '']);
+                
+                // Lấy ID của customer vừa tạo/cập nhật
+                const custRows = await query('SELECT id FROM customers WHERE phone = ?', [data.phone]);
+                const customerId = custRows[0].id;
 
                 // 2. Tạo Order ở trạng thái PENDING
                 // Lấy sản phẩm đầu tiên (khóa học chính) hoặc mặc định ID 1
@@ -49,7 +59,7 @@ export default async (req, res) => {
 
             } catch (err) {
                 console.error('DB Insert Error:', err);
-                dbStatus = "\n📊 CRM: ❌ Lỗi ghi (SQLite)";
+                dbStatus = "\n📊 CRM: ❌ Lỗi ghi (Cloud)";
             }
 
             if (msgId) {

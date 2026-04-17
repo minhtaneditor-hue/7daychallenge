@@ -38,6 +38,12 @@ export async function query(sql, params = []) {
                 })
             });
             const data = await res.json();
+            
+            // Check for errors in results
+            if (data.results?.[0]?.type === 'error') {
+                throw new Error(data.results[0].error.message);
+            }
+
             return mapTurso(data);
         } catch (err) {
             console.error('Turso Query Error:', err);
@@ -81,6 +87,12 @@ export async function execute(sql, params = []) {
                 })
             });
             const data = await res.json();
+            
+            // Check for errors in results
+            if (data.results?.[0]?.type === 'error') {
+                throw new Error(data.results[0].error.message);
+            }
+
             const lastId = data.results?.[1]?.response?.result?.rows?.[0]?.[0]?.value;
             return { success: true, id: lastId };
         } catch (err) {

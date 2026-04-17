@@ -349,32 +349,57 @@
             if ((await res.json()).success) loadData();
         }
 
-        function openModal() {
+        function openModal(editData = null) {
             const fields = document.getElementById('form-fields');
-            document.getElementById('modal-title').innerText = 'Thêm ' + currentTab;
-            document.getElementById('item-id').value = '';
+            const title = document.getElementById('modal-title');
+            const itemId = document.getElementById('item-id');
+            
+            itemId.value = editData ? editData.id : '';
+            title.innerText = editData 
+                ? 'Cập nhật ' + (editData.name || editData.fullname || currentTab)
+                : 'Thêm ' + currentTab;
             
             if (currentTab === 'products') {
-                fields.innerHTML = `<div class="form-group"><label>Tên sản phẩm</label><input name="name" required></div><div class="form-group"><label>Giá bán</label><input type="number" name="price" required></div><div class="form-group"><label>Mô tả</label><textarea name="description" rows="3"></textarea></div><div class="form-group"><label>Tồn kho</label><input type="number" name="stock" value="999"></div>`;
+                fields.innerHTML = `
+                    <div class="form-group"><label>Tên sản phẩm</label><input name="name" required value="${editData?.name || ''}"></div>
+                    <div class="form-group"><label>Giá bán</label><input type="number" name="price" required value="${editData?.price || ''}"></div>
+                    <div class="form-group"><label>Mô tả</label><textarea name="description" rows="3">${editData?.description || ''}</textarea></div>
+                    <div class="form-group"><label>Tồn kho</label><input type="number" name="stock" value="${editData?.stock || 999}"></div>
+                `;
             } else if (currentTab === 'customers') {
-                fields.innerHTML = `<div class="form-group"><label>Họ tên</label><input name="fullname" required></div><div class="form-group"><label>SĐT</label><input name="phone" required></div><div class="form-group"><label>Email</label><input type="email" name="email"></div><div class="form-group"><label>Zalo</label><input name="zalo"></div>`;
+                fields.innerHTML = `
+                    <div class="form-group"><label>Họ tên</label><input name="fullname" required value="${editData?.fullname || ''}"></div>
+                    <div class="form-group"><label>SĐT</label><input name="phone" required value="${editData?.phone || ''}"></div>
+                    <div class="form-group"><label>Email</label><input type="email" name="email" value="${editData?.email || ''}"></div>
+                    <div class="form-group"><label>Zalo</label><input name="zalo" value="${editData?.zalo || ''}"></div>
+                `;
             } else if (currentTab === 'orders') {
-                fields.innerHTML = `<div class="form-group"><label>Khách hàng</label><select name="customer_id" required>${dbData.customers.map(c => `<option value="${c.id}">${c.fullname}</option>`).join('')}</select></div><div class="form-group"><label>Sản phẩm</label><select name="product_id" required>${dbData.products.map(p => `<option value="${p.id}">${p.name}</option>`).join('')}</select></div><div class="form-group"><label>Số tiền</label><input type="number" name="amount" required></div><div class="form-group"><label>Trạng thái</label><select name="status"><option value="pending">Pending</option><option value="success">Success</option></select></div>`;
+                fields.innerHTML = `
+                    <div class="form-group"><label>Khách hàng</label>
+                        <select name="customer_id" required>
+                            ${dbData.customers.map(c => `<option value="${c.id}" ${editData?.customer_id == c.id ? 'selected' : ''}>${c.fullname}</option>`).join('')}
+                        </select>
+                    </div>
+                    <div class="form-group"><label>Sản phẩm</label>
+                        <select name="product_id" required>
+                            ${dbData.products.map(p => `<option value="${p.id}" ${editData?.product_id == p.id ? 'selected' : ''}>${p.name}</option>`).join('')}
+                        </select>
+                    </div>
+                    <div class="form-group"><label>Số tiền</label><input type="number" name="amount" required value="${editData?.amount || ''}"></div>
+                    <div class="form-group"><label>Trạng thái</label>
+                        <select name="status">
+                            <option value="pending" ${editData?.status === 'pending' ? 'selected' : ''}>Pending</option>
+                            <option value="success" ${editData?.status === 'success' ? 'selected' : ''}>Success</option>
+                        </select>
+                    </div>
+                `;
             }
             document.getElementById('crud-modal').style.display = 'flex';
         }
 
         function editItem(type, id) {
-            openModal();
-            const data = dbData[type + 's'].find(x => x.id === id);
-            document.getElementById('modal-title').innerText = 'Cập nhật ' + (data.name || data.fullname || 'thông tin');
-            document.getElementById('item-id').value = id;
-            const form = document.getElementById('crud-form');
-            setTimeout(() => { // Đảm bảo DOM đã được render xong sau khi innerHTML thay đổi
-                for (let k in data) {
-                    if (form.elements[k]) form.elements[k].value = data[k];
-                }
-            }, 50);
+            const data = dbData[type + 's'].find(x => x.id == id);
+            if (data) openModal(data);
         }
 
         async function saveData(e) {

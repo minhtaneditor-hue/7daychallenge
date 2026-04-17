@@ -49,21 +49,23 @@ export default async (req, res) => {
                 const customerId = custRows[0].id;
 
                 // 2. Tạo Order ở trạng thái PENDING
-                // Lấy sản phẩm đầu tiên (khóa học chính) hoặc mặc định ID 1
-                const products = await query('SELECT id FROM products LIMIT 1');
-                const productId = products[0]?.id || 1;
+                // Lấy thông tin sản phẩm đã chọn hoặc mặc định
+                const selProductId = data.productId || 1;
+                const products = await query('SELECT * FROM products WHERE id = ?', [selProductId]);
+                const product = products[0] || { id: 1, name: 'Thử thách 7 Ngày Lên Tay Phó Nháy', price: 199000 };
                 
                 const orderSql = `INSERT INTO orders (customer_id, product_id, amount, status) VALUES (?, ?, ?, ?)`;
-                const orderRes = await execute(orderSql, [customerId, productId, 199000, 'pending']);
+                // Dùng giá từ database để an toàn
+                const orderRes = await execute(orderSql, [customerId, product.id, product.price, 'pending']);
                 orderId = orderRes.id;
+
+                if (msgId) {
+                    await notifyAdmin(`👤 <b>KHÁCH ĐĂNG KÝ MỚI</b>\n👤: ${data.name || data.fullname}\n📦: ${product.name}\n📞: ${data.phone}${dbStatus}${orderId ? `\n🆔 Đơn hàng: #${orderId}` : ''}`, msgId);
+                }
 
             } catch (err) {
                 console.error('DB Insert Error:', err);
                 dbStatus = "\n📊 CRM: ❌ Lỗi ghi (Cloud)";
-            }
-
-            if (msgId) {
-                await notifyAdmin(`👤 <b>KHÁCH ĐĂNG KÝ MỚI</b>\n👤: ${data.name || data.fullname}\n📞: ${data.phone}${dbStatus}${orderId ? `\n🆔 Đơn hàng: #${orderId}` : ''}`, msgId);
             }
 
             // GỬI SEQUENCE EMAIL QUA RESEND

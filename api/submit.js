@@ -111,13 +111,29 @@ export default async (req, res) => {
                     };
 
                     // Email 1: Welcome (Ngay lập tức)
-                    await sendEmail('waitlistWelcome');
+                    await sendEmail('welcome');
 
-                    // Email 2: Nurture (2 ngày sau)
-                    await sendEmail('waitlistNurture', 2);
-
-                    // Email 3: Close (3 ngày sau - tức là 1 ngày sau Email 2)
-                    await sendEmail('waitlistClose', 3);
+                    // Email 2: Payment Follow-up (30 phút sau nếu chưa thanh toán)
+                    // Lưu ý: Resend sẽ gửi cái này sau 30 phút.
+                    const delayMinutes = 30;
+                    const scheduledDate = new Date();
+                    scheduledDate.setMinutes(scheduledDate.getMinutes() + delayMinutes);
+                    
+                    const templateRemind = templates.paymentFollowUp(name, data.phone);
+                    await fetch('https://api.resend.com/emails', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${RESEND_API_KEY}`
+                        },
+                        body: JSON.stringify({
+                            from: FROM_EMAIL,
+                            to: email,
+                            subject: templateRemind.subject,
+                            html: templateRemind.html,
+                            scheduled_at: scheduledDate.toISOString()
+                        })
+                    });
 
                 } catch (err) {
                     console.error('Email Sequence Error:', err.message);
@@ -132,6 +148,7 @@ export default async (req, res) => {
                 orderId: orderId,
                 amount: product.price,
                 productName: product.name,
+                transferContent: `7DAY ${data.phone}`,
                 emailError: emailError
             });
         }

@@ -1,227 +1,186 @@
 const COMMUNITY_LINK = "https://www.facebook.com/groups/26557378780561721";
 
 const templates = {
-    paymentReminder: (name, phone) => ({
-        subject: "⚠️ Đừng để sự trì hoãn làm \"dìm hàng\" chiếc iPhone 30 triệu của bạn",
-        html: baseTemplate(name, `
-            <div style="background: #fdf2f2; border-left: 5px solid #e53e3e; padding: 20px; border-radius: 10px; margin-bottom: 25px;">
-                <h3 style="margin: 0; color: #9b2c2c; font-size: 18px;">🛑 THÔNG BÁO QUAN TRỌNG</h3>
-                <p style="margin: 10px 0 0 0; color: #333;">Suất tham gia thử thách của bạn sắp hết hạn.</p>
-            </div>
-
-            <h2 style="color: #06403D; font-size: 22px;">Chào ${name},</h2>
-            <p>Tôi là Tấn. Tôi thấy bạn đã đăng ký tham gia <b>7 Ngày Lên Tay "Phó Nháy"</b> nhưng chưa hoàn tất bước cuối cùng.</p>
-            
-            <p><b>[VẤN ĐỀ]</b><br>
-            Sự trì hoãn chính là lý do khiến nhiều người sở hữu một thiết bị 30 triệu nhưng chỉ chụp ra những bức ảnh trị giá 3 triệu. Đừng để chiếc iPhone của bạn chỉ là một "máy nghe gọi" đắt tiền.</p>
-
-            <p><b>[GIẢI PHÁP]</b><br>
-            Chỉ với 199.000đ - bằng 3 ly cafe - bạn sẽ làm chủ hoàn toàn thiết bị của mình và nhận về sự ngưỡng mộ (và yên ổn) mỗi khi đi chơi cùng người thương.</p>
-
-            <div style="text-align: center; margin: 40px 0;">
-                <p style="font-weight: bold; margin-bottom: 15px; color: #06403D; text-transform: uppercase;">QUÉT MÃ ĐỂ GIỮ SUẤT CUỐI CÙNG</p>
-                <img src="https://img.vietqr.io/image/ACB-221896279-compact.png?amount=199000&addInfo=7Day%20${phone}&accountName=LE%20MINH%20TAN" alt="VietQR Payment" style="width: 100%; max-width: 250px; border: 1px solid #eee; border-radius: 10px; padding: 10px;">
-                <div style="margin-top: 25px;">
-                    <a href="https://7day.minhtanacademy.com/#register-form-section" style="display: inline-block; background: #06403D; color: white; padding: 18px 36px; text-decoration: none; border-radius: 50px; font-weight: bold; box-shadow: 0 4px 15px rgba(6,64,61,0.2);">XÁC NHẬN THANH TOÁN NGAY →</a>
-                </div>
-            </div>
-            <p>Hẹn gặp bạn ở bên trong!</p>
-        `)
-    }),
-
-    day0: (name) => ({
+    // 1. WELCOME (IMMEDIATE REGISTRATION)
+    welcome: (name) => ({
         subject: "[WELCOME] Đã đến lúc chiếc iPhone 30 triệu của bạn thôi \"làm cảnh\" 📸",
         html: baseTemplate(name, `
-            <h2 style="color: #06403D; font-size: 24px;">TUYỆT VỜI! CHÀO MỪNG BẠN GIA NHẬP ĐỘI NGŨ "PHÓ NHÁY" THỰC CHIẾN</h2>
+            <h2 style="color: #06403D; font-size: 24px;">CHÀO MỪNG BẠN GIA NHẬP ĐỘI NGŨ "PHÓ NHÁY" THỰC CHIẾN</h2>
             <p>Chào ${name}, tôi là Minh Tấn.</p>
-            <p>Chúc mừng bạn đã chính thức có mặt tại thử thách <b>7 Ngày Lên Tay "Phó Nháy"</b>. Việc bạn đọc email này cho thấy bạn đã sẵn sàng chấm dứt những tiếng thở dài của người thương mỗi khi xem lại ảnh bạn chụp.</p>
+            <p>Rất mừng vì bạn đã nhận ra tầm quan trọng của việc làm chủ chiếc điện thoại trong tay. Với hơn 10 năm kinh nghiệm Editor cho các show lớn như <i>2 Ngày 1 Đêm</i>, tôi hiểu rõ ranh giới giữa một bức ảnh "bình thường" và "xuất sắc" chỉ mỏng manh như một cử chỉ cầm máy.</p>
             
+            <p>Việc bạn có mặt ở đây cho thấy bạn đã sẵn sàng chấm dứt những tiếng thở dài của người thương mỗi khi xem lại ảnh bạn chụp.</p>
+
             <div style="background: #f0fff4; border-radius: 10px; padding: 20px; margin: 25px 0; border-left: 5px solid #38a169;">
                 <p style="margin: 0; font-weight: bold; color: #22543d;">💡 LỘ TRÌNH CỦA CHÚNG TA:</p>
-                <p style="margin: 10px 0 0 0;">Trong 7 ngày tới, tôi sẽ gửi đến bạn những "mật thư" ngắn gọn - chỉ mất 5 phút xem và làm ngay để thay đổi kết quả vĩnh viễn.</p>
+                <p style="margin: 10px 0 0 0;">Trong 7 ngày tới (ngay sau khi bạn hoàn tất bước thanh toán), tôi sẽ gửi đến bạn những "mật thư" ngắn gọn - chỉ mất 5 phút xem và làm ngay để thay đổi kết quả vĩnh viễn.</p>
             </div>
 
-            <p>Bài học đầu tiên sẽ bắt đầu vào <b>8:00 sáng mai</b>. Hãy chuẩn bị tinh thần để khiến cô ấy phải thốt lên: <i>"Sao hôm nay anh chụp đẹp thế!"</i></p>
+            <p>Hãy hoàn tất bước cuối cùng để chúng ta bắt đầu bài học đầu tiên vào sáng mai nhé!</p>
             
+            <div style="text-align: center; margin: 30px 0;">
+                <a href="https://7day.minhtanacademy.com/#register-form-section" style="display: inline-block; background: #06403D; color: white; padding: 18px 36px; text-decoration: none; border-radius: 50px; font-weight: bold;">XÁC NHẬN THAM GIA NGAY →</a>
+            </div>
+        `)
+    }),
+
+    // 2. PAYMENT REMINDER (30 MINS AFTER REGISTRATION)
+    paymentFollowUp: (name, phone) => ({
+        subject: "Cái nguy hiểm nhất là mình nghĩ: \"Mai học cũng được\" 🛑",
+        html: baseTemplate(name, `
+            <p>Chào ${name}, Tấn muốn nói bạn nghe một chuyện rất thật.</p>
+            <p>Trong hàng ngàn người đăng ký thử thách này, một số ít sẽ không bao giờ bắt đầu. Không phải vì bài học khó, hay họ không đủ thông minh.</p>
+            <p>Họ dừng lại... chỉ vì họ <b>trì hoãn bước đầu tiên quá lâu</b>.</p>
+            
+            <p>Ban đầu ai cũng nghĩ đơn giản lắm:<br>
+            <i>"Để lát nữa."</i><br>
+            <i>"Mai rảnh hơn thanh toán cũng được."</i><br>
+            <i>"Cuối tuần xem luôn cho tiện."</i></p>
+
+            <p>Nhưng càng để lâu, việc bắt đầu càng nặng nề. Và rồi một cơ hội để làm người thương hạnh phúc bỗng trở thành một việc "để sau".</p>
+
+            <div style="background: #fff5f5; padding: 20px; border-radius: 10px; border: 1px solid #fed7d7; margin: 25px 0;">
+                <p style="margin: 0; color: #c53030; font-weight: bold;">⚠️ Đừng để việc trì hoãn âm thầm lấy mất cơ hội của mình.</p>
+            </div>
+
+            <p>Nếu bạn gặp trục trặc gì khi thanh toán, đây là mã QR để bạn hoàn tất nhanh nhất:</p>
+
+            <div style="text-align: center; margin: 30px 0;">
+                <img src="https://img.vietqr.io/image/ACB-221896279-compact.png?amount=199000&addInfo=7DAY%20${phone}&accountName=LE%20MINH%20TAN" style="width: 250px; border-radius: 15px; border: 1px solid #eee;">
+                <p style="font-size: 13px; color: #666; margin-top: 10px;">Nội dung CK: <b>7DAY ${phone}</b></p>
+            </div>
+
+            <p><i>(Nếu bạn đã chuyển tiền, vui lòng bỏ qua email này, hệ thống đang xử lý và sẽ gửi xác nhận cho bạn sớm!)</i></p>
+        `)
+    }),
+
+    // 3. ORDER SUCCESS (IMMEDIATE PAYMENT)
+    orderSuccess: (name, productName, amount) => ({
+        subject: "🎉 Xác nhận: Bạn đã chính thức trở thành \"Phó Nháy\" thực chiến!",
+        html: baseTemplate(name, `
+            <h2 style="color: #06403D;">GIAO DỊCH THÀNH CÔNG!</h2>
+            <p>Chào mừng ${name}, hệ thống đã ghi nhận thanh toán của bạn cho <b>${productName}</b>.</p>
+            
+            <div style="background: #f7fafc; padding: 20px; border-radius: 10px; margin: 25px 0;">
+                <p style="margin: 0;">💵 Số tiền: <b>${amount.toLocaleString()}đ</b></p>
+                <p style="margin: 5px 0 0 0;">📅 Ngày bắt đầu: <b>Sáng mai (8:00 AM)</b></p>
+            </div>
+
+            <p>Trong 7 ngày tới, mỗi sáng Tấn sẽ gửi cho bạn 1 bí chiêu. Hãy chuẩn bị tinh thần để khiến cô ấy phải thốt lên: <i>"Sao hôm nay anh chụp đẹp thế!"</i></p>
+
             ${communityButton()}
         `)
     }),
 
+    // 4. DAY 1 (1 DAY AFTER PAYMENT)
     day1: (name) => ({
-        subject: "[DAY 1] Bí mật về \"Hiệu ứng tiêu cự\" - Mặt nhỏ lại ngay lập tức 🤳",
+        subject: "[DAY 1] Tuyệt chiêu \"gọt mặt\" V-line không cần App 🤳",
         html: baseTemplate(name, `
-            <h2 style="color: #06403D;">DAY 1: Tuyệt chiêu "gọt mặt" V-line không cần App</h2>
-            
+            <p>Chào ${name}, bài học đầu tiên này là thứ thay đổi 80% diện mạo bức ảnh của bạn.</p>
             <p><b>[VẤN ĐỀ]</b><br>
-            Tại sao cùng một người, nhưng có tấm nhìn gầy, có tấm lại "tròn quay"? Đó là vì bạn đứng quá sát và dùng camera thường (1x), khiến khuôn mặt bị biến dạng phình ra ở giữa.</p>
+            Tại sao đứng ngoài đời nhìn cô ấy rất xinh, nhưng lên ảnh lại thấy "tròn quay", mặt to hơn thực tế? Đó là vì bạn đứng quá sát và dùng camera thường (1x), khiến ống kính bị biến dạng phình ra ở giữa.</p>
 
             <p><b>[BÍ QUYẾT]</b><br>
-            Đừng đứng sát. Hãy đứng lùi lại cách người mẫu khoảng 2m và sử dụng <b>Zoom 2x hoặc 3x</b>. Ống kính tele sẽ giúp gương mặt thon gọn và chân thực nhất.</p>
+            Đừng đứng sát. Hãy đứng lùi lại cách người mẫu khoảng 2m và sử dụng <b>Zoom 2x hoặc 3x</b>. Ống kính tele sẽ giúp gương mặt thon gọn và chân thực nhất. Đây gọi là "Hiệu ứng tiêu cự".</p>
 
-            ${missionBox(1, "Sử dụng Zoom 2x/3x, chụp ngang tầm mắt, đứng lùi lại 2m.", "#ngay1")}
+            ${missionBox(1, "Dùng Zoom 2x/3x, đứng lùi lại 2m, chụp ngang tầm mắt.", "#ngay1")}
             ${communityButton()}
         `)
     }),
 
+    // 5. DAY 2 (2 DAYS AFTER PAYMENT)
     day2: (name) => ({
-        subject: "[DAY 2] Mẹo khiến chân dài miên man như siêu mẫu 🦵",
+        subject: "[DAY 2] Mẹo khiến chân dài 1.1m trong 3 giây 🦵",
         html: baseTemplate(name, `
-            <h2 style="color: #06403D;">DAY 2: Kỹ thuật "Hack" chân dài 1.1m trong 3 giây</h2>
-            
+            <p>Chào ${name}, hôm nay chúng ta học cách "hack" chiều cao.</p>
             <p><b>[VẤN ĐỀ]</b><br>
-            Sai lầm chết người của đấng mày râu là cầm điện thoại ngang ngực. Điều này khiến người mẫu bị lùn đi và tỷ lệ cơ thể mất cân đối.</p>
+            Sai lầm chết người là cầm điện thoại ngang ngực hoặc chụp từ trên xuống. Điều này khiến người mẫu bị lùn đi và tỷ lệ cơ thể mất cân đối.</p>
 
             <p><b>[BÍ QUYẾT]</b><br>
-            Hạ camera xuống ngang hông. Nghiêng máy nhẹ 10-15 độ về phía bạn và đảm bảo bàn chân người mẫu nằm sát mép dưới khung hình.</p>
+            Hạ camera xuống ngang hông. Nghiêng máy nhẹ 10-15 độ về phía bạn và đảm bảo <b>bàn chân người mẫu nằm sát mép dưới khung hình</b>. Chân sẽ tự động dài ra một cách tự nhiên mà không cần kéo app.</p>
 
             ${missionBox(2, "Hạ máy ngang hông, nghiêng máy 10 độ, chân sát mép ảnh.", "#ngay2")}
             ${communityButton()}
         `)
     }),
 
+    // 6. DAY 3 (3 DAYS AFTER PAYMENT)
     day3: (name) => ({
-        subject: "[DAY 3] Làm chủ ánh sáng tự nhiên cho làn da mịn màng ✨",
+        subject: "[DAY 3] Bí mật \"Ánh sáng triệu đô\" cho làn da mịn màng ✨",
         html: baseTemplate(name, `
-            <h2 style="color: #06403D;">DAY 3: Bí mật "Ánh sáng triệu đô" bên cửa sổ</h2>
-            
+            <p>Chào ${name}, ánh sáng chiếm 90% vẻ đẹp của làn da.</p>
             <p><b>[VẤN ĐỀ]</b><br>
-            Ánh sáng trần nhà thường tạo ra nọng cằm và quầng thâm mắt xấu xí. Đây chính là lý do ảnh chụp trong nhà thường bị "dìm hàng".</p>
+            Ánh sáng trần nhà thường tạo ra nọng cằm và quầng thâm mắt. Ánh sáng nắng gắt giữa trưa thì làm mặt bị bóng dầu và nhăn nhó.</p>
 
             <p><b>[BÍ QUYẾT]</b><br>
-            Sử dụng ánh sáng tạt ngang từ cửa sổ. Để người mẫu hướng mặt về phía nguồn sáng, bạn đứng lưng dựa vào tường cạnh cửa sổ. Da sẽ mịn và mắt sẽ có "điểm sáng" (catchlight) đầy sức sống.</p>
+            Hãy tìm một cửa sổ. Sử dụng ánh sáng tạt ngang. Để cô ấy hướng mặt về phía cửa sổ, bạn đứng lưng dựa vào tường cạnh đó. Da sẽ mịn và mắt sẽ có "điểm sáng" đầy sức sống.</p>
 
             ${missionBox(3, "Chụp cạnh cửa sổ, mặt hướng ra phía ánh sáng tự nhiên.", "#ngay3")}
             ${communityButton()}
         `)
     }),
 
+    // 7. DAY 4 (4 DAYS AFTER PAYMENT)
     day4: (name) => ({
-        subject: "[DAY 4] Đừng bắt cô ấy đứng yên nếu không muốn bị \"đơ\" 🚶‍♀️",
+        subject: "[DAY 4] Cách tách cô ấy khỏi đám đông du lịch nhốn nháo 🌳",
         html: baseTemplate(name, `
-            <h2 style="color: #06403D;">DAY 4: Tuyệt chiêu Pose ảnh "Diễn như không diễn"</h2>
-            
+            <p>Chào ${name}, đi du lịch mà dính toàn người lạ vào ảnh thì thật khó chịu.</p>
             <p><b>[VẤN ĐỀ]</b><br>
-            "Anh ơi em đứng thế nào?" - "Thôi em cứ đứng đấy" -> Kết quả là 10 tấm đơ cả 10. Đừng bắt cô ấy đứng một chỗ và cười ép.</p>
+            Chúng ta thường ham lấy hết toàn cảnh, dẫn đến việc chủ thể bị chìm nghỉm giữa một biển người.</p>
 
             <p><b>[BÍ QUYẾT]</b><br>
-            Hãy yêu cầu cô ấy chuyển động nhẹ: Bước đi chậm, vuốt tóc, hoặc quay mặt đi rồi quay lại nhìn bạn. Bạn hãy sử dụng chế độ <b>Chụp liên tục (Burst Mode)</b> để bắt khoảnh khắc tự nhiên nhất.</p>
+            Hãy áp dụng quy tắc <b>"Góc máy cách ly"</b>. Tìm một tán cây hoặc một vật cản gần máy để che bớt những người lạ phía sau. Hoặc đơn giản là hạ thấp máy và chụp hất lên trời để làm sạch hậu cảnh.</p>
 
-            ${missionBox(4, "Nhờ cô ấy bước đi từ xa lại gần. Giữ nút chụp liên tục.", "#ngay4")}
+            ${missionBox(4, "Tìm vật che chắn tiền cảnh hoặc chụp hất lên để giấu đám đông.", "#ngay4")}
             ${communityButton()}
         `)
     }),
 
+    // 8. DAY 5 (5 DAYS AFTER PAYMENT)
     day5: (name) => ({
-        subject: "[DAY 5] Bố cục 1/3 - Biến ảnh điện thoại thành tạp chí 📐",
+        subject: "[DAY 5] Đưa rung cảm Cafe chuyên nghiệp vào bức ảnh ☕",
         html: baseTemplate(name, `
-            <h2 style="color: #06403D;">DAY 5: Quy tắc "Tỷ lệ vàng" cho bức ảnh chuyên nghiệp</h2>
-            
+            <p>Chào ${name}, hôm nay chúng ta "chill" tại quán cafe.</p>
             <p><b>[VẤN ĐỀ]</b><br>
-            Đừng bao giờ đặt người vào chính giữa khung hình nếu bạn muốn bức ảnh trông nghệ thuật. Nó tạo cảm giác bí bách và thiếu chuyên nghiệp.</p>
+            Quán cafe thường hẹp, ảnh chụp hay bị rối vì bàn ghế xung quanh.</p>
 
             <p><b>[BÍ QUYẾT]</b><br>
-            Vào Cài đặt Camera -> Bật Lưới (Grid). Hãy đặt người mẫu vào đường kẻ 1/3 bên trái hoặc bên phải. Khoảng trống còn lại sẽ khiến bức ảnh nhìn cao cấp hơn hẳn.</p>
+            Sử dụng một ly nước hoặc nhành hoa đặt sát ống kính để tạo "tiền cảnh" mờ ảo. Kết hợp chế độ <b>Portrait (Chân dung)</b> để phông nền phía sau lung linh hơn. Ly nước chính là "đạo cụ" dẫn dắt thị giác tuyệt vời.</p>
 
-            ${missionBox(5, "Bật Grid, đặt người mẫu vào đường kẻ dọc 1/3.", "#ngay5")}
+            ${missionBox(5, "Dùng ly nước làm tiền cảnh, bật Portrait Mode để xóa phông.", "#ngay5")}
             ${communityButton()}
         `)
     }),
 
+    // 9. DAY 6 (6 DAYS AFTER PAYMENT)
     day6: (name) => ({
-        subject: "[DAY 6] Góc chụp Cafe \"vạn người mê\" chỉ với 1 đạo cụ nhỏ ☕",
+        subject: "[DAY 6] Tuyệt chiêu Pose ảnh \"Diễn như không diễn\" 🚶‍♀️",
         html: baseTemplate(name, `
-            <h2 style="color: #06403D;">DAY 6: Tuyệt kỹ xóa phông và tạo chiều sâu</h2>
-            
+            <p>Chào ${name}, đừng bắt cô ấy đứng yên như tượng.</p>
             <p><b>[VẤN ĐỀ]</b><br>
-            Ảnh chụp quán cafe thường bị rối vì quá nhiều đồ vật xung quanh. Hãy làm nổi bật người mẫu bằng cách tạo ra "chiều sâu".</p>
+            "Anh ơi em đứng thế nào?" - "Thôi em cứ đứng đấy" -> Kết quả là 10 tấm đơ cả 10.</p>
 
             <p><b>[BÍ QUYẾT]</b><br>
-            Sử dụng một nhành hoa hoặc ly nước đặt sát ống kính để tạo "tiền cảnh" mờ ảo. Kết hợp chế độ <b>Portrait (Chân dung)</b> để phông nền phía sau lung linh hơn.</p>
+            Yêu cầu cô ấy <b>chuyển động nhẹ</b>: Bước đi chậm, vuốt tóc, hoặc quay mặt đi rồi quay lại nhìn bạn. Bạn hãy sử dụng chế độ <b>Chụp liên tục (Burst Mode)</b> để bắt khoảnh khắc tự nhiên nhất. Ảnh sẽ có thần thái Fashionista ngay.</p>
 
-            ${missionBox(6, "Dùng ly nước làm tiền cảnh, bật Portrait Mode để xóa phông.", "#ngay6")}
+            ${missionBox(6, "Nhờ cô ấy bước đi từ xa lại gần. Giữ nút chụp liên tục.", "#ngay6")}
             ${communityButton()}
         `)
     }),
 
+    // 10. DAY 7 (7 DAYS AFTER PAYMENT)
     day7: (name) => ({
         subject: "[DAY 7] Tấm ảnh \"Masterpiece\" thay lời muốn nói 🏆",
         html: baseTemplate(name, `
-            <h2 style="color: #06403D; font-size: 24px;">🎖️ NGÀY CUỐI CÙNG: TRỞ THÀNH "PHÓ NHÁY" THỰC CHIẾN</h2>
-            <p>Chúc mừng bạn đã đi đến chặng đường cuối. Đây là thời điểm để tổng hợp mọi tinh hoa.</p>
+            <p>Chào ${name}, chúc mừng bạn đã đi đến chặng đường cuối của thử thách.</p>
+            <p>Đến hôm nay, Tấn tin rằng bạn không còn "sợ" mỗi khi người thương đưa máy nữa. Hôm nay không có chiêu mới, mà là bài thi tổng lực.</p>
 
             <p><b>[HÀNH ĐỘNG]</b><br>
-            Hôm nay, hãy tạo ra một bức ảnh hoàn hảo: Bố cục 1/3, ánh sáng đẹp, góc máy thấp và quan trọng nhất là cảm xúc tự nhiên.</p>
+            Hãy tạo ra một bức ảnh hoàn hảo: Bố cục 1/3, ánh sáng đẹp, góc máy thấp và quan trọng nhất là cảm xúc tự nhiên mà bạn đã học được cách bắt lấy.</p>
 
             ${missionBox("CUỐI", "Kết hợp tất cả kiến thức đã học để tạo ra 1 tác phẩm tâm đắc nhất.", "#ngay7")}
             
             <p style="text-align: center; color: #06403D; font-weight: bold; margin-top: 30px;">HÀNH TRÌNH MỚI SẼ BẮT ĐẦU TỪ ĐÂY!</p>
-            ${communityButton()}
-        `)
-    }),
-
-    waitlistWelcome: (name) => ({
-        subject: "[Welcome] Bạn đã đăng ký thành công vào danh sách chờ \"Phó Nháy\" 📸",
-        html: baseTemplate(name, `
-            <h2 style="color: #06403D; font-size: 22px;">CHÚNG TÔI ĐÃ GHI NHẬN THÔNG TIN CỦA BẠN</h2>
-            <p>Chào ${name}, tôi là Tấn.</p>
-            <p>Rất mừng vì bạn đã nhận ra tầm quan trọng của việc làm chủ chiếc điện thoại trong tay. Với hơn 10 năm kinh nghiệm Editor cho các show lớn như <i>2 Ngày 1 Đêm</i>, tôi hiểu rõ ranh giới giữa một bức ảnh "bình thường" and "xuất sắc" chỉ mỏng manh như một cử chỉ cầm máy.</p>
-            
-            <div style="background: #fffaf0; border: 1px dashed #d69e2e; padding: 20px; border-radius: 10px; margin: 25px 0;">
-                <p style="margin: 0; font-style: italic;">"Người chụp ảnh đẹp nhất không phải người có máy xịn nhất. Mà là người hiểu rõ nhất quy trình tối giản để tạo ra khoảnh khắc."</p>
-            </div>
-
-            <p>Tôi sẽ sớm liên hệ với bạn khi có suất tham gia đợt tiếp theo. Hãy đón chờ bài học đầu tiên bay thẳng vào inbox của bạn nhé!</p>
-        `)
-    }),
-
-    waitlistNurture: (name) => ({
-        subject: "Tại sao chiếc iPhone 30 triệu lại biến mặt cô ấy thành... hình tròn?",
-        html: baseTemplate(name, `
-            <h2 style="color: #06403D;">BIẾN CHIẾC IPHONE THÀNH "VŨ KHÍ" HẠNH PHÚC</h2>
-            <p>Chào ${name}, lại là Tấn đây.</p>
-            <p>Bạn có từng thắc mắc tại sao người khác dùng điện thoại y hệt mình nhưng ảnh họ sang xịn mịn, còn mình chụp thì hay bị "phê bình"?</p>
-            
-            <p><b>[VẤN ĐỀ]</b><br>
-            Sự thật đau lòng là hầu hết đàn ông đều chụp bằng chế độ mặc định (1x) khi đứng quá gần. Điều này làm khuôn mặt người yêu bị biến dạng, cằm to và mũi to hơn thực tế.</p>
-
-            <p><b>[BÍ QUYẾT]</b><br>
-            Lần tới hãy thử: <b>Đứng lùi lại 2m và dùng Zoom 2x.</b> Chỉ 1 thay đổi nhỏ này thôi cũng đủ giúp cô ấy có gương mặt thon gọn tự nhiên nhất mà không cần app.</p>
-
-            <p>Thử ngay hôm nay và nhắn tôi kết quả nhé!</p>
-        `)
-    }),
-
-    waitlistClose: (name) => ({
-        subject: "[CƠ HỘI CUỐI] Đừng để nụ cười của cô ấy vụt tắt chỉ vì... ảnh xấu 😂",
-        html: baseTemplate(name, `
-            <h2 style="color: #06403D;">🎁 MÓN QUÀ DÀNH RIÊNG CHO SỰ KIÊN TRÌ CỦA BẠN</h2>
-            <p>Chào ${name}, suất tham gia thử thách <b>7 Ngày Lên Tay Phó Nháy</b> vừa mới trống 1 chỗ dành riêng cho danh sách chờ.</p>
-            
-            <p>Chi phí: Chỉ 199.000đ. Một khoản đầu tư "siêu lợi nhuận" cho sự yên bình và hạnh phúc của mỗi chuyến đi chơi.</p>
-
-            <div style="text-align: center; margin: 35px 0;">
-                <a href="https://7day.minhtanacademy.com/#register-form-section" style="display: inline-block; background: #FFD700; color: #000; padding: 20px 40px; text-decoration: none; border-radius: 50px; font-weight: bold; text-transform: uppercase; box-shadow: 0 4px 15px rgba(255,215,0,0.4);">ĐĂNG KÝ VÀ NHẬN QR NGAY →</a>
-                <p style="margin-top: 15px; font-size: 13px; color: #e53e3e;">⏰ Cơ hội này chỉ tồn tại trong 24h tới.</p>
-            </div>
-
-            <p>Hẹn gặp bạn ở bên trong!</p>
-        `)
-    }),
-
-    orderSuccess: (name, productName, amount) => ({
-        subject: "🎉 Xác nhận đơn hàng thành công - Sẵn sàng lên tay \"Phó Nháy\"!",
-        html: baseTemplate(name, `
-            <h2 style="color: #06403D;">XÁC NHẬN GIAO DỊCH THÀNH CÔNG</h2>
-            <div style="background: #f9f9f9; padding: 25px; border-radius: 12px; border: 1px solid #eee; margin: 25px 0;">
-                <table style="width: 100%; font-size: 15px;">
-                    <tr><td style="padding: 5px 0; color: #666;">Khách tên:</td><td style="padding: 5px 0; font-weight: bold; text-align: right;">${name}</td></tr>
-                    <tr><td style="padding: 5px 0; color: #666;">Sản phẩm:</td><td style="padding: 5px 0; font-weight: bold; text-align: right;">${productName}</td></tr>
-                    <tr><td style="padding: 5px 0; color: #666;">Số tiền:</td><td style="padding: 5px 0; font-weight: bold; text-align: right; color: #06403D;">${amount.toLocaleString()} VND</td></tr>
-                    <tr><td style="padding: 5px 0; color: #666;">Trạng thái:</td><td style="padding: 5px 0; font-weight: bold; text-align: right; color: #38a169;">ĐÃ THANH TOÁN ✅</td></tr>
-                </table>
-            </div>
-            <p>Hệ thống đã ghi nhận. Bài học đầu tiên sẽ được tự động gửi đến bạn vào sáng mai qua email này.</p>
-            <p>Trong lúc chờ đợi, hãy tham gia nhóm Facebook để kết nối với các "đồng đạo" khác:</p>
             ${communityButton()}
         `)
     })
@@ -255,10 +214,6 @@ function baseTemplate(name, body) {
                     Bản quyền © 2026 Minh Tấn Academy. Mọi quyền được bảo lưu.<br>
                     Bạn nhận được email này vì đã đăng ký tham gia thử thách của chúng tôi.
                 </div>
-            </div>
-            <div style="text-align: center; margin-top: 25px; font-size: 12px; color: #a0aec0;">
-                <a href="#" style="color: #a0aec0; text-decoration: underline;">Từ chối nhận email</a> • 
-                <a href="https://7day.minhtanacademy.com" style="color: #a0aec0; text-decoration: underline;">Trang chủ</a>
             </div>
         </div>
     `;

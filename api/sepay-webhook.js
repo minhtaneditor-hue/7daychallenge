@@ -1,5 +1,5 @@
 import { RESEND_API_KEY, FROM_EMAIL, BOT_TOKEN, CHAT_ID } from './_lib/constants.js';
-import templates from './emails-templates.js';
+import templates from './_lib/emails-templates.js';
 import { query, execute } from './_lib/db.js';
 
 export default async function handler(req, res) {
@@ -55,21 +55,49 @@ export default async function handler(req, res) {
 
         // 4. TRIGGER EMAIL & TELEGRAM ALERT
         try {
-            // Lấy tên sản phẩm nếu có, mặc định là sản phẩm chính
             const productName = product.name || "Khóa học 7 Ngày Lên Tay Phó Nháy";
-            const { subject, html } = templates.orderSuccess(customer.fullname, productName, amount);
             
+            // Email 0: Order Success (Immediate)
+            const successTemplate = templates.orderSuccess(customer.fullname, productName, amount);
             await fetch('https://api.resend.com/emails', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${RESEND_API_KEY}`
                 },
-                body: JSON.stringify({ from: FROM_EMAIL, to: customer.email, subject, html })
+                body: JSON.stringify({ 
+                    from: FROM_EMAIL, 
+                    to: customer.email, 
+                    subject: successTemplate.subject, 
+                    html: successTemplate.html 
+                })
             });
 
+            // Schedule Day 1 to Day 7
+            for (let i = 1; i <= 7; i++) {
+                const dayTemplate = templates[`day${i}`](customer.fullname);
+                const scheduledDate = new Date();
+                scheduledDate.setDate(scheduledDate.getDate() + i); // 1 day, 2 days, etc.
+                scheduledDate.setHours(8, 0, 0, 0); // Send at 8:00 AM each day
+
+                await fetch('https://api.resend.com/emails', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${RESEND_API_KEY}`
+                    },
+                    body: JSON.stringify({
+                        from: FROM_EMAIL,
+                        to: customer.email,
+                        subject: dayTemplate.subject,
+                        html: dayTemplate.html,
+                        scheduled_at: scheduledDate.toISOString()
+                    })
+                });
+            }
+
             // TELEGRAM NOTIFICATION
-            await notifyAdmin(`💰 <b>TIỀN ĐÃ VỀ TỰ ĐỘNG!</b>\n━━━━━━━━━━━━━━━\n👤: ${customer.fullname}\n📧: ${customer.email}\n📞: ${phone}\n💵: ${amount.toLocaleString()}đ\n\n✅ Hệ thống đã tự động duyệt và gửi mail xác nhận đơn hàng cho học viên!`);
+            await notifyAdmin(`💰 <b>TIỀN ĐÃ VỀ TỰ ĐỘNG!</b>\n━━━━━━━━━━━━━━━\n👤: ${customer.fullname}\n📧: ${customer.email}\n📞: ${phone}\n💵: ${amount.toLocaleString()}đ\n\n✅ Đã kích hoạt lộ trình 7 ngày học tập tự động cho học viên!`);
         } catch (e) { 
             console.error('Notification error:', e); 
         }

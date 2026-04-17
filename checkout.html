@@ -160,7 +160,7 @@
                 </div>
                 <div class="info-row">
                     <span class="label">Nội dung CK</span>
-                    <span class="value" id="transfer-content">7Day 0xxxxxxxxx</span>
+                    <span class="value" id="transfer-content">7DAY 0xxxxxxxxx</span>
                 </div>
             </div>
 
@@ -212,7 +212,7 @@
         const bankId = 'ACB';
         const accountNo = '221896279';
         const accountName = 'LE MINH TAN';
-        const content = `7Day ${phone}`;
+        const content = `7DAY ${phone}`;
         
         document.getElementById('qr-image').src = `https://img.vietqr.io/image/${bankId}-${accountNo}-compact.png?amount=${amount}&addInfo=${encodeURIComponent(content)}&accountName=${encodeURIComponent(accountName)}`;
         document.getElementById('transfer-content').innerText = content;

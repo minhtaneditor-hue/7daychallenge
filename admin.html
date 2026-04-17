@@ -440,7 +440,12 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ action: 'delete', type, payload: { id } })
             });
-            if ((await res.json()).success) loadData();
+            const result = await res.json();
+            if (result.success) {
+                loadData();
+            } else {
+                alert('Lỗi: ' + (result.message || 'Không thể xóa mục này.'));
+            }
         }
 
         async function saveData(e) {

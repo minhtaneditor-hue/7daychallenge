@@ -248,33 +248,74 @@
                 <div class="stat-label">Khách hàng</div>
                 <div class="stat-value" id="stat-customers">0</div>
                 <div class="stat-trend">+5 tuần này</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Sản phẩm sắp hết</div>
-                <div class="stat-value" id="stat-stock">0</div>
-                <div class="stat-trend" style="color: var(--danger)">Cần nhập thêm</div>
-            </div>
+    <!-- 🛡️ Login Overlay -->
+    <div id="login-overlay">
+        <div class="login-card">
+            <h2>Hệ thống Quản trị</h2>
+            <p style="color:#666; font-size: 14px; margin-bottom: 20px;">Vui lòng nhập mã bảo mật để tiếp tục</p>
+            <form id="login-form" onsubmit="handleLogin(event)">
+                <input type="password" id="login-pw" placeholder="Mật khẩu" required autofocus>
+                <button type="submit">Đăng nhập</button>
+                <div id="login-error" class="error">Mật khẩu không chính xác!</div>
+            </form>
         </div>
+    </div>
 
-        <header>
-            <h1 id="tab-title" style="min-width: 250px;">Sản phẩm</h1>
-            <div class="search-box">
-                <i class="fas fa-search"></i>
-                <input type="text" id="search-input" placeholder="Tìm kiếm..." oninput="handleSearch(this.value)">
+    <div class="dashboard-container">
+        <aside>
+            <div class="brand">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="var(--accent)"><circle cx="12" cy="12" r="10"/></svg>
+                CMS PRO
             </div>
-            <div style="display: flex; gap: 12px;">
-                <button class="btn btn-outline" onclick="exportData()"><i class="fas fa-file-export"></i> Xuất CSV</button>
-                <button class="btn" onclick="openModal()"><i class="fas fa-plus"></i> Thêm mới</button>
-            </div>
-        </header>
+            <div class="nav-item active" onclick="switchTab('products')"><i class="fas fa-boxes-stacked"></i> Sản phẩm</div>
+            <div class="nav-item" onclick="switchTab('customers')"><i class="fas fa-user-group"></i> Khách hàng</div>
+            <div class="nav-item" onclick="switchTab('orders')"><i class="fas fa-cart-shopping"></i> Đơn hàng</div>
+        </aside>
 
-        <div class="card">
-            <table id="data-table">
-                <thead></thead>
-                <tbody></tbody>
-            </table>
-        </div>
-    </main>
+        <main>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Tổng doanh thu</div>
+                    <div class="stat-value" id="stat-revenue">0đ</div>
+                    <div class="stat-trend"><i class="fas fa-arrow-up"></i> +12% vs last month</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Tổng đơn hàng</div>
+                    <div class="stat-value" id="stat-orders">0</div>
+                    <div class="stat-trend" style="color: var(--pending)">Chờ xác nhận: <span id="stat-pending">0</span></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Khách hàng</div>
+                    <div class="stat-value" id="stat-customers">0</div>
+                    <div class="stat-trend">+5 tuần này</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Sản phẩm sắp hết</div>
+                    <div class="stat-value" id="stat-stock">0</div>
+                    <div class="stat-trend" style="color: var(--danger)">Cần nhập thêm</div>
+                </div>
+            </div>
+
+            <header>
+                <h1 id="tab-title" style="min-width: 250px;">Sản phẩm</h1>
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="search-input" placeholder="Tìm kiếm..." oninput="handleSearch(this.value)">
+                </div>
+                <div style="display: flex; gap: 12px;">
+                    <button class="btn btn-outline" onclick="exportData()"><i class="fas fa-file-export"></i> Xuất CSV</button>
+                    <button class="btn" onclick="openModal()"><i class="fas fa-plus"></i> Thêm mới</button>
+                </div>
+            </header>
+
+            <div class="card">
+                <table id="data-table">
+                    <thead></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </main>
+    </div>
 
     <div id="crud-modal" class="modal">
         <div class="modal-content">
@@ -300,18 +341,33 @@
             return sessionStorage.getItem('admin_pw');
         }
 
-        async function requireAuth() {
-            let pw = getAuthKey();
-            if (!pw) {
-                pw = prompt("Vui lòng nhập mật khẩu quản trị:");
-                if (pw) sessionStorage.setItem('admin_pw', pw);
+        async function handleLogin(e) {
+            e.preventDefault();
+            const pw = document.getElementById('login-pw').value;
+            sessionStorage.setItem('admin_pw', pw);
+            const success = await loadData();
+            if (!success) {
+                document.getElementById('login-error').style.display = 'block';
+                sessionStorage.removeItem('admin_pw');
             }
-            return pw;
+        }
+
+        async function requireAuth() {
+            const pw = getAuthKey();
+            if (pw) {
+                document.getElementById('login-overlay').style.display = 'none';
+                document.querySelector('.dashboard-container').style.display = 'flex';
+                return pw;
+            } else {
+                document.getElementById('login-overlay').style.display = 'flex';
+                document.querySelector('.dashboard-container').style.display = 'none';
+                return null;
+            }
         }
 
         async function loadData() {
             const pw = await requireAuth();
-            if (!pw) return;
+            if (!pw) return false;
 
             try {
                 const res = await fetch(`/api/admin?pw=${encodeURIComponent(pw)}&action=get-stats`);
@@ -320,6 +376,9 @@
                     dbData = result.data;
                     renderStats();
                     renderTable();
+                    document.getElementById('login-overlay').style.display = 'none';
+                    document.querySelector('.dashboard-container').style.display = 'flex';
+                    return true;
                 } else if (result.message === 'Unauthorized') {
                     sessionStorage.removeItem('admin_pw');
                     alert("Mật khẩu không chính xác!");

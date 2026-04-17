@@ -152,11 +152,11 @@
             <div class="order-info">
                 <div class="info-row">
                     <span class="label">Sản phẩm</span>
-                    <span class="value">Thử thách 7 Ngày Phó Nháy</span>
+                    <span class="value" id="product-name">Đang tải...</span>
                 </div>
                 <div class="info-row">
                     <span class="label">Số tiền</span>
-                    <span class="value amount">199.000đ</span>
+                    <span class="value amount" id="product-amount">0đ</span>
                 </div>
                 <div class="info-row">
                     <span class="label">Nội dung CK</span>
@@ -196,14 +196,19 @@
         const orderId = urlParams.get('orderId');
         const phone = urlParams.get('phone');
         const name = urlParams.get('name');
+        const amount = parseInt(urlParams.get('amount')) || 199000;
+        const productName = urlParams.get('product') || 'Thử thách 7 Ngày Phó Nháy';
 
         if (!orderId || !phone) {
             alert("Thông tin đơn hàng không hợp lệ!");
             window.location.href = '/';
         }
 
+        // Update UI
+        document.getElementById('product-name').innerText = productName;
+        document.getElementById('product-amount').innerText = amount.toLocaleString() + 'đ';
+
         // Initialize QR
-        const amount = 199000;
         const bankId = 'ACB';
         const accountNo = '221896279';
         const accountName = 'LE MINH TAN';

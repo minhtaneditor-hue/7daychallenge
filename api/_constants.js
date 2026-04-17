@@ -25,7 +25,7 @@ export const CHAT_ID = getSecret('CHAT_ID', 'chat_id.txt') || '7384174497';
 export const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin7day';
 
 export const RESEND_API_KEY = getSecret('RESEND_API_KEY', 'resend_config.txt');
-export const FROM_EMAIL = process.env.FROM_EMAIL || 'Minh Tấn Academy <customer@minhtanacademy.com>';
+export const FROM_EMAIL = process.env.FROM_EMAIL || 'Minh Tấn Academy <marketing@minhtanacademy.com>';
 
 // BANK & SEPAY CONFIG
 export const BANK_ID = process.env.BANK_ID || 'ACB';

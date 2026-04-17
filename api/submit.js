@@ -68,7 +68,7 @@ export default async (req, res) => {
                 dbStatus = "\n📊 CRM: ❌ Lỗi ghi (Cloud)";
             }
 
-            // GỬI SEQUENCE EMAIL QUA RESEND
+            let emailError = null;
             if (data.email) {
                 try {
                     const email = data.email;
@@ -103,7 +103,7 @@ export default async (req, res) => {
                         const resData = await response.json();
                         if (!response.ok) {
                             console.error(`[Email Error] Resend returned ${response.status}:`, resData);
-                            throw new Error(resData.message || 'Resend error');
+                            throw new Error(resData.message || 'Resend error. Check if sender is verified.');
                         }
                         console.log(`[Email Success] ${templateName} sent! ID: ${resData.id}`);
                         return resData;
@@ -120,11 +120,19 @@ export default async (req, res) => {
 
                 } catch (err) {
                     console.error('Email Sequence Error:', err.message);
+                    emailError = err.message;
                     await notifyAdmin(`❌ <b>LỖI GỬI EMAIL:</b>\n${err.message}`);
                 }
             }
 
-            return res.status(200).json({ success: true, teleMsgId: msgId, orderId: orderId });
+            return res.status(200).json({ 
+                success: true, 
+                teleMsgId: msgId, 
+                orderId: orderId,
+                amount: product.price,
+                productName: product.name,
+                emailError: emailError // Trả về lỗi để debug ở frontend nếu cần
+            });
         }
 
         // 2. CONFIRM PAYMENT (NOTIFY FOR MANUAL CHECK)

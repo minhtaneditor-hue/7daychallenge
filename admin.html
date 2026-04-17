@@ -367,9 +367,14 @@
         function editItem(type, id) {
             openModal();
             const data = dbData[type + 's'].find(x => x.id === id);
+            document.getElementById('modal-title').innerText = 'Cập nhật ' + (data.name || data.fullname || 'thông tin');
             document.getElementById('item-id').value = id;
             const form = document.getElementById('crud-form');
-            for (let k in data) if (form.elements[k]) form.elements[k].value = data[k];
+            setTimeout(() => { // Đảm bảo DOM đã được render xong sau khi innerHTML thay đổi
+                for (let k in data) {
+                    if (form.elements[k]) form.elements[k].value = data[k];
+                }
+            }, 50);
         }
 
         async function saveData(e) {

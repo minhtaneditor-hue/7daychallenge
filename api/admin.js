@@ -108,7 +108,9 @@ export default async function handler(req, res) {
                 return res.status(200).json({ success: true });
                 
             } else if (action === 'delete') {
-                await execute(`DELETE FROM ${table} WHERE id = ?`, [payload.id]);
+                const itemId = payload.id;
+                console.log(`[Admin] Deleting ${type} ID:`, itemId);
+                await execute(`DELETE FROM ${table} WHERE id = ?`, [itemId]);
                 return res.status(200).json({ success: true });
             }
         }

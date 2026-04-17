@@ -340,12 +340,15 @@
 
         async function handleLogin(e) {
             e.preventDefault();
-            const pw = document.getElementById('login-pw').value;
+            const input = document.getElementById('login-pw');
+            const pw = input.value;
             sessionStorage.setItem('admin_pw', pw);
             const success = await loadData();
             if (!success) {
                 document.getElementById('login-error').style.display = 'block';
                 sessionStorage.removeItem('admin_pw');
+                input.value = ''; // Clear for retry
+                input.focus();
             } else {
                 document.getElementById('login-error').style.display = 'none';
             }
@@ -403,13 +406,13 @@
 
             if (currentTab === 'products') {
                 thead.innerHTML = '<tr><th>Sản phẩm</th><th>Giá</th><th>Kho</th><th>Thao tác</th></tr>';
-                tbody.innerHTML = data.map(p => `<tr><td>${p.name}</td><td>${p.price.toLocaleString()}đ</td><td>${p.stock}</td><td><div style="display:flex;gap:8px;"><button class="btn btn-outline btn-sm" onclick="editItem('product', ${p.id})">Sửa</button><button class="btn btn-outline btn-sm" style="color:var(--danger); border-color:var(--danger)" onclick="deleteItem('product', ${p.id})">Xóa</button></div></td></tr>`).join('');
+                tbody.innerHTML = data.map(p => `<tr><td>${p.name}</td><td>${p.price.toLocaleString()}đ</td><td>${p.stock}</td><td><div style="display:flex;gap:8px;"><button class="btn btn-outline btn-sm action-btn" data-action="edit" data-id="${p.id}">Sửa</button><button class="btn btn-outline btn-sm action-btn" style="color:var(--danger); border-color:var(--danger)" data-action="delete" data-id="${p.id}">Xóa</button></div></td></tr>`).join('');
             } else if (currentTab === 'customers') {
                 thead.innerHTML = '<tr><th>Khách hàng</th><th>SĐT</th><th>Ngày đăng ký</th><th>Thao tác</th></tr>';
-                tbody.innerHTML = data.map(c => `<tr><td>${c.fullname}</td><td>${c.phone}</td><td>${new Date(c.registration_date).toLocaleDateString()}</td><td><div style="display:flex;gap:8px;"><button class="btn btn-outline btn-sm" onclick="editItem('customer', ${c.id})">Sửa</button><button class="btn btn-outline btn-sm" style="color:var(--danger); border-color:var(--danger)" onclick="deleteItem('customer', ${c.id})">Xóa</button></div></td></tr>`).join('');
+                tbody.innerHTML = data.map(c => `<tr><td>${c.fullname}</td><td>${c.phone}</td><td>${new Date(c.registration_date).toLocaleDateString()}</td><td><div style="display:flex;gap:8px;"><button class="btn btn-outline btn-sm action-btn" data-action="edit" data-id="${c.id}">Sửa</button><button class="btn btn-outline btn-sm action-btn" style="color:var(--danger); border-color:var(--danger)" data-action="delete" data-id="${c.id}">Xóa</button></div></td></tr>`).join('');
             } else if (currentTab === 'orders') {
                 thead.innerHTML = '<tr><th>Đơn hàng</th><th>Sản phẩm</th><th>Thanh toán</th><th>Trạng thái</th><th>Thao tác</th></tr>';
-                tbody.innerHTML = data.map(o => `<tr><td>#${o.id} - ${o.customer_name}</td><td>${o.product_name}</td><td>${o.amount.toLocaleString()}đ</td><td><span class="tag tag-${o.status}">${o.status}</span></td><td><div style="display:flex;gap:8px;"><button class="btn btn-outline btn-sm" onclick="editItem('order', ${o.id})">Sửa</button><button class="btn btn-outline btn-sm" style="color:var(--danger); border-color:var(--danger)" onclick="deleteItem('order', ${o.id})">Xóa</button></div></td></tr>`).join('');
+                tbody.innerHTML = data.map(o => `<tr><td>#${o.id} - ${o.customer_name}</td><td>${o.product_name}</td><td>${o.amount.toLocaleString()}đ</td><td><span class="tag tag-${o.status}">${o.status}</span></td><td><div style="display:flex;gap:8px;"><button class="btn btn-outline btn-sm action-btn" data-action="edit" data-id="${o.id}">Sửa</button><button class="btn btn-outline btn-sm action-btn" style="color:var(--danger); border-color:var(--danger)" data-action="delete" data-id="${o.id}">Xóa</button></div></td></tr>`).join('');
             }
         }
 
@@ -427,25 +430,26 @@
             document.getElementById('crud-modal').style.display = 'flex';
         }
 
-        function editItem(type, id) {
-            const item = dbData[type + 's'].find(x => x.id == id);
+        function editItem(id) {
+            const type = currentTab.replace(/s$/, '');
+            const item = dbData[currentTab].find(x => x.id == id);
             if (item) openModal(item);
         }
 
-        async function deleteItem(type, id) {
-            if (!confirm('Bạn có chắc chắn muốn xóa mục này?')) return;
-            const pw = getAuthKey();
-            const res = await fetch(`/api/admin?pw=${encodeURIComponent(pw)}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ action: 'delete', type, payload: { id } })
-            });
-            const result = await res.json();
-            if (result.success) {
-                loadData();
-            } else {
-                alert('Lỗi: ' + (result.message || 'Không thể xóa mục này.'));
-            }
+        async function removeItemRecord(id) {
+            const type = currentTab.replace(/s$/, '');
+            if (!confirm(`Xác nhận xóa ${type} #${id}?`)) return;
+            try {
+                const pw = sessionStorage.getItem('admin_pw');
+                const res = await fetch(`/api/admin?pw=${encodeURIComponent(pw)}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'delete', type, payload: { id } })
+                });
+                const result = await res.json();
+                if (result.success) loadData();
+                else alert('Lỗi: ' + (result.message || 'Không thể xóa'));
+            } catch (e) { alert('Lỗi kết nối'); }
         }
 
         async function saveData(e) {
@@ -487,6 +491,16 @@
         }
 
         loadData();
+
+        // 🔗 Delegated event listener for reliable interactions
+        document.querySelector('#data-table').addEventListener('click', (e) => {
+            const btn = e.target.closest('.action-btn');
+            if (!btn) return;
+            const action = btn.dataset.action;
+            const id = btn.dataset.id;
+            if (action === 'edit') editItem(id);
+            if (action === 'delete') removeItemRecord(id);
+        });
     </script>
 </body>
 </html>

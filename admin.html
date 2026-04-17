@@ -190,7 +190,30 @@
             box-sizing: border-box;
         }
 
-        input:focus { border-color: var(--accent); outline: none; background: rgba(255,255,255,0.05); }
+        input:focus, select:focus, textarea:focus { border-color: var(--accent); outline: none; background: rgba(255,255,255,0.05); }
+
+        .search-box {
+            position: relative;
+            flex: 1;
+            max-width: 400px;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--muted);
+            pointer-events: none;
+        }
+
+        .search-box input {
+            padding-left: 45px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 50px;
+            border-color: var(--border);
+            height: 44px;
+        }
 
         @media (max-width: 1024px) {
             .stats-grid { grid-template-columns: repeat(2, 1fr); }
@@ -234,8 +257,15 @@
         </div>
 
         <header>
-            <h1 id="tab-title">Sản phẩm</h1>
-            <button class="btn" onclick="openModal()"><i class="fas fa-plus"></i> Thêm mới</button>
+            <h1 id="tab-title" style="min-width: 250px;">Sản phẩm</h1>
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="search-input" placeholder="Tìm kiếm..." oninput="handleSearch(this.value)">
+            </div>
+            <div style="display: flex; gap: 12px;">
+                <button class="btn btn-outline" onclick="exportData()"><i class="fas fa-file-export"></i> Xuất CSV</button>
+                <button class="btn" onclick="openModal()"><i class="fas fa-plus"></i> Thêm mới</button>
+            </div>
         </header>
 
         <div class="card">
@@ -262,6 +292,7 @@
 
     <script>
         let currentTab = 'products';
+        let searchQuery = '';
         let dbData = { products: [], customers: [], orders: [], stats: {} };
 
         async function loadData() {
@@ -291,6 +322,16 @@
             if (event) event.currentTarget.classList.add('active');
             const titles = { products: 'Quản lý Sản phẩm', customers: 'Danh sách Khách hàng', orders: 'Quản lý Đơn hàng' };
             document.getElementById('tab-title').innerText = titles[tab];
+            
+            // Clear search when switching tabs
+            searchQuery = '';
+            document.getElementById('search-input').value = '';
+            
+            renderTable();
+        }
+
+        function handleSearch(val) {
+            searchQuery = val.toLowerCase().trim();
             renderTable();
         }
 
@@ -298,9 +339,31 @@
             const thead = document.querySelector('#data-table thead');
             const tbody = document.querySelector('#data-table tbody');
             
+            let data = dbData[currentTab] || [];
+            
+            // Apply Search Filtering
+            if (searchQuery) {
+                data = data.filter(item => {
+                    if (currentTab === 'products') {
+                        return item.name.toLowerCase().includes(searchQuery) || String(item.id).includes(searchQuery);
+                    } else if (currentTab === 'customers') {
+                        return item.fullname.toLowerCase().includes(searchQuery) || 
+                               item.phone.includes(searchQuery) || 
+                               (item.email && item.email.toLowerCase().includes(searchQuery)) ||
+                               (item.zalo && item.zalo.toLowerCase().includes(searchQuery));
+                    } else if (currentTab === 'orders') {
+                        return String(item.id).includes(searchQuery) || 
+                               item.customer_name.toLowerCase().includes(searchQuery) ||
+                               item.product_name.toLowerCase().includes(searchQuery) ||
+                               item.status.toLowerCase().includes(searchQuery);
+                    }
+                    return false;
+                });
+            }
+
             if (currentTab === 'products') {
                 thead.innerHTML = '<tr><th>Sản phẩm</th><th>Giá bán</th><th>Tồn kho</th><th style="text-align:right">Thao tác</th></tr>';
-                tbody.innerHTML = dbData.products.map(p => `
+                tbody.innerHTML = data.map(p => `
                     <tr>
                         <td><div style="font-weight:600">${p.name}</div><div style="font-size:12px;color:var(--muted)">ID: #${p.id}</div></td>
                         <td>${p.price.toLocaleString()}đ</td>
@@ -312,7 +375,7 @@
                     </tr>`).join('');
             } else if (currentTab === 'customers') {
                 thead.innerHTML = '<tr><th>Khách hàng</th><th>Liên hệ</th><th>Ngày đăng ký</th><th style="text-align:right">Thao tác</th></tr>';
-                tbody.innerHTML = dbData.customers.map(c => `
+                tbody.innerHTML = data.map(c => `
                     <tr>
                         <td><div style="font-weight:600">${c.fullname}</div><div style="font-size:12px;color:var(--muted)">ID: #${c.id}</div></td>
                         <td><div>${c.phone}</div><div style="font-size:12px;color:var(--muted)">${c.email || ''}</div></td>
@@ -324,7 +387,7 @@
                     </tr>`).join('');
             } else if (currentTab === 'orders') {
                 thead.innerHTML = '<tr><th>Đơn hàng</th><th>Chi tiết</th><th>Số tiền</th><th>Trạng thái</th><th style="text-align:right">Thao tác</th></tr>';
-                tbody.innerHTML = dbData.orders.map(o => `
+                tbody.innerHTML = data.map(o => `
                     <tr>
                         <td><div style="font-weight:600">Order #${o.id}</div><div style="font-size:12px;color:var(--muted)">Khách: ${o.customer_name}</div></td>
                         <td>${o.product_name}</td>
@@ -426,6 +489,51 @@
         }
 
         function closeModal() { document.getElementById('crud-modal').style.display = 'none'; }
+
+        function exportData() {
+            let data = dbData[currentTab] || [];
+            
+            // Apply Search Filtering for export too
+            if (searchQuery) {
+                data = data.filter(item => {
+                    if (currentTab === 'products') {
+                        return item.name.toLowerCase().includes(searchQuery) || String(item.id).includes(searchQuery);
+                    } else if (currentTab === 'customers') {
+                        return item.fullname.toLowerCase().includes(searchQuery) || item.phone.includes(searchQuery) || (item.email && item.email.toLowerCase().includes(searchQuery));
+                    } else if (currentTab === 'orders') {
+                        return String(item.id).includes(searchQuery) || item.customer_name.toLowerCase().includes(searchQuery) || item.product_name.toLowerCase().includes(searchQuery);
+                    }
+                    return false;
+                });
+            }
+
+            if (data.length === 0) return alert('Không có dữ liệu để xuất');
+
+            const headers = Object.keys(data[0]);
+            const csvRows = [];
+            csvRows.push(headers.join(','));
+
+            for (const row of data) {
+                const values = headers.map(header => {
+                    const val = row[header];
+                    const escaped = ('' + (val || '')).replace(/"/g, '""');
+                    return `"${escaped}"`;
+                });
+                csvRows.push(values.join(','));
+            }
+
+            const csvString = '\ufeff' + csvRows.join('\n'); // Add BOM for Excel UTF-8 support
+            const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.setAttribute('href', url);
+            link.setAttribute('download', `${currentTab}_export_${new Date().toISOString().split('T')[0]}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
         loadData();
     </script>
 </body>

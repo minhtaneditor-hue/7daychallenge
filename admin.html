@@ -218,34 +218,24 @@
         .btn-outline { background: transparent; border: 1px solid var(--border); color: #fff; }
         .btn-sm { padding: 6px 12px; font-size: 12px; }
 
-        /* Modal */
-        .modal {
+        /* 🗑️ Confirm Modal */
+        #confirm-modal {
             display: none;
             position: fixed;
             inset: 0;
-            background: rgba(0,0,0,0.8);
-            backdrop-filter: blur(10px);
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(15px);
             align-items: center;
             justify-content: center;
-            z-index: 1000;
+            z-index: 10000;
         }
-        .modal-content {
+        .confirm-card {
             background: #111;
-            padding: 40px;
-            border-radius: 24px;
-            width: 100%;
-            max-width: 480px;
+            padding: 30px;
+            border-radius: 20px;
             border: 1px solid var(--border);
-        }
-        .form-group { margin-bottom: 20px; }
-        .form-group label { display: block; margin-bottom: 8px; font-size: 12px; color: var(--muted); }
-        .form-group input, .form-group select, .form-group textarea {
-            width: 100%;
-            background: #222;
-            border: 1px solid var(--border);
-            padding: 12px;
-            border-radius: 10px;
-            color: #fff;
+            text-align: center;
+            max-width: 350px;
         }
     </style>
 </head>
@@ -317,8 +307,8 @@
     </div>
 
     <!-- Modal -->
-    <div id="crud-modal" class="modal">
-        <div class="modal-content">
+    <div id="crud-modal" class="modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); backdrop-filter:blur(10px); align-items:center; justify-content:center; z-index:1000;">
+        <div class="modal-content" style="background:#111; padding:40px; border-radius:24px; width:100%; max-width:480px; border:1px solid var(--border);">
             <h2 id="modal-title">Cập nhật</h2>
             <form id="crud-form" onsubmit="saveData(event)">
                 <input type="hidden" name="id" id="item-id">
@@ -328,6 +318,18 @@
                     <button type="submit" class="btn" style="flex:1">Lưu</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Confirm Modal -->
+    <div id="confirm-modal">
+        <div class="confirm-card">
+            <h3 style="color:var(--accent); margin-bottom:15px">Xác nhận xóa?</h3>
+            <p id="confirm-msg" style="color:var(--muted); margin-bottom:25px; font-size:14px"></p>
+            <div style="display:flex; gap:10px">
+                <button class="btn btn-outline" onclick="closeConfirm()" style="flex:1">Hủy</button>
+                <button id="confirm-yes" class="btn" style="flex:1; background:var(--danger); color:white">Xóa ngay</button>
+            </div>
         </div>
     </div>
 
@@ -431,25 +433,30 @@
         }
 
         function editItem(id) {
-            const type = currentTab.replace(/s$/, '');
             const item = dbData[currentTab].find(x => x.id == id);
             if (item) openModal(item);
         }
 
+        function closeConfirm() { document.getElementById('confirm-modal').style.display = 'none'; }
+
         async function removeItemRecord(id) {
             const type = currentTab.replace(/s$/, '');
-            if (!confirm(`Xác nhận xóa ${type} #${id}?`)) return;
-            try {
-                const pw = sessionStorage.getItem('admin_pw');
-                const res = await fetch(`/api/admin?pw=${encodeURIComponent(pw)}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: 'delete', type, payload: { id } })
-                });
-                const result = await res.json();
-                if (result.success) loadData();
-                else alert('Lỗi: ' + (result.message || 'Không thể xóa'));
-            } catch (e) { alert('Lỗi kết nối'); }
+            document.getElementById('confirm-msg').innerText = `Bạn có chắc muốn xóa ${type} #${id}? Hành động này không thể hoàn tác.`;
+            document.getElementById('confirm-modal').style.display = 'flex';
+            
+            document.getElementById('confirm-yes').onclick = async () => {
+                closeConfirm();
+                try {
+                    const pw = sessionStorage.getItem('admin_pw');
+                    const res = await fetch(`/api/admin?pw=${encodeURIComponent(pw)}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ action: 'delete', type, payload: { id } })
+                    });
+                    if ((await res.json()).success) loadData();
+                    else alert('Không thể xóa mục này.');
+                } catch (e) { alert('Lỗi kết nối server'); }
+            };
         }
 
         async function saveData(e) {

@@ -41,7 +41,7 @@ export default async function handler(req, res) {
 
             // Whitelist columns to avoid SQL errors
             const tableColumns = {
-                products: ['name', 'price', 'description', 'stock'],
+                products: ['name', 'price', 'description', 'stock', 'code_prefix'],
                 customers: ['fullname', 'phone', 'email', 'zalo'],
                 orders: ['customer_id', 'product_id', 'amount', 'status']
             };

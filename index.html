@@ -522,7 +522,8 @@
                         phone: currentLeadData.phone,
                         name: currentLeadData.fullname,
                         amount: resData.amount,
-                        product: resData.productName
+                        product: resData.productName,
+                        content: resData.transferContent
                     });
                     window.location.href = `/checkout.html?${params.toString()}`;
 

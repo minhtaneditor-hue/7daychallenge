@@ -148,7 +148,7 @@ export default async (req, res) => {
                 orderId: orderId,
                 amount: product.price,
                 productName: product.name,
-                transferContent: `7DAY ${data.phone}`,
+                transferContent: `${product.code_prefix || '7DAY'} ${data.phone}`,
                 emailError: emailError
             });
         }

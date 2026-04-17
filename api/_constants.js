@@ -1,21 +1,38 @@
-export const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbzJjah4zB0WKz4Eugd3zbd0_tnmGdXGsQBSs0ojD9cOowFwRJ1Pr4KUyNpTlW_YiEbFmA/exec';
-export const LEAD_SPREADSHEET_ID = '1_ugE0zCfoqHpjHbkebCbyyL1BUw4p27k6250kRzdkx0';
+// ALL SECRETS ARE NOW LOADED FROM ENVIRONMENT VARIABLES (.env)
+// For local development, create a .env file based on .env.example
 
-export const WAITLIST_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwsszyBOYqtpbCP4eg4-yKJOwPxoAXYsycHcn9kLkZdcCj7we-1TX6Zf6LdcLYWEo9MQQ/exec';
-export const WAITLIST_SPREADSHEET_ID = '1alyguq8nSaEKnnzyS4cXRm9rxyDhs3_2HXhsv6nPfh4';
+export const GOOGLE_SHEET_URL = process.env.GOOGLE_SHEET_URL || '';
+export const LEAD_SPREADSHEET_ID = process.env.LEAD_SPREADSHEET_ID || '';
+export const WAITLIST_SCRIPT_URL = process.env.WAITLIST_SCRIPT_URL || '';
+export const WAITLIST_SPREADSHEET_ID = process.env.WAITLIST_SPREADSHEET_ID || '';
 
-export const BOT_TOKEN = '8753662126:AAHjqwCiSyn50oxIg7ABgebgh_B1tiWNX0E';
-export const CHAT_ID = '7384174497';
+import fs from 'fs';
+import path from 'path';
+
+function getSecret(envKey, fileName) {
+    if (process.env[envKey]) return process.env[envKey];
+    try {
+        const filePath = path.join(process.cwd(), fileName);
+        if (fs.existsSync(filePath)) {
+            return fs.readFileSync(filePath, 'utf8').trim();
+        }
+    } catch (e) {}
+    return '';
+}
+
+export const BOT_TOKEN = getSecret('BOT_TOKEN', 'telegram_config.txt');
+export const CHAT_ID = getSecret('CHAT_ID', 'chat_id.txt') || '7384174497';
 export const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin7day';
-export const RESEND_API_KEY = process.env.RESEND_API_KEY || 're_Gq7KcaeK_2ar8XM8RhiQxeyNMgnjpEr2o';
-export const FROM_EMAIL = 'Minh Tấn Academy <marketing@minhtanacademy.com>';
+
+export const RESEND_API_KEY = getSecret('RESEND_API_KEY', 'resend_config.txt');
+export const FROM_EMAIL = process.env.FROM_EMAIL || 'Minh Tấn Academy <customer@minhtanacademy.com>';
 
 // BANK & SEPAY CONFIG
-export const BANK_ID = 'ACB';
-export const ACCOUNT_NO = '221896279';
-export const ACCOUNT_NAME = 'LE MINH TAN';
+export const BANK_ID = process.env.BANK_ID || 'ACB';
+export const ACCOUNT_NO = process.env.ACCOUNT_NO || '221896279';
+export const ACCOUNT_NAME = process.env.ACCOUNT_NAME || 'LE MINH TAN';
 export const SEPAY_API_KEY = process.env.SEPAY_API_KEY || ''; 
 
-// TURSO CLOUD DB CONFIG (Set these in Vercel Dashboard for production)
-export const TURSO_URL = process.env.TURSO_URL || ''; 
-export const TURSO_TOKEN = process.env.TURSO_TOKEN || '';
+// TURSO CLOUD DB CONFIG
+export const TURSO_URL = process.env.TURSO_URL || 'libsql://database-chestnut-jacket-vercel-icfg-hj6h16ghbwbnbfoibck4ype8.aws-us-east-1.turso.io'; 
+export const TURSO_TOKEN = process.env.TURSO_TOKEN || 'eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3NzYyMzU4NTQsImlkIjoiMDE5ZDhmZTgtMzgwMS03OWYwLWJkZmYtY2I1N2FhMTU1MDlmIiwicmlkIjoiNGVmZDlkMzAtMDMxMi00NTZmLThlNWItOTU1YzNmMmFmNDA4In0.8DWOpoBhvZ279KxJuyozJH0RkigrfJG7g3YmQwJqC_iivTp3cftPuelcJLeXtCKLFmlFkFOzGJpMDn5BOo0QBA';

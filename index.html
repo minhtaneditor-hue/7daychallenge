@@ -105,6 +105,10 @@
                                 <input type="tel" name="phone" placeholder="Số điện thoại của bạn" required>
                             </div>
                             <div class="form-group">
+                                <label>Email của bạn</label>
+                                <input type="email" name="email" placeholder="Ví dụ: nguyenvana@gmail.com" required>
+                            </div>
+                            <div class="form-group">
                                 <label>Bạn đang dùng điện thoại gì?</label>
                                 <input type="text" name="device" placeholder="Ví dụ: iPhone 15 Pro Max" required>
                             </div>
@@ -383,26 +387,7 @@
                     </form>
                 </div>
 
-                <div id="qr-box" class="qr-box hidden" style="width: 100%; max-width: 500px; margin: 0 auto;">
-                    <h3>Quét mã chuyển khoản</h3>
-                    <div class="price-tag">Số tiền: 199.000đ</div>
-                    <div class="qr-img-wrapper">
-                        <img id="qr-image" src="assets/QR CODE 7DBFC.jpg" alt="QR Code Thanh Toán">
-                    </div>
-                    <p style="color: #aaa; margin-bottom: 25px; font-size: 0.9rem;">Vui lòng chuyển đúng số tiền để hệ thống xác nhận nhanh nhất.</p>
-                    <button type="button" id="confirm-btn">Xác nhận đã chuyển tiền</button>
-                </div>
-
-                <div id="success-box" class="success-box hidden" style="width: 100%; max-width: 600px; margin: 0 auto;">
-                    <span class="success-icon">✅</span>
-                    <h3>THAM GIA THÀNH CÔNG!</h3>
-                    <p style="font-size: 1.1rem; color: #fff; margin-bottom: 20px;">Hy vọng bạn sẽ tham gia đầy đủ và áp dụng được những kiến thức để tạo ra những bộ ảnh ưng ý cho bạn gái/ vợ hoặc gia đình của bạn</p>
-                    <div style="background: rgba(255,215,0,0.1); padding: 20px; border-radius: 15px; text-align: left; border: 1px solid rgba(255,215,0,0.2);">
-                        <p style="color: #FFD700; margin-bottom: 10px;">📩 <strong>Kiểm tra Email:</strong> Bài học đầu tiên sẽ được gửi đến bạn vào sáng mai.</p>
-                        <p style="font-size: 0.85rem; color: #ccc;">*Nếu không thấy trong hộp thư chính, vui lòng kiểm tra mục <strong>Spam</strong> hoặc <strong>Quảng cáo</strong>.</p>
-                    </div>
-                    <p class="wait-message">Hệ thống đang đối soát giao dịch của bạn...</p>
-                </div>
+                <!-- Redesigned Checkout will redirect to checkout.html -->
             </div>
         </div>
     </section>
@@ -522,31 +507,14 @@
                     const resData = await res.json();
                     
                     // Lưu teleMsgId để dùng cho bước sau (Hợp nhất thông báo)
-                    if (resData.teleMsgId) {
-                        localStorage.setItem('teleMsgId', resData.teleMsgId);
-                    }
-                    
-                    // Tracking Lead
-                    fbq('track', 'Lead');
-                    
-                    // Cập nhật mã QR động theo SĐT khách (ACB - 221896279)
-                    const qrImg = document.getElementById('qr-image');
-                    const amount = 199000;
-                    const phone = currentLeadData.phone;
-                    const bankId = 'ACB';
-                    const accountNo = '221898279';
-                    const accountName = 'LE MINH TAN';
-                    qrImg.src = `https://img.vietqr.io/image/${bankId}-${accountNo}-compact.png?amount=${amount}&addInfo=7Day%20${phone}&accountName=${encodeURIComponent(accountName)}`;
+                    // REDIRECT TO PREMIUM CHECKOUT
+                    const params = new URLSearchParams({
+                        orderId: resData.orderId,
+                        phone: currentLeadData.phone,
+                        name: currentLeadData.fullname
+                    });
+                    window.location.href = `/checkout.html?${params.toString()}`;
 
-                    // Hiển thị QR Code & Ẩn sạch Form
-                    formContent.style.display = 'none';
-                    qrBox.classList.remove('hidden');
-                    qrBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
-                    // BẮT ĐẦU POLLING KIỂM TRA THANH TOÁN (WOW FACTOR)
-                    if (resData.orderId) {
-                        startPaymentPolling(resData.orderId);
-                    }
                 } catch(e) {
                     alert("Có lỗi xảy ra, vui lòng thử lại!");
                     submitBtn.disabled = false;
@@ -555,51 +523,9 @@
             };
         }
 
-        let pollingInterval = null;
-        function startPaymentPolling(orderId) {
-            if (pollingInterval) clearInterval(pollingInterval);
-            
-            pollingInterval = setInterval(async () => {
-                try {
-                    const res = await fetch(`/api/order-status?id=${orderId}`);
-                    const data = await res.json();
-                    
-                    if (data.success && data.status === 'success') {
-                        clearInterval(pollingInterval);
-                        showSuccessState();
-                    }
-                } catch (e) { console.error('Polling error:', e); }
-            }, 3000); // Check mỗi 3 giây
-        }
+        // Old polling and success states removed - now handled in checkout.html
 
-        function showSuccessState() {
-            // Tracking Purchase nếu chưa track
-            fbq('track', 'Purchase', { value: 199000, currency: 'VND' });
-            
-            // Chuyển sang bảng thành công
-            qrBox.classList.add('hidden');
-            successBox.classList.remove('hidden');
-            successBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-
-        document.getElementById('confirm-btn').addEventListener('click', async () => {
-            const confirmBtn = document.getElementById('confirm-btn');
-            confirmBtn.innerText = "Đang xác thực...";
-            confirmBtn.disabled = true;
-
-            try {
-                const teleMsgId = localStorage.getItem('teleMsgId');
-                await fetch('/api/submit', { 
-                    method: 'POST', 
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: 'confirm-payment', teleMsgId, ...currentLeadData }) 
-                });
-                showSuccessState();
-            } catch(e) {
-                showSuccessState();
-            }
-        });
-
+        // Policy handling
         const policies = {
             terms: {
                 title: "ĐIỀU KHOẢN SỬ DỤNG",

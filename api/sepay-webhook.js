@@ -28,7 +28,7 @@ export default async function handler(req, res) {
         const phone = phoneMatch[0];
 
         // 1. FIND CUSTOMER IN SQLITE
-        const customers = query('SELECT * FROM customers WHERE phone = ?', [phone]);
+        const customers = await query('SELECT * FROM customers WHERE phone = ?', [phone]);
         const customer = customers[0];
         if (!customer) return res.status(200).json({ success: true, message: 'Customer not found' });
 
@@ -55,7 +55,10 @@ export default async function handler(req, res) {
 
         // 4. TRIGGER EMAIL & TELEGRAM ALERT
         try {
-            const { subject, html } = templates.day0(customer.fullname);
+            // Lấy tên sản phẩm nếu có, mặc định là sản phẩm chính
+            const productName = product.name || "Khóa học 7 Ngày Lên Tay Phó Nháy";
+            const { subject, html } = templates.orderSuccess(customer.fullname, productName, amount);
+            
             await fetch('https://api.resend.com/emails', {
                 method: 'POST',
                 headers: {
@@ -66,7 +69,7 @@ export default async function handler(req, res) {
             });
 
             // TELEGRAM NOTIFICATION
-            await notifyAdmin(`💰 <b>TIỀN ĐÃ VỀ TỰ ĐỘNG!</b>\n━━━━━━━━━━━━━━━\n👤: ${customer.fullname}\n📧: ${customer.email}\n📞: ${phone}\n💵: ${amount.toLocaleString()}đ\n\n✅ Hệ thống đã tự động duyệt và gửi mail kích hoạt cho học viên!`);
+            await notifyAdmin(`💰 <b>TIỀN ĐÃ VỀ TỰ ĐỘNG!</b>\n━━━━━━━━━━━━━━━\n👤: ${customer.fullname}\n📧: ${customer.email}\n📞: ${phone}\n💵: ${amount.toLocaleString()}đ\n\n✅ Hệ thống đã tự động duyệt và gửi mail xác nhận đơn hàng cho học viên!`);
         } catch (e) { 
             console.error('Notification error:', e); 
         }

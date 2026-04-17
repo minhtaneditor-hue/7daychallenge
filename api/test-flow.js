@@ -1,10 +1,10 @@
 import templates from './emails-templates.js';
+import { RESEND_API_KEY, FROM_EMAIL } from './_constants.js';
 
 export default async function handler(req, res) {
     const email = req.query.email || 'minhtantt1994@gmail.com';
     const fullname = req.query.fullname || 'Lê Minh Tấn';
     
-    const RESEND_API_KEY = 're_Gq7KcaeK_2ar8XM8RhiQxeyNMgnjpEr2o';
     const days = [0, 1, 2, 3, 4, 5, 6, 7];
 
     try {
@@ -19,7 +19,7 @@ export default async function handler(req, res) {
                     'Authorization': `Bearer ${RESEND_API_KEY}`
                 },
                 body: JSON.stringify({
-                    from: 'Minh Tấn Academy <marketing@minhtanacademy.com>',
+                    from: FROM_EMAIL,
                     to: email,
                     subject: '🎉 Chúc mừng! Đơn đăng ký học của bạn đã được duyệt thành công!',
                     html: `<h2>Chào mừng ${fullname}!</h2><p>Hệ thống đã kích hoạt khóa học cho bạn.</p>`
@@ -43,7 +43,7 @@ export default async function handler(req, res) {
                         'Authorization': `Bearer ${RESEND_API_KEY}`
                     },
                     body: JSON.stringify({
-                        from: 'Minh Tấn Academy <marketing@minhtanacademy.com>',
+                        from: FROM_EMAIL,
                         to: email,
                         subject: subject,
                         html: html

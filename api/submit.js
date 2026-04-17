@@ -56,25 +56,59 @@ export default async (req, res) => {
                 await notifyAdmin(`👤 <b>KHÁCH ĐĂNG KÝ MỚI</b>\n👤: ${data.name || data.fullname}\n📞: ${data.phone}${dbStatus}${orderId ? `\n🆔 Đơn hàng: #${orderId}` : ''}`, msgId);
             }
 
-            // GỬI QUÀ TẶNG NGAY LẬP TỨC nếu có email
+            // GỬI SEQUENCE EMAIL QUA RESEND
             if (data.email) {
                 try {
-                    const { subject, html } = templates.gift(data.name || data.fullname);
-                    await fetch('https://api.resend.com/emails', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${RESEND_API_KEY}`
-                        },
-                        body: JSON.stringify({
+                    const email = data.email;
+                    const name = data.name || data.fullname;
+                    const isTestMode = email.includes('+test');
+
+                    const sendEmail = async (templateName, delayDays = 0) => {
+                        const template = templates[templateName](name);
+                        const body = {
                             from: FROM_EMAIL,
-                            to: data.email,
-                            subject: subject,
-                            html: html
-                        })
-                    });
+                            to: email,
+                            subject: template.subject,
+                            html: template.html
+                        };
+
+                        if (!isTestMode && delayDays > 0) {
+                            const scheduledDate = new Date();
+                            scheduledDate.setDate(scheduledDate.getDate() + delayDays);
+                            body.scheduled_at = scheduledDate.toISOString();
+                        }
+
+                        console.log(`[Email] Sending ${templateName} to ${email}...`);
+                        const response = await fetch('https://api.resend.com/emails', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${RESEND_API_KEY}`
+                            },
+                            body: JSON.stringify(body)
+                        });
+
+                        const resData = await response.json();
+                        if (!response.ok) {
+                            console.error(`[Email Error] Resend returned ${response.status}:`, resData);
+                            throw new Error(resData.message || 'Resend error');
+                        }
+                        console.log(`[Email Success] ${templateName} sent! ID: ${resData.id}`);
+                        return resData;
+                    };
+
+                    // Email 1: Welcome (Ngay lập tức)
+                    await sendEmail('waitlistWelcome');
+
+                    // Email 2: Nurture (2 ngày sau)
+                    await sendEmail('waitlistNurture', 2);
+
+                    // Email 3: Close (3 ngày sau - tức là 1 ngày sau Email 2)
+                    await sendEmail('waitlistClose', 3);
+
                 } catch (err) {
-                    console.error('Gift Email Error:', err);
+                    console.error('Email Sequence Error:', err.message);
+                    await notifyAdmin(`❌ <b>LỖI GỬI EMAIL:</b>\n${err.message}`);
                 }
             }
 

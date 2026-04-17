@@ -3,6 +3,21 @@ import { query, execute } from './api/_db.js';
 async function sync() {
     console.log('🚀 Starting Cloud Sync to Turso...');
     
+    // 0. CREATE TABLES ON CLOUD (If not exists)
+    console.log('🏗️ Initializing Schema on Turso...');
+    const schema = [
+        `CREATE TABLE IF NOT EXISTS products (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, price REAL, stock INTEGER, description TEXT, image TEXT)`,
+        `CREATE TABLE IF NOT EXISTS customers (id INTEGER PRIMARY KEY AUTOINCREMENT, fullname TEXT, phone TEXT, email TEXT, zalo TEXT, registration_date DATETIME DEFAULT CURRENT_TIMESTAMP)`,
+        `CREATE TABLE IF NOT EXISTS orders (id INTEGER PRIMARY KEY AUTOINCREMENT, customer_id INTEGER, product_id INTEGER, amount REAL, status TEXT DEFAULT 'pending', transaction_id TEXT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP)`,
+        `CREATE TABLE IF NOT EXISTS brand_voice (id INTEGER PRIMARY KEY AUTOINCREMENT, tone TEXT, common_phrases TEXT, avoid_words TEXT, target_audience TEXT)`,
+        `CREATE TABLE IF NOT EXISTS business (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, location TEXT, contact TEXT, bank_info TEXT)`,
+        `CREATE TABLE IF NOT EXISTS knowledge (id INTEGER PRIMARY KEY AUTOINCREMENT, topic TEXT, content TEXT, tags TEXT)`
+    ];
+    
+    for (const sql of schema) {
+        await execute(sql);
+    }
+    
     const tables = ['products', 'customers', 'orders', 'brand_voice', 'business', 'knowledge'];
     
     for (const table of tables) {

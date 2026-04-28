@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "type": "module",
   "dependencies": {
-    "resend": "^3.2.0"
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "resend": "^3.2.0",
+    "zod": "^4.3.6"
   }
 }

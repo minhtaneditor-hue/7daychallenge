@@ -12,7 +12,7 @@ function createServer() {
   });
 
   server.tool("get_recent_orders", "Lấy danh sách đơn hàng mới nhất", {
-    limit: z.number().optional(),
+    limit: z.coerce.number().optional(),
     status: z.enum(["pending", "success"]).optional(),
   }, async ({ limit = 5, status }) => {
     let sql = 'SELECT o.id, o.amount, o.status, c.fullname, c.phone, p.name as product_name FROM orders o JOIN customers c ON o.customer_id = c.id JOIN products p ON o.product_id = p.id';
@@ -29,7 +29,7 @@ function createServer() {
   });
 
   server.tool("update_product_info", "Cập nhật sản phẩm", {
-    product_id: z.number(), new_price: z.number().optional(), new_name: z.string().optional()
+    product_id: z.coerce.number(), new_price: z.coerce.number().optional(), new_name: z.string().optional()
   }, async ({ product_id, new_price, new_name }) => {
     const updates = []; const params = [];
     if (new_price !== undefined) { updates.push('price = ?'); params.push(new_price); }
@@ -46,7 +46,7 @@ function createServer() {
     return { content: [{ type: "text", text: JSON.stringify({ customer: customers[0], orders }, null, 2) }] };
   });
 
-  server.tool("confirm_order_manual", "Xác nhận đơn hàng", { order_id: z.number() }, async ({ order_id }) => {
+  server.tool("confirm_order_manual", "Xác nhận đơn hàng", { order_id: z.coerce.number() }, async ({ order_id }) => {
     await execute('UPDATE orders SET status = "success" WHERE id = ?', [order_id]);
     return { content: [{ type: "text", text: `Đã xác nhận thanh toán đơn ID ${order_id}` }] };
   });
@@ -56,6 +56,7 @@ function createServer() {
 
 const app = express();
 app.use(cors());
+app.use(express.json());
 
 const activeTransports = new Map();
 

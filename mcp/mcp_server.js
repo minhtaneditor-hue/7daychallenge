@@ -61,16 +61,15 @@ const activeTransports = new Map();
 
 app.get("/mcp/sse", async (req, res) => {
   const server = createServer();
-  // Generate a random sessionId
-  const sessionId = Math.random().toString(36).substring(7);
-  const transport = new SSEServerTransport(`/mcp/message?sessionId=${sessionId}`, res);
+  const transport = new SSEServerTransport("/mcp/message", res);
+  await server.connect(transport);
+  
+  const sessionId = transport.sessionId;
   activeTransports.set(sessionId, transport);
   
   req.on('close', () => {
     activeTransports.delete(sessionId);
   });
-  
-  await server.connect(transport);
 });
 
 app.post("/mcp/message", async (req, res) => {

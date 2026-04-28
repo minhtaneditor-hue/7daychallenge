@@ -1,12 +1,13 @@
-import { query } from './api/_db.js';
+import { query } from './api/_lib/db.js';
+import dotenv from 'dotenv';
+dotenv.config();
 
-async function test() {
+async function run() {
     try {
-        const result = await query('SELECT * FROM products');
-        console.log('Database Connection Success:', result);
-    } catch (err) {
-        console.error('Database Connection Failed:', err);
+        const products = await query('SELECT id, name, price FROM products WHERE id = 1');
+        console.log(products);
+    } catch (e) {
+        console.error(e);
     }
 }
-
-test();
+run();

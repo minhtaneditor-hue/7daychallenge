@@ -23,6 +23,18 @@ function createServer() {
     return { content: [{ type: "text", text: JSON.stringify(orders, null, 2) }] };
   });
 
+  server.tool("get_new_orders_since_last_check", "Kiểm tra đơn hàng mới trong X phút vừa qua", {
+    minutes_ago: z.coerce.number().optional()
+  }, async ({ minutes_ago = 5 }) => {
+    // SQLite/Turso datetime function to get orders created in last X minutes
+    const sql = "SELECT o.id, o.amount, o.status, c.fullname, c.phone, p.name as product_name FROM orders o JOIN customers c ON o.customer_id = c.id JOIN products p ON o.product_id = p.id WHERE o.created_at >= datetime('now', '-' || ? || ' minutes') ORDER BY o.id DESC";
+    const orders = await query(sql, [minutes_ago]);
+    if (orders.length === 0) {
+      return { content: [{ type: "text", text: "Không có đơn hàng mới nào trong " + minutes_ago + " phút qua." }] };
+    }
+    return { content: [{ type: "text", text: JSON.stringify(orders, null, 2) }] };
+  });
+
   server.tool("get_revenue_report", "Báo cáo doanh thu", {}, async () => {
     const report = await query('SELECT SUM(amount) as total_revenue, COUNT(*) as total_orders FROM orders WHERE status = "success"');
     return { content: [{ type: "text", text: JSON.stringify(report[0], null, 2) }] };
@@ -56,7 +68,6 @@ function createServer() {
 
 const app = express();
 app.use(cors());
-app.use(express.json());
 
 const activeTransports = new Map();
 

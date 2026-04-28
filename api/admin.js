@@ -108,15 +108,31 @@ export default async function handler(req, res) {
                 return res.status(200).json({ success: true });
                 
             } else if (action === 'delete') {
-                const itemId = payload.id;
+                const itemId = payload?.id || payload?.id; // Robust check
+                if (!itemId) return res.status(400).json({ success: false, message: 'Thiếu ID để xóa' });
+
                 console.log(`[Admin] Deleting ${type} ID:`, itemId);
-                await execute(`DELETE FROM ${table} WHERE id = ?`, [itemId]);
+                try {
+                    await execute(`DELETE FROM ${table} WHERE id = ?`, [itemId]);
+                } catch (dbErr) {
+                    if (dbErr.message.includes('FOREIGN KEY')) {
+                        return res.status(400).json({ 
+                            success: false, 
+                            message: `Không thể xóa ${type} này vì đang có dữ liệu liên quan (ví dụ: Đơn hàng của khách). Vui lòng xóa các dữ liệu liên quan trước.` 
+                        });
+                    }
+                    throw dbErr; // Let the outer catch handle other DB errors
+                }
                 return res.status(200).json({ success: true });
             }
         }
 
     } catch (err) {
         console.error('Admin DB Error:', err);
-        return res.status(500).json({ success: false, message: err.message });
+        return res.status(500).json({ 
+            success: false, 
+            message: 'Lỗi hệ thống: ' + (err.message || 'Unknown error'),
+            debug: process.env.NODE_ENV === 'development' ? err.stack : undefined
+        });
     }
 }

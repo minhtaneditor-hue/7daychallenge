@@ -45,8 +45,8 @@ h1, h2, h3 {
 @media (max-width: 768px) {
     .container {
         width: 100%;
-        padding-left: max(5px, env(safe-area-inset-left));
-        padding-right: max(5px, env(safe-area-inset-right));
+        padding-left: 20px;
+        padding-right: 20px;
     }
 }
 
@@ -128,7 +128,7 @@ h1, h2, h3 {
     letter-spacing: 1px;
 }
 .headline {
-    font-size: clamp(2.2rem, 10vw, 4rem);
+    font-size: clamp(2.4rem, 12vw, 4.5rem);
     color: #fff;
     margin: 15px 0 10px;
     background: linear-gradient(45deg, #fff, var(--light-green));
@@ -136,7 +136,7 @@ h1, h2, h3 {
     background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    line-height: 1.1;
+    line-height: 1.05;
 }
 .subheadline {
     font-size: clamp(1.1rem, 4vw, 1.5rem);
@@ -544,6 +544,7 @@ footer p {
     .hero-text { display: flex; flex-direction: column; align-items: center; text-align: center; }
     .divider { margin: 20px auto !important; }
     
+    .hero-section { padding-top: 60px; }
     .hero-content, .solution-split, .audience-split {
         flex-direction: column;
         gap: 25px;
@@ -558,21 +559,26 @@ footer p {
         flex-direction: column !important;
         border-radius: 20px !important;
         text-align: center !important;
-        padding: 40px 20px !important;
+        padding: 30px 15px !important;
         align-self: center !important;
         background: var(--glass-bg) !important;
         border: 1px solid var(--glass-border) !important;
     }
     
     .day-card img, .day-card.day-final img {
-        margin: 0 auto 20px auto !important;
-        width: 100px; height: 100px;
+        margin: 0 auto 15px auto !important;
+        width: 80px; height: 80px;
     }
     
     .day-overlay { text-align: center !important; }
-    .day-num { font-size: 2rem; }
+    .day-num { font-size: 1.8rem; margin-bottom: 2px; }
+    .day-title { font-size: 1.1rem; }
+    .day-desc { font-size: 0.85rem; }
+    
     .ultimate-result span { font-size: 2.2rem; }
     .reward-img { min-height: 250px !important; }
+    .reward-card { flex-direction: column; padding: 25px; text-align: center; }
+    .reward-title { font-size: 1.6rem; }
 }
 
 /* --- FORM & QR SETTINGS --- */

@@ -130,7 +130,7 @@ app.post("/message", async (req, res) => {
 });
 
 const PORT = 3001;
-// Lắng nghe trên 127.0.0.1 để đảm bảo an toàn, không bị public ra internet
-app.listen(PORT, "127.0.0.1", () => {
-  console.log(`🚀 MCP Server đang chạy tại http://127.0.0.1:${PORT}/mcp`);
+// Lắng nghe trên 0.0.0.0 để cho phép kết nối qua IP Public
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`🚀 MCP Server đang chạy tại http://0.0.0.0:${PORT}/mcp`);
 });

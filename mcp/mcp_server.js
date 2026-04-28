@@ -116,16 +116,16 @@ app.use(cors());
 
 let transport;
 
-app.get("/mcp", async (req, res) => {
-  transport = new SSEServerTransport("/message", res);
+app.get("/mcp/sse", async (req, res) => {
+  transport = new SSEServerTransport("/mcp/message", res);
   await server.connect(transport);
 });
 
-app.post("/message", async (req, res) => {
+app.post("/mcp/message", async (req, res) => {
   if (transport) {
     await transport.handlePostMessage(req, res);
   } else {
-    res.status(503).send("No active transport. Please connect to /mcp first.");
+    res.status(503).send("No active transport. Please connect to /mcp/sse first.");
   }
 });
 

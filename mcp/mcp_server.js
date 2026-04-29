@@ -35,27 +35,7 @@ function createServer() {
       return { content: [{ type: "text", text: "Không có đơn hàng mới nào trong " + minutes_ago + " phút qua." }] };
     }
 
-    // TỰ ĐỘNG GỬI TELEGRAM LUÔN, KHÔNG ĐỢI AI
-    const token = '8640405490:AAE53GyTapNhcML6ZACXbBFYudRwM9GQ3HY';
-    const chatId = '7384174497';
-    const url = `https://api.telegram.org/bot${token}/sendMessage`;
-    
-    const message = `🔔 <b>ORDER ALERT: CÓ ĐƠN HÀNG MỚI!</b>\n\n` + orders.map(o => 
-      `🆔 #${o.id}\n👤: ${o.fullname}\n📦: ${o.product_name}\n💵: ${o.amount.toLocaleString()}đ\n📞: ${o.phone}\n──────────────`
-    ).join('\n');
-
-    try {
-      await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ chat_id: chatId, text: message, parse_mode: 'HTML' })
-      });
-      console.log(`[MCP] Auto-notified Telegram for ${orders.length} orders.`);
-    } catch (e) {
-      console.error(`[MCP] Auto-notify Error: ${e.message}`);
-    }
-
-    return { content: [{ type: "text", text: `Đã tìm thấy ${orders.length} đơn hàng mới và đã gửi thông báo Telegram cho sếp qua Trợ lý.` }] };
+    return { content: [{ type: "text", text: JSON.stringify(orders, null, 2) }] };
   });
 
   server.tool("get_revenue_report", "Báo cáo doanh thu", {}, async () => {

@@ -15,6 +15,7 @@ function createServer() {
     limit: z.coerce.number().optional(),
     status: z.enum(["pending", "success"]).optional(),
   }, async ({ limit = 5, status }) => {
+    console.log(`[MCP] Call: get_recent_orders (limit=${limit}, status=${status})`);
     let sql = 'SELECT o.id, o.amount, o.status, c.fullname, c.phone, p.name as product_name FROM orders o JOIN customers c ON o.customer_id = c.id JOIN products p ON o.product_id = p.id';
     const params = [];
     if (status) { sql += ' WHERE o.status = ?'; params.push(status); }
@@ -26,16 +27,39 @@ function createServer() {
   server.tool("get_new_orders_since_last_check", "Kiểm tra đơn hàng mới trong X phút vừa qua", {
     minutes_ago: z.coerce.number().optional()
   }, async ({ minutes_ago = 5 }) => {
-    // SQLite/Turso datetime function to get orders created in last X minutes
+    console.log(`[MCP] Call: get_new_orders_since_last_check (minutes=${minutes_ago})`);
     const sql = "SELECT o.id, o.amount, o.status, c.fullname, c.phone, p.name as product_name FROM orders o JOIN customers c ON o.customer_id = c.id JOIN products p ON o.product_id = p.id WHERE o.created_at >= datetime('now', '-' || ? || ' minutes') ORDER BY o.id DESC";
     const orders = await query(sql, [minutes_ago]);
+    
     if (orders.length === 0) {
       return { content: [{ type: "text", text: "Không có đơn hàng mới nào trong " + minutes_ago + " phút qua." }] };
     }
-    return { content: [{ type: "text", text: JSON.stringify(orders, null, 2) }] };
+
+    // TỰ ĐỘNG GỬI TELEGRAM LUÔN, KHÔNG ĐỢI AI
+    const token = '8640405490:AAE53GyTapNhcML6ZACXbBFYudRwM9GQ3HY';
+    const chatId = '7384174497';
+    const url = `https://api.telegram.org/bot${token}/sendMessage`;
+    
+    const message = `🔔 <b>ORDER ALERT: CÓ ĐƠN HÀNG MỚI!</b>\n\n` + orders.map(o => 
+      `🆔 #${o.id}\n👤: ${o.fullname}\n📦: ${o.product_name}\n💵: ${o.amount.toLocaleString()}đ\n📞: ${o.phone}\n──────────────`
+    ).join('\n');
+
+    try {
+      await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chat_id: chatId, text: message, parse_mode: 'HTML' })
+      });
+      console.log(`[MCP] Auto-notified Telegram for ${orders.length} orders.`);
+    } catch (e) {
+      console.error(`[MCP] Auto-notify Error: ${e.message}`);
+    }
+
+    return { content: [{ type: "text", text: `Đã tìm thấy ${orders.length} đơn hàng mới và đã gửi thông báo Telegram cho sếp qua Trợ lý.` }] };
   });
 
   server.tool("get_revenue_report", "Báo cáo doanh thu", {}, async () => {
+    console.log(`[MCP] Call: get_revenue_report`);
     const report = await query('SELECT SUM(amount) as total_revenue, COUNT(*) as total_orders FROM orders WHERE status = "success"');
     return { content: [{ type: "text", text: JSON.stringify(report[0], null, 2) }] };
   });
@@ -63,6 +87,29 @@ function createServer() {
     return { content: [{ type: "text", text: `Đã xác nhận thanh toán đơn ID ${order_id}` }] };
   });
 
+  server.tool("send_telegram_notification", "Gửi thông báo Telegram trực tiếp cho sếp", {
+    message: z.string()
+  }, async ({ message }) => {
+    console.log(`[MCP] Call: send_telegram_notification (msg length=${message.length})`);
+    const token = '8640405490:AAE53GyTapNhcML6ZACXbBFYudRwM9GQ3HY';
+    const chatId = '7384174497';
+    const url = `https://api.telegram.org/bot${token}/sendMessage`;
+    
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chat_id: chatId, text: message })
+      });
+      const data = await response.json();
+      console.log(`[MCP] Telegram API Response: ${data.ok}`);
+      return { content: [{ type: "text", text: data.ok ? "Đã gửi Telegram thành công qua Trợ lý." : "Lỗi: " + data.description }] };
+    } catch (e) {
+      console.error(`[MCP] Telegram Error: ${e.message}`);
+      return { content: [{ type: "text", text: "Lỗi kết nối: " + e.message }] };
+    }
+  });
+
   return server;
 }
 
@@ -72,24 +119,31 @@ app.use(cors());
 const activeTransports = new Map();
 
 app.get("/mcp/sse", async (req, res) => {
+  console.log(`[MCP] New SSE Connection Request`);
   const server = createServer();
   const transport = new SSEServerTransport("/mcp/message", res);
   await server.connect(transport);
   
   const sessionId = transport.sessionId;
+  console.log(`[MCP] SSE Connected. Session: ${sessionId}`);
   activeTransports.set(sessionId, transport);
   
   req.on('close', () => {
+    console.log(`[MCP] SSE Connection Closed. Session: ${sessionId}`);
+    activeTransports.set(sessionId, transport);
     activeTransports.delete(sessionId);
   });
 });
 
 app.post("/mcp/message", async (req, res) => {
   const sessionId = req.query.sessionId;
+  console.log(`[MCP] Incoming Message. Session: ${sessionId}`);
+  console.log(`[MCP] Body: ${JSON.stringify(req.body)}`);
   const transport = activeTransports.get(sessionId);
   if (transport) {
     await transport.handlePostMessage(req, res);
   } else {
+    console.log(`[MCP] Message failed: Session ${sessionId} not found`);
     res.status(404).send("Transport not found");
   }
 });

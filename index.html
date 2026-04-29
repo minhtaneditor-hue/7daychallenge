@@ -525,7 +525,7 @@
                         product: resData.productName,
                         content: resData.transferContent
                     });
-                    window.location.href = `/checkout.html?${params.toString()}`;
+                    window.location.href = `/checkout.html?v=${Date.now()}&${params.toString()}`;
 
                 } catch(e) {
                     alert("Có lỗi xảy ra, vui lòng thử lại!");
@@ -608,11 +608,11 @@
                         `<option value="${p.id}">${p.name} - ${p.price.toLocaleString()}đ</option>`
                     ).join('');
                 } else {
-                    select.innerHTML = '<option value="1">Thử thách 7 Ngày Phó Nháy - 199.000đ</option>';
+                    select.innerHTML = '<option value="1">Thử thách 7 Ngày Lên Tay Phó Nháy - 199.000đ</option>';
                 }
             } catch (e) {
                 console.error("Load products error:", e);
-                select.innerHTML = '<option value="1">Thử thách 7 Ngày Phó Nháy - 199.000đ</option>';
+                select.innerHTML = '<option value="1">Thử thách 7 Ngày Lên Tay Phó Nháy - 199.000đ</option>';
             }
         }
         loadProducts();

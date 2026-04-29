@@ -32,68 +32,95 @@ export default async function handler(req, res) {
         const customer = customers[0];
         if (!customer) return res.status(200).json({ success: true, message: 'Customer not found' });
 
-        // 2. FIND PENDING ORDER OR CREATE SUCCESS
+        // 2. FIND PENDING ORDER
         const orders = await query('SELECT * FROM orders WHERE customer_id = ? AND status = ? ORDER BY id DESC LIMIT 1', [customer.id, 'pending']);
         const pendingOrder = orders[0];
 
+        let productId = 5; // Default to 7-day challenge
+        let orderId = null;
+
         if (pendingOrder) {
+            productId = pendingOrder.product_id;
+            orderId = pendingOrder.id;
             await execute(
                 'UPDATE orders SET status = ?, transaction_id = ?, amount = ? WHERE id = ?',
                 ['success', referenceNum, amount, pendingOrder.id]
             );
         } else {
+            // Trường hợp không tìm thấy đơn pending (khách ck trực tiếp không qua form)
             await execute(
                 'INSERT INTO orders (customer_id, product_id, amount, status, transaction_id) VALUES (?, ?, ?, ?, ?)',
-                [customer.id, 1, amount, 'success', referenceNum]
+                [customer.id, 5, amount, 'success', referenceNum]
             );
+            const lastOrders = await query('SELECT id FROM orders ORDER BY id DESC LIMIT 1');
+            orderId = lastOrders[0].id;
         }
 
-        // 3. UPDATE STOCK
-        const products = await query('SELECT id FROM products LIMIT 1');
-        const product = products[0] || { id: 1 };
-        await execute('UPDATE products SET stock = stock - 1 WHERE id = ?', [product.id]);
+        // 3. GET PRODUCT INFO & UPDATE STOCK
+        const products = await query('SELECT * FROM products WHERE id = ? LIMIT 1', [productId]);
+        const product = products[0] || { id: 5, name: "Thử thách 7 Ngày Lên Tay Phó Nháy" };
+        await execute('UPDATE products SET stock = stock - 1 WHERE id = ?', [productId]);
 
         // 4. TRIGGER EMAIL & TELEGRAM ALERT
         try {
-            const productName = product.name || "Khóa học 7 Ngày Lên Tay Phó Nháy";
+            const productName = product.name;
             
-            // Email 0: Order Success (Immediate)
-            const successTemplate = templates.orderSuccess(customer.fullname, productName, amount);
-            await fetch('https://api.resend.com/emails', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${RESEND_API_KEY}`
-                },
-                body: JSON.stringify({ 
-                    from: FROM_EMAIL, 
-                    to: customer.email, 
-                    subject: successTemplate.subject, 
-                    html: successTemplate.html 
-                })
-            });
-
-            // Schedule Day 1 to Day 7
-            for (let i = 1; i <= 7; i++) {
-                const dayTemplate = templates[`day${i}`](customer.fullname);
-                const scheduledDate = new Date();
-                scheduledDate.setDate(scheduledDate.getDate() + i); // 1 day, 2 days, etc.
-                scheduledDate.setHours(8, 0, 0, 0); // Send at 8:00 AM each day
-
+            if (productId == 6) {
+                // TRƯỜNG HỢP EBOOK: Chỉ gửi mail trả kết quả
+                const ebookTemplate = templates.ebookDelivery(customer.fullname);
                 await fetch('https://api.resend.com/emails', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${RESEND_API_KEY}`
                     },
-                    body: JSON.stringify({
-                        from: FROM_EMAIL,
-                        to: customer.email,
-                        subject: dayTemplate.subject,
-                        html: dayTemplate.html,
-                        scheduled_at: scheduledDate.toISOString()
+                    body: JSON.stringify({ 
+                        from: FROM_EMAIL, 
+                        to: customer.email, 
+                        subject: ebookTemplate.subject, 
+                        html: ebookTemplate.html 
                     })
                 });
+            } else {
+                // TRƯỜNG HỢP THỬ THÁCH 7 NGÀY: Gửi xác nhận và lên lịch 7 ngày
+                // Email 0: Order Success (Ngay lập tức)
+                const successTemplate = templates.orderSuccess(customer.fullname, productName, amount);
+                await fetch('https://api.resend.com/emails', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${RESEND_API_KEY}`
+                    },
+                    body: JSON.stringify({ 
+                        from: FROM_EMAIL, 
+                        to: customer.email, 
+                        subject: successTemplate.subject, 
+                        html: successTemplate.html 
+                    })
+                });
+
+                // Schedule Day 1 to Day 7
+                for (let i = 1; i <= 7; i++) {
+                    const dayTemplate = templates[`day${i}`](customer.fullname);
+                    const scheduledDate = new Date();
+                    scheduledDate.setDate(scheduledDate.getDate() + i);
+                    scheduledDate.setHours(8, 0, 0, 0);
+
+                    await fetch('https://api.resend.com/emails', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${RESEND_API_KEY}`
+                        },
+                        body: JSON.stringify({
+                            from: FROM_EMAIL,
+                            to: customer.email,
+                            subject: dayTemplate.subject,
+                            html: dayTemplate.html,
+                            scheduled_at: scheduledDate.toISOString()
+                        })
+                    });
+                }
             }
 
             // TELEGRAM NOTIFICATION

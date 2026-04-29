@@ -1,8 +1,8 @@
-import { CHAT_ID, CRON_SECRET, BOT_TOKEN } from './_lib/constants.js';
+import { ADMIN_BOT_TOKEN, CHAT_ID, CRON_SECRET } from './_lib/constants.js';
 import { query } from './_lib/db.js';
 
 async function sendTelegram(text) {
-    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+    await fetch(`https://api.telegram.org/bot${ADMIN_BOT_TOKEN}/sendMessage`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ chat_id: CHAT_ID, text, parse_mode: 'HTML' })

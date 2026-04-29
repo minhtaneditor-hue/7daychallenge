@@ -32,7 +32,7 @@ export default async (req, res) => {
 
             let dbStatus = "\n📊 CRM: ✅ Đã lưu";
             let orderId = null;
-            let product = { id: 1, name: 'Thử thách 7 Ngày Lên Tay Phó Nháy', price: 199000 };
+            let product = null;
 
             try {
                 // 1. Lưu Customer (Xử lý trùng SĐT bằng ON CONFLICT)
@@ -50,21 +50,23 @@ export default async (req, res) => {
                 const custRows = await query('SELECT id FROM customers WHERE phone = ?', [data.phone]);
                 const customerId = custRows[0].id;
 
-                // 2. Tạo Order ở trạng thái PENDING
-                // Lấy thông tin sản phẩm đã chọn hoặc mặc định
-                const selProductId = data.productId || 1;
+                // 2. Lấy thông tin sản phẩm
+                const selProductId = data.productId || 5;
                 const products = await query('SELECT * FROM products WHERE id = ?', [selProductId]);
                 if (products && products[0]) {
                     product = products[0];
+                } else {
+                    throw new Error('Product not found');
                 }
                 
+                // 2. Tạo Order
+                const status = product.price == 0 ? 'success' : 'pending';
                 const orderSql = `INSERT INTO orders (customer_id, product_id, amount, status) VALUES (?, ?, ?, ?)`;
-                // Dùng giá từ database để an toàn
-                const orderRes = await execute(orderSql, [customerId, product.id, product.price, 'pending']);
+                const orderRes = await execute(orderSql, [customerId, product.id, product.price, status]);
                 orderId = orderRes.id;
 
                 if (msgId) {
-                    await notifyAdmin(`👤 <b>KHÁCH ĐĂNG KÝ MỚI</b>\n👤: ${data.name || data.fullname}\n📦: ${product.name}\n📞: ${data.phone}${dbStatus}${orderId ? `\n🆔 Đơn hàng: #${orderId}` : ''}`, msgId);
+                    await notifyAdmin(`👤 <b>KHÁCH ĐĂNG KÝ MỚI</b>\n👤: ${data.name || data.fullname}\n📦: ${product.name}\n💵: ${product.price.toLocaleString()}đ\n📞: ${data.phone}${dbStatus}${orderId ? `\n🆔 Đơn hàng: #${orderId}` : ''}\n🔔 Trạng thái: ${status === 'success' ? '✅ TỰ ĐỘNG KÍCH HOẠT' : '⏳ CHỜ THANH TOÁN'}`, msgId);
                 }
 
             } catch (err) {
@@ -79,7 +81,7 @@ export default async (req, res) => {
                     const name = data.name || data.fullname;
                     const isTestMode = email.includes('+test');
 
-                    const sendEmail = async (templateName, delayDays = 0) => {
+                    const sendEmail = async (templateName) => {
                         const template = templates[templateName](name);
                         const body = {
                             from: FROM_EMAIL,
@@ -87,12 +89,6 @@ export default async (req, res) => {
                             subject: template.subject,
                             html: template.html
                         };
-
-                        if (!isTestMode && delayDays > 0) {
-                            const scheduledDate = new Date();
-                            scheduledDate.setDate(scheduledDate.getDate() + delayDays);
-                            body.scheduled_at = scheduledDate.toISOString();
-                        }
 
                         const response = await fetch('https://api.resend.com/emails', {
                             method: 'POST',
@@ -104,37 +100,36 @@ export default async (req, res) => {
                         });
 
                         const resData = await response.json();
-                        if (!response.ok) {
-                            throw new Error(resData.message || 'Resend error. Check if sender is verified.');
-                        }
                         return resData;
                     };
 
-                    // Email 1: Welcome (Ngay lập tức)
-                    await sendEmail('welcome');
+                    if (product.id == 6) {
+                        // TRƯỜNG HỢP EBOOK: Gửi mail trả kết quả ngay
+                        await sendEmail('ebookDelivery');
+                    } else {
+                        // TRƯỜNG HỢP THỬ THÁCH: Gửi welcome và hẹn giờ nhắc thanh toán
+                        await sendEmail('welcome');
 
-                    // Email 2: Payment Follow-up (30 phút sau nếu chưa thanh toán)
-                    // Lưu ý: Resend sẽ gửi cái này sau 30 phút.
-                    const delayMinutes = 30;
-                    const scheduledDate = new Date();
-                    scheduledDate.setMinutes(scheduledDate.getMinutes() + delayMinutes);
-                    
-                    const templateRemind = templates.paymentFollowUp(name, data.phone);
-                    await fetch('https://api.resend.com/emails', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${RESEND_API_KEY}`
-                        },
-                        body: JSON.stringify({
-                            from: FROM_EMAIL,
-                            to: email,
-                            subject: templateRemind.subject,
-                            html: templateRemind.html,
-                            scheduled_at: scheduledDate.toISOString()
-                        })
-                    });
-
+                        const delayMinutes = 30;
+                        const scheduledDate = new Date();
+                        scheduledDate.setMinutes(scheduledDate.getMinutes() + delayMinutes);
+                        
+                        const templateRemind = templates.paymentFollowUp(name, data.phone);
+                        await fetch('https://api.resend.com/emails', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${RESEND_API_KEY}`
+                            },
+                            body: JSON.stringify({
+                                from: FROM_EMAIL,
+                                to: email,
+                                subject: templateRemind.subject,
+                                html: templateRemind.html,
+                                scheduled_at: scheduledDate.toISOString()
+                            })
+                        });
+                    }
                 } catch (err) {
                     console.error('Email Sequence Error:', err.message);
                     emailError = err.message;
@@ -142,11 +137,13 @@ export default async (req, res) => {
                 }
             }
 
+            const finalAmount = (product && product.price !== undefined) ? parseInt(product.price) : 199000;
+
             return res.status(200).json({ 
                 success: true, 
                 teleMsgId: msgId, 
                 orderId: orderId,
-                amount: product.price,
+                amount: finalAmount,
                 productName: product.name,
                 transferContent: `${product.code_prefix || '7DAY'} ${data.phone}`,
                 emailError: emailError
@@ -155,11 +152,12 @@ export default async (req, res) => {
 
         // 2. CONFIRM PAYMENT (NOTIFY FOR MANUAL CHECK)
         if (action === 'confirm-payment') {
+            const orderAmount = data.amount || 199000;
             const message = `💰 <b>XÁC NHẬN CHUYỂN TIỀN!</b>\n` +
                           `━━━━━━━━━━━━━━━\n` +
                           `👤 Khách: ${data.fullname || 'Không rõ'}\n` +
                           `📞 SĐT: ${data.phone}\n` +
-                          `💵 Số tiền: 199.000đ\n\n` +
+                          `💵 Số tiền: ${parseInt(orderAmount).toLocaleString()}đ\n\n` +
                           `🔥 Tấn ơi, check ngân hàng và DUYỆT ngay nhé!\n(Hoặc đợi SePay tự động duyệt)`;
 
             const replyMarkup = {

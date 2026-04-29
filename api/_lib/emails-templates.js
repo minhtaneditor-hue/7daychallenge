@@ -183,6 +183,27 @@ const templates = {
             <p style="text-align: center; color: #06403D; font-weight: bold; margin-top: 30px;">HÀNH TRÌNH MỚI SẼ BẮT ĐẦU TỪ ĐÂY!</p>
             ${communityButton()}
         `)
+    },
+    // 11. EBOOK DELIVERY
+    ebookDelivery: (name) => ({
+        subject: "📖 Quà tặng: Ebook \"Cách chụp chân dài hết nọng\" của bạn đây!",
+        html: baseTemplate(name, `
+            <h2 style="color: #06403D;">QUÀ TẶNG ĐÃ SẴN SÀNG!</h2>
+            <p>Chào ${name}, Tấn gửi bạn cuốn Ebook hướng dẫn cách chụp hình hack dáng cực đỉnh mà bạn vừa đăng ký.</p>
+            
+            <div style="background: #f7fafc; padding: 30px; border-radius: 15px; text-align: center; margin: 25px 0; border: 1px dashed #06403D;">
+                <p style="font-size: 18px; font-weight: bold; margin-bottom: 20px;">Ebook: Cách chụp chân dài hết nọng</p>
+                <a href="https://7day.minhtanacademy.com/assets/ebook-chan-dai.pdf" style="display: inline-block; background: #06403D; color: white; padding: 18px 36px; text-decoration: none; border-radius: 50px; font-weight: bold;">TẢI EBOOK NGAY →</a>
+            </div>
+
+            <p>Hy vọng cuốn ebook này sẽ giúp bạn ghi điểm tuyệt đối trong mắt "người ấy" nhé!</p>
+            
+            <div style="background: #fff5f5; padding: 20px; border-radius: 10px; margin-top: 30px;">
+                <p style="margin: 0; font-weight: bold; color: #c53030;">🔥 MUỐN LÊN TAY NHANH HƠN?</p>
+                <p style="margin: 10px 0 0 0;">Nếu chỉ đọc thôi chưa đủ, hãy tham gia <b>Thử thách 7 Ngày Lên Tay Phó Nháy</b> của Tấn để được hướng dẫn thực chiến mỗi ngày qua Email.</p>
+                <a href="https://7day.minhtanacademy.com/" style="color: #06403D; font-weight: bold;">Xem chi tiết tại đây →</a>
+            </div>
+        `)
     })
 };
 

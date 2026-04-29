@@ -162,15 +162,15 @@
             <div class="order-info">
                 <div class="info-row">
                     <span class="label">Sản phẩm</span>
-                    <span class="value" id="product-name">Đang tải...</span>
+                    <span class="value" id="product-name">...</span>
                 </div>
                 <div class="info-row">
                     <span class="label">Số tiền</span>
-                    <span class="value amount" id="product-amount">0đ</span>
+                    <span class="value amount" id="product-amount">...</span>
                 </div>
                 <div class="info-row">
                     <span class="label">Nội dung CK</span>
-                    <span class="value" id="transfer-content">7DAY 0xxxxxxxxx</span>
+                    <span class="value" id="transfer-content">...</span>
                 </div>
             </div>
 
@@ -197,35 +197,43 @@
                     <li>Hoàn thành 7 ngày để nhận quà tặng 30 triệu.</li>
                 </ul>
             </div>
-            <button class="btn-confirm" style="margin-top: 35px;" onclick="window.location.href='/'">Quay lại trang chủ</button>
+            <button class="btn-confirm" style="margin-top: 35px; background: #1877F2; color: white; display: flex; align-items: center; justify-content: center; gap: 10px;" onclick="window.open('https://www.facebook.com/groups/26557378780561721', '_blank')">
+                <i class="fab fa-facebook"></i> Tham gia Group Facebook ngay
+            </button>
+            <p style="text-align: center; margin-top: 20px;"><a href="/" style="color: #888; font-size: 14px; text-decoration: none;">Về lại trang chủ</a></p>
         </div>
     </div>
 
     <script>
-        const urlParams = new URL(window.location.href).searchParams;
-        const orderId = urlParams.get('orderId');
-        const phone = urlParams.get('phone');
-        const name = urlParams.get('name');
-        const amount = parseInt(urlParams.get('amount')) || 199000;
-        const productName = urlParams.get('product') || 'Thử thách 7 Ngày Phó Nháy';
-
-        if (!orderId || !phone) {
-            alert("Thông tin đơn hàng không hợp lệ!");
-            window.location.href = '/';
+        // Siêu bóc tách URL
+        function getParam(name) {
+            const res = new RegExp('[?&]' + name + '=([^&#]*)').exec(window.location.href);
+            return res ? decodeURIComponent(res[1]) : null;
         }
+
+        const orderId = getParam('orderId');
+        const phone = getParam('phone');
+        const name = getParam('name');
+        const amountRaw = getParam('amount');
+        const productName = getParam('product') || 'Thử thách 7 Ngày';
+        const content = getParam('content') || `7DAY ${phone || ''}`;
+
+        alert("DEBUG: Nhận được giá = " + amountRaw + " cho sản phẩm: " + productName);
+
+        let amount = parseInt(amountRaw);
+        if (isNaN(amount)) amount = 199000;
 
         // Update UI
         document.getElementById('product-name').innerText = productName;
         document.getElementById('product-amount').innerText = amount.toLocaleString() + 'đ';
+        document.getElementById('transfer-content').innerText = content;
 
         // Initialize QR
         const bankId = 'ACB';
         const accountNo = '221896279';
         const accountName = 'LE MINH TAN';
-        const content = urlParams.get('content') || `7DAY ${phone}`;
         
-        document.getElementById('qr-image').src = `https://img.vietqr.io/image/${bankId}-${accountNo}-compact.png?amount=${amount}&addInfo=${encodeURIComponent(content)}&accountName=${encodeURIComponent(accountName)}`;
-        document.getElementById('transfer-content').innerText = content;
+        document.getElementById('qr-image').src = `https://img.vietqr.io/image/${bankId}-${accountNo}-compact2.png?amount=${amount}&addInfo=${encodeURIComponent(content)}&accountName=${encodeURIComponent(accountName)}`;
 
         // Start Polling
         let polling = setInterval(async () => {
@@ -243,7 +251,7 @@
             document.getElementById('payment-card').style.display = 'none';
             document.getElementById('success-card').style.display = 'block';
             // Simple confetti effect
-            if (typeof fbq === 'function') fbq('track', 'Purchase', { value: 199000, currency: 'VND' });
+            if (typeof fbq === 'function') fbq('track', 'Purchase', { value: amount, currency: 'VND' });
         }
 
         async function manualConfirm() {
@@ -257,7 +265,7 @@
                 await fetch('/api/submit', { 
                     method: 'POST', 
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: 'confirm-payment', phone, name }) 
+                    body: JSON.stringify({ action: 'confirm-payment', phone, name, amount }) 
                 });
             } catch (e) {}
             

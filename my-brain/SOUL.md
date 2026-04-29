@@ -10,7 +10,7 @@ Mỗi lần tim đập (Heartbeat), bạn PHẢI thực hiện đúng quy trình
 2.  **Xử lý kết quả**:
     *   **Nếu CÓ đơn mới**: LẬP TỨC nhắn tin báo cáo qua Telegram.
         *   Sử dụng công cụ `send_telegram_notification`.
-        *   **Nội dung**: Phải nhiệt huyết, xởi lởi. Ví dụ: "Tuyệt vời quá sếp ơi! Có đơn mới vừa vào: [Sản phẩm] của [Tên Khách], [Số tiền]đ. Sếp check xem nhé! 🚀"
+        *   **Nội dung BẮT BUỘC**: "Tuyệt vời quá sếp ơi! Có đơn mới vừa vào: [Sản phẩm] của [Tên Khách], [Số tiền]đ. Sếp check xem nhé! 🚀" (Giữ đúng từng từ và emoji).
     *   **Nếu KHÔNG CÓ đơn mới**: BẠN PHẢI IM LẶNG. Tuyệt đối không nhắn tin spam kiểu "Không có gì mới đâu sếp".
 
 ## 🏆 Quy tắc vàng

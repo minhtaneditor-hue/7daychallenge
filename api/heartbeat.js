@@ -1,11 +1,8 @@
-import { CHAT_ID, CRON_SECRET } from './_lib/constants.js';
+import { CHAT_ID, CRON_SECRET, BOT_TOKEN } from './_lib/constants.js';
 import { query } from './_lib/db.js';
 
-// trolymtabot - Bot báo cáo hệ thống (KHÔNG phải leminhtanbot)
-const TROLYMT_BOT_TOKEN = process.env.TROLYMT_BOT_TOKEN || '';
-
 async function sendTelegram(text) {
-    await fetch(`https://api.telegram.org/bot${TROLYMT_BOT_TOKEN}/sendMessage`, {
+    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ chat_id: CHAT_ID, text, parse_mode: 'HTML' })

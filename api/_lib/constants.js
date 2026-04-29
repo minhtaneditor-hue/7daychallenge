@@ -6,8 +6,7 @@ export const LEAD_SPREADSHEET_ID = process.env.LEAD_SPREADSHEET_ID || '';
 export const WAITLIST_SCRIPT_URL = process.env.WAITLIST_SCRIPT_URL || '';
 export const WAITLIST_SPREADSHEET_ID = process.env.WAITLIST_SPREADSHEET_ID || '';
 
-export const BOT_TOKEN = process.env.BOT_TOKEN || '';             // leminhtanbot - báo đơn cho KHÁCH
-export const TROLYMT_BOT_TOKEN = process.env.TROLYMT_BOT_TOKEN || ''; // trolymtabot - báo cáo cho OWNER
+export const BOT_TOKEN = process.env.BOT_TOKEN || '';  // trolymtabot - báo đơn + heartbeat
 export const CHAT_ID = process.env.CHAT_ID || '';
 export const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || '';
 export const CRON_SECRET = process.env.CRON_SECRET || '';
